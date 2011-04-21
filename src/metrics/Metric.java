@@ -1,5 +1,7 @@
 package metrics;
 
+import java.util.List;
+
 /**
  * Computes a metric score given that metric's sufficient statistics (Yes, we're
  * skipping the hard, expensive part and letting the metric reference
@@ -9,7 +11,7 @@ package metrics;
  * 
  */
 public interface Metric {
-	public void stats(String[] sentence, String[][] refs, float[] result);
+	public float[] stats(String sentence, List<String> refs);
 	
 	public double score(double[] suffStats);
 }

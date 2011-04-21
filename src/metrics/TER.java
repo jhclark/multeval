@@ -2,6 +2,14 @@ package metrics;
 
 import jannopts.Option;
 
+import java.util.List;
+
+import ter.TERalignment;
+import ter.TERcalc;
+import ter.TERcost;
+
+import com.google.common.base.Preconditions;
+
 public class TER implements Metric {
 	
 	@Option(shortName = "P", longName = "ter.punctuation", usage = "Use punctuation in TER?", defaultValue = "false")
@@ -27,9 +35,11 @@ public class TER implements Metric {
 	
 	@Option(shortName = "T", longName = "ter.shiftCost", usage = "Shift cost for TER", defaultValue="1.0")
 	float shiftCost;
+
+	private TERcost costfunc;
 	
 	public TER() {
-        TERcost costfunc = new TERcost();
+        costfunc = new TERcost();
         costfunc._delete_cost = deleteCost;
         costfunc._insert_cost = insertCost;
         costfunc._shift_cost = shiftCost;
@@ -44,50 +54,41 @@ public class TER implements Metric {
 	}
 
 	@Override
-	public void stats(String[] sentence, String[][] refs, float[] result) {
+	public float[] stats(String hyp, List<String> refs) {
 		
 		double totwords = 0;
-        String ref;
-        String refid = "";
-        String bestref = "";
-        String reflen = "";
-
-        TERalignment bestresult = null;
+        TERalignment bestResult = null;
         
-        if(has_span && refs.size() > 1) {
-            System.out.println("Error, translation spans should only be used with SINGLE reference");
-            System.exit(1);
-        }
-
-        TERcalc.setRefLen(reflens);
+        // number of words is average over references
+        TERcalc.setRefLen(refs);
         /* For each reference, compute the TER */
         for (int i = 0; i < refs.size(); ++i) {
-            ref = (String) refs.get(i);
-            if(!refids.isEmpty())
-                refid = (String) refids.get(i);
+            String ref = refs.get(i);
 
-            if(has_span) {
-                TERcalc.setRefSpan(refspan);
-                TERcalc.setHypSpan(hypspan);
+            TERalignment alignResult = TERcalc.TER(hyp, ref, costfunc);
+
+            if ((bestResult == null) || (bestResult.numEdits > alignResult.numEdits)) {
+                bestResult = alignResult;
             }
 
-            TERalignment result = TERcalc.TER(hyp, ref, costfunc);
-
-            if ((bestresult == null) || (bestresult.numEdits > result.numEdits)) {
-                bestresult = result;
-                if(!refids.isEmpty()) bestref = refid;
-            }
-
-            totwords += result.numWords;
+            totwords += alignResult.numWords;
         }
-        bestresult.numWords = ((double) totwords) / ((double) refs.size());
-        if(!refids.isEmpty()) bestresult.bestRef = bestref;
-        //return bestresult;
+        
+        bestResult.numWords = ((double) totwords) / ((double) refs.size());
+//        if(!refids.isEmpty()) bestResult.bestRef = bestref;
+        
+        // now save the minimal sufficient statistics
+        float[] result = new float[2];
+        result[0] = (float) bestResult.numEdits;
+        result[1] = (float) bestResult.numWords;
+        return result;
 	}
 
 	@Override
 	public double score(double[] suffStats) {
-		// TODO Auto-generated method stub
-		return 0;
+		Preconditions.checkArgument(suffStats.length == 2, "TER sufficient stats must be of length 2");
+		double edits = suffStats[0];
+		double words = suffStats[1];
+		return edits / words;
 	}
 }
