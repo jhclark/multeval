@@ -8,9 +8,8 @@ public class BLEU implements Metric {
 	boolean closestRefLength;
 
 	@Override
-	public float stats(String[] sentence, String[][] refs) {
+	public void stats(String[] sentence, String[][] refs, float[] result) {
 		// TODO Auto-generated method stub
-		return 0;
 	}
 
 	@Override

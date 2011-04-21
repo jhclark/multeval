@@ -44,9 +44,45 @@ public class TER implements Metric {
 	}
 
 	@Override
-	public float stats(String[] sentence, String[][] refs) {
-		// TODO Auto-generated method stub
-		return 0;
+	public void stats(String[] sentence, String[][] refs, float[] result) {
+		
+		double totwords = 0;
+        String ref;
+        String refid = "";
+        String bestref = "";
+        String reflen = "";
+
+        TERalignment bestresult = null;
+        
+        if(has_span && refs.size() > 1) {
+            System.out.println("Error, translation spans should only be used with SINGLE reference");
+            System.exit(1);
+        }
+
+        TERcalc.setRefLen(reflens);
+        /* For each reference, compute the TER */
+        for (int i = 0; i < refs.size(); ++i) {
+            ref = (String) refs.get(i);
+            if(!refids.isEmpty())
+                refid = (String) refids.get(i);
+
+            if(has_span) {
+                TERcalc.setRefSpan(refspan);
+                TERcalc.setHypSpan(hypspan);
+            }
+
+            TERalignment result = TERcalc.TER(hyp, ref, costfunc);
+
+            if ((bestresult == null) || (bestresult.numEdits > result.numEdits)) {
+                bestresult = result;
+                if(!refids.isEmpty()) bestref = refid;
+            }
+
+            totwords += result.numWords;
+        }
+        bestresult.numWords = ((double) totwords) / ((double) refs.size());
+        if(!refids.isEmpty()) bestresult.bestRef = bestref;
+        //return bestresult;
 	}
 
 	@Override

@@ -34,9 +34,8 @@ public class METEOR implements Metric {
 	boolean keepPunctuation;
 
 	@Override
-	public float stats(String[] sentence, String[][] refs) {
+	public void stats(String[] sentence, String[][] refs, float[] result) {
 		// TODO Auto-generated method stub
-		return 0;
 	}
 
 	@Override

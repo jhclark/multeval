@@ -9,7 +9,7 @@ package metrics;
  * 
  */
 public interface Metric {
-	public float stats(String[] sentence, String[][] refs);
+	public void stats(String[] sentence, String[][] refs, float[] result);
 	
 	public double score(double[] suffStats);
 }
