@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<project name="tercom" default="jar" basedir=".">
+
+  <property name="version" value="0.1" />
+
+  <!-- Compile the Java code -->
+  <target name="compile">
+    <mkdir dir="bin" />
+    <javac compiler="javac1.5" srcdir="src" destdir="bin"
+	   debug="on" encoding="utf8" />
+  </target>
+  
+  <!-- Delete the compiled files -->
+  <target name="clean">
+    <delete verbose="true" quiet="true">
+      <fileset dir="bin">
+	<include name="**/*.class" />
+      </fileset>
+    </delete>
+  </target>
+  
+  <!-- Create a JAR file of the compiled classes -->
+  <target name="jar" depends="compile">
+    <jar destfile="multeval-${version}.jar">
+      <fileset dir="bin" includes="**/*.class" />
+    </jar>
+  </target>
+</project>
+
