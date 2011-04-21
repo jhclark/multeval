@@ -17,9 +17,6 @@ public class MultEval {
 	// case sensitivity option? both? use punctuation?
 	// report length!
 	
-	@Option(shortName = "v", longName = "verbosity", usage = "Verbosity level", defaultValue = "0")
-	public int verbosity;
-	
 	public static interface Module {
 
 		public Iterable<Class<?>> getConfigurables();
@@ -28,10 +25,16 @@ public class MultEval {
 	}
 	
 	public static class MultEvalModule implements Module {
+		
+		@Option(shortName = "v", longName = "verbosity", usage = "Verbosity level", defaultValue = "0")
+		public int verbosity;
+		
+		@Option(shortName = "o", longName = "metrics", usage = "Space-delimited list of metrics to use. Any of: bleu, meteor, ter, length", defaultValue = "bleu meteor ter length", arrayDelim=" ")
+		public String[] metrics;
 
 		@Override
 		public Iterable<Class<?>> getConfigurables() {
-			 return (Iterable) ImmutableList.of(BLEU.class, METEOR.class, TER.class);
+			 return (Iterable) ImmutableList.of(MultEval.class, BLEU.class, METEOR.class, TER.class);
 		}
 
 		@Override
