@@ -1,11 +1,16 @@
 OVERVIEW
 
-todo...
+MultEval takes machine translation hypotheses from several runs of an optimizer and provides 3 popular metric scores, as well as, variances (via bootstrap resampling) and p-values (via approximate randomization). This allows researchers to mitigate some of the risk of using unstable optimizers such as MERT, MIRA, and MCMC.
+
+It is a user-friendly implementation of:
+Jonathan Clark, Chris Dyer, Alon Lavie, and Noah Smith, "Better Hypothesis Testing for Statistical Machine Translation: Controlling for Optimizer Instability", Proceedings of the Association for Computational Lingustics, 2011.
 
 
 USAGE
 
-java -Xmx2G -jar MultEval.jar -options...
+java -Xmx2G -jar MultEval.jar eval -H example/hyps.lc.tok.en.0 example/hyps.lc.tok.en.2 example/hyps.lc.tok.en.2 -R example/refs.test2010.lc.tok.en
+
+For a more detailed description of the METEOR options, please see https://github.com/mjdenkowski/meteor
 
 
 DISCUSSION
@@ -16,6 +21,18 @@ A few words on casing, tokenization, normalization, segmentation, and punctuatio
 ADDING YOUR OWN METRIC
 
 Implement the metrics.Metric interface and then add it as an option in multeval.MultEval.
+
+
+LIBRARIES
+
+MultEval uses the following libraries:
+* METEOR -- see http://www.cs.cmu.edu/~alavie/METEOR/ and http://github.com/mjdenkowski/meteor
+  - METEOR and its paraphrase tables use the LGPL License
+  - The included wordnet database is under the free WordNet License
+* Translation Error Rate (TerCom) -- see http://www.cs.umd.edu/~snover/tercom/
+  - TER is licensed *for research purposes only* -- please see its license before using
+* Google Guava -- Apache License
+* Java Annotation Options (jannopts) -- LGPL License
 
 
 CITATION
