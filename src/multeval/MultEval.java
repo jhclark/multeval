@@ -60,7 +60,7 @@ public class MultEval {
 			String moduleName = args[0];
 			Module module = modules.get(moduleName);
 			Configurator opts = new Configurator().withProgramHeader(
-					"MultEval V0.1\nBy Jonathan Clark\nUsing Libraries: METEOR (Michael Denkowski), jBLEU (Jonathan Clark), and TER (Matthew Snover)\n")
+					"MultEval V0.1\nBy Jonathan Clark\nUsing Libraries: METEOR (Michael Denkowski) and TER (Matthew Snover)\n")
 					.withModuleOptions(moduleName, module.getClass());
 			
 			for (Class<?> configurable : module.getConfigurables()) {

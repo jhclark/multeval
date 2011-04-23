@@ -2,9 +2,21 @@ OVERVIEW
 
 todo...
 
+
 USAGE
 
 java -Xmx2G -jar MultEval.jar -options...
+
+
+DISCUSSION
+
+A few words on casing, tokenization, normalization, segmentation, and punctuation in evaluation.
+
+
+ADDING YOUR OWN METRIC
+
+Implement the metrics.Metric interface and then add it as an option in multeval.MultEval.
+
 
 CITATION
 

@@ -1,5 +1,7 @@
 package metrics;
 
+import java.util.List;
+
 import jannopts.Option;
 
 public class BLEU implements Metric {
@@ -8,8 +10,9 @@ public class BLEU implements Metric {
 	boolean closestRefLength;
 
 	@Override
-	public void stats(String[] sentence, String[][] refs, float[] result) {
+	public float[] stats(String hyps, List<String> refs) {
 		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
