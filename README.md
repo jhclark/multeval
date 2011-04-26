@@ -12,7 +12,7 @@ Usage
 
 java -Xmx2G -jar MultEval.jar eval -H example/hyps.lc.tok.en.0 example/hyps.lc.tok.en.2 example/hyps.lc.tok.en.2 -R example/refs.test2010.lc.tok.en
 
-For a more detailed description of the METEOR options, please see https://github.com/mjdenkowski/meteor
+For a more detailed description of the METEOR options, please see http://github.com/mjdenkowski/meteor
 
 
 Discussion
@@ -31,13 +31,10 @@ Libraries
 =========
 
 MultEval uses the following libraries:
-* METEOR -- see http://www.cs.cmu.edu/~alavie/METEOR/ and http://github.com/mjdenkowski/meteor
-  - METEOR and its paraphrase tables use the LGPL License
-  - The included wordnet database is under the free WordNet License
-* Translation Error Rate (TerCom) -- see http://www.cs.umd.edu/~snover/tercom/
-  - TER is licensed *for research purposes only* -- please see its license before using
-* Google Guava -- Apache License
-* Java Annotation Options (jannopts) -- LGPL License
+*  METEOR (LGPL License, http://www.cs.cmu.edu/~alavie/METEOR/ -- WordNet database has a compatible free license)
+*  Translation Error Rate (TerCom, http://www.cs.umd.edu/~snover/tercom/, NOTE: TER is licensed *for research purposes only* -- please see its license before using)
+*  Google Guava (Apache License)
+*  Java Annotation Options (jannopts, LGPL License)
 
 
 Citation
