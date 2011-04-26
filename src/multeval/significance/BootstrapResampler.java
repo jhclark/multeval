@@ -11,7 +11,7 @@ import java.util.Random;
 
 import com.google.common.base.Preconditions;
 
-import metrics.Metric;
+import multeval.metrics.Metric;
 import multeval.util.ArrayUtils;
 import multeval.util.MathUtils;
 import multeval.util.SuffStatUtils;

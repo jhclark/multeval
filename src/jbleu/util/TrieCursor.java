@@ -3,7 +3,7 @@ package jbleu.util;
 import java.util.HashMap;
 import java.util.Map;
 
-public static class TrieCursor<T, V> {
+public class TrieCursor<T, V> {
 	public final V value;
 	private Map<T, TrieCursor<T, V>> next;
 
@@ -20,13 +20,13 @@ public static class TrieCursor<T, V> {
 		}
 	}
 
-	protected TrieCursor<T, V> extend(T ext) {
+	public TrieCursor<T, V> extend(T ext, V val) {
 		if (next == null) {
 			next = new HashMap<T, TrieCursor<T, V>>();
 		}
 		TrieCursor<T, V> match = match(ext);
 		if (match == null) {
-			match = new TrieCursor<T, V>(ext);
+			match = new TrieCursor<T, V>(val);
 			next.put(ext, match);
 		}
 		return match;

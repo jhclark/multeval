@@ -1,8 +1,8 @@
 package multeval;
 
-import metrics.BLEU;
-import metrics.METEOR;
-import metrics.TER;
+import multeval.metrics.BLEU;
+import multeval.metrics.METEOR;
+import multeval.metrics.TER;
 import multeval.util.LibUtil;
 
 import jannopts.ConfigurationException;
@@ -56,6 +56,9 @@ public class MultEval {
 		.build();
 	
 	public static void main(String[] args) {
+		
+		System.err.println("WARNING: THIS SOFTWARE IS STILL UNDER TESTING. PLEASE DO NOT REPORT ANY RESULTS COMPUTED BY THIS CODE. TESTING WILL BE COMPLETED NO LATER THAN MAY 1, 2011.");
+		
 		if (args.length == 0 || !modules.keySet().contains(args[0])) {
 			System.err.println("Usage: program <module_name> <module_options>");
 			System.err.println("Available modules: "
