@@ -1,4 +1,5 @@
-OVERVIEW
+Overview
+========
 
 MultEval takes machine translation hypotheses from several runs of an optimizer and provides 3 popular metric scores, as well as, variances (via bootstrap resampling) and p-values (via approximate randomization). This allows researchers to mitigate some of the risk of using unstable optimizers such as MERT, MIRA, and MCMC.
 
@@ -6,24 +7,28 @@ It is a user-friendly implementation of:
 Jonathan Clark, Chris Dyer, Alon Lavie, and Noah Smith, "Better Hypothesis Testing for Statistical Machine Translation: Controlling for Optimizer Instability", Proceedings of the Association for Computational Lingustics, 2011.
 
 
-USAGE
+Usage
+=====
 
 java -Xmx2G -jar MultEval.jar eval -H example/hyps.lc.tok.en.0 example/hyps.lc.tok.en.2 example/hyps.lc.tok.en.2 -R example/refs.test2010.lc.tok.en
 
 For a more detailed description of the METEOR options, please see https://github.com/mjdenkowski/meteor
 
 
-DISCUSSION
+Discussion
+==========
 
 A few words on casing, tokenization, normalization, segmentation, and punctuation in evaluation.
 
 
-ADDING YOUR OWN METRIC
+Adding Your Own Metric
+======================
 
 Implement the metrics.Metric interface and then add it as an option in multeval.MultEval.
 
 
-LIBRARIES
+Libraries
+=========
 
 MultEval uses the following libraries:
 * METEOR -- see http://www.cs.cmu.edu/~alavie/METEOR/ and http://github.com/mjdenkowski/meteor
@@ -35,11 +40,13 @@ MultEval uses the following libraries:
 * Java Annotation Options (jannopts) -- LGPL License
 
 
-CITATION
+Citation
+========
 
-If you use this software, please cite:
+If you use this software, consider citing:
 
 Jonathan Clark, Chris Dyer, Alon Lavie, and Noah Smith, "Better Hypothesis Testing for Statistical Machine Translation: Controlling for Optimizer Instability", Proceedings of the Association for Computational Lingustics, 2011.
+
 
 The included metrics should be cited as:
 
