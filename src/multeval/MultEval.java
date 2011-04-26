@@ -31,6 +31,11 @@ public class MultEval {
 		
 		@Option(shortName = "o", longName = "metrics", usage = "Space-delimited list of metrics to use. Any of: bleu, meteor, ter, length", defaultValue = "bleu meteor ter length", arrayDelim=" ")
 		public String[] metrics;
+		
+		@Option(shortName = "H", longName = "hyps", usage = "Space-delimited list of tokenized, fullform hypotheses", arrayDelim=" ")
+		public String[] hyps;
+		
+		
 
 		@Override
 		public Iterable<Class<?>> getConfigurables() {

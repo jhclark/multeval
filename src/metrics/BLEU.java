@@ -6,7 +6,7 @@ import jannopts.Option;
 
 public class BLEU implements Metric {
 	
-	@Option(shortName = "c", longName = "bleu.closestRefLength", usage = "Use closest reference length when determining brevity penalty?", defaultValue="true")
+	@Option(shortName = "c", longName = "bleu.closestRefLength", usage = "Use closest reference length when determining brevity penalty? (true behaves like IBM BLEU, false behaves like old NIST BLEU)", defaultValue="true")
 	boolean closestRefLength;
 
 	@Override
