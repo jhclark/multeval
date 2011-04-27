@@ -2,11 +2,14 @@
 <project name="tercom" default="jar" basedir=".">
 
   <property name="version" value="0.1" />
+  <property name="meteor_version" value="1.2" />
 
   <!-- Compile the Java code -->
   <target name="compile">
     <mkdir dir="bin" />
     <javac compiler="javac1.5" srcdir="src" destdir="bin"
+	   classpath="lib/guava-r09.jar:lib/tercom-0.7.26.jar:lib/jannopts.jar:lib/meteor-1.2/meteor-1.2.jar"
+	   includeantruntime="false"
 	   debug="on" encoding="utf8" />
   </target>
   
@@ -22,7 +25,17 @@
   <!-- Create a JAR file of the compiled classes -->
   <target name="jar" depends="compile">
     <jar destfile="multeval-${version}.jar">
+
       <fileset dir="bin" includes="**/*.class" />
+      <zipfileset src="lib/jannopts.jar" excludes="META-INF/*" />
+      <zipfileset src="lib/guava-r09.jar" excludes="META-INF/*" />
+      <zipfileset src="lib/tercom-0.7.26.jar" excludes="META-INF/*" />
+      <zipfileset src="lib/meteor-${meteor_version}/meteor-${meteor_version}.jar" excludes="META-INF/*" />
+
+      <manifest>
+	<attribute name="Main-Class"
+		   value="multeval.MultEval"/>
+      </manifest>
     </jar>
   </target>
 </project>
