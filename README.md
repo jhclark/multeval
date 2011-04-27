@@ -6,7 +6,6 @@ MultEval takes machine translation hypotheses from several runs of an optimizer 
 It is a user-friendly implementation of:
 Jonathan Clark, Chris Dyer, Alon Lavie, and Noah Smith, "Better Hypothesis Testing for Statistical Machine Translation: Controlling for Optimizer Instability", Proceedings of the Association for Computational Lingustics, 2011. [PDF](http://www.cs.cmu.edu/~jhclark/pubs/significance.pdf)
 
-
 Usage
 =====
 
@@ -32,8 +31,8 @@ Libraries
 
 MultEval uses the following libraries:
 
-*  METEOR (LGPL License, http://www.cs.cmu.edu/~alavie/METEOR/ -- WordNet database has a compatible free license)
-*  Translation Error Rate (TerCom, http://www.cs.umd.edu/~snover/tercom/, NOTE: TER is licensed *for research purposes only* -- please see its license before using)
+*  METEOR 1.2 (LGPL License, http://www.cs.cmu.edu/~alavie/METEOR/ -- WordNet database has a compatible free license)
+*  Translation Error Rate 0.7 (TerCom, http://www.cs.umd.edu/~snover/tercom/, NOTE: TER is licensed *for research purposes only* -- please see its license before using)
 *  Google Guava (Apache License)
 *  Java Annotation Options (jannopts, LGPL License)
 
@@ -53,3 +52,5 @@ Kishore Papineni, Salim Roukos, Todd Ard, and Wei-Jing Zhu, "BLEU: a method for 
 Michael Denkowski and Alon Lavie, "Extending the METEOR Machine Translation Evaluation Metric to the Phrase Level", Proceedings of NAACL/HLT, 2010.
 
 Matthew Snover, Bonnie Dorr, Richard Schwartz, Linnea Micciulla, and John Makhoul, "A Study of Translation Edit Rate with Targeted Human Annotation," Proceedings of Association for Machine Translation in the Americas, 2006.
+
+TODO Citation for the ORANGE Lin & Och 2004 paper that described smoothed BLEU in Sec 4

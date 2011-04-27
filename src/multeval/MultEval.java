@@ -32,14 +32,15 @@ public class MultEval {
 		@Option(shortName = "o", longName = "metrics", usage = "Space-delimited list of metrics to use. Any of: bleu, meteor, ter, length", defaultValue = "bleu meteor ter length", arrayDelim=" ")
 		public String[] metrics;
 		
-		@Option(shortName = "H", longName = "hyps", usage = "Space-delimited list of tokenized, fullform hypotheses", arrayDelim=" ")
+		@Option(shortName = "H", longName = "hyps", usage = "Space-delimited list of files containing tokenized, fullform hypotheses, one per line", arrayDelim=" ")
 		public String[] hyps;
 		
-		
+		@Option(shortName = "R", longName = "refs", usage = "Space-delimited list of files containing tokenized, fullform references, one per line", arrayDelim=" ")
+		public String[] refs;
 
 		@Override
 		public Iterable<Class<?>> getConfigurables() {
-			 return (Iterable) ImmutableList.of(MultEval.class, BLEU.class, METEOR.class, TER.class);
+			 return ImmutableList.<Class<?>>of(MultEval.class, BLEU.class, METEOR.class, TER.class);
 		}
 
 		@Override
