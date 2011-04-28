@@ -9,13 +9,19 @@ Jonathan Clark, Chris Dyer, Alon Lavie, and Noah Smith, "Better Hypothesis Testi
 Usage
 =====
 
-java -Xmx2G -jar MultEval.jar eval -H example/hyps.lc.tok.en.0 example/hyps.lc.tok.en.2 example/hyps.lc.tok.en.2 -R example/refs.test2010.lc.tok.en
+``` bash
+multeval.sh eval -H example/hyps.lc.tok.en.0 example/hyps.lc.tok.en.2 example/hyps.lc.tok.en.2 -R example/refs.test2010.lc.tok.en
+```
+
+All files should contain *tokenized*, space-delimited sentences in UTF-8 encoding, one sentence per line. Unlike many metric implementations, MultEval does no tokenization or segmentation for you (see discussion below).
+
+Generally, you should evaluate full forms (i.e. without word segmentation). For languages without a canonical notion of words (e.g. Chinese, Japanese), we recommend splitting all non-Latin characters (e.g. each character that is not part of a borrowed Western word, URL, etc. should be evaluated as its own word.)
 
 For a more detailed description of the METEOR options, please see http://github.com/mjdenkowski/meteor
 
 
-Discussion
-==========
+Discussion on Tokenization, Segmentation, etc.
+==============================================
 
 A few words on casing, tokenization, normalization, segmentation, and punctuation in evaluation.
 
