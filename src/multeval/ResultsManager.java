@@ -10,11 +10,17 @@ public class ResultsManager {
 	// indices: iSys, iMetric
 	private final List<List<Map<Type, Double>>> resultsBySys;
 	private int numMetrics;
+	public final String[] metricNames;
+	public final String[] sysNames;
 	
 	public enum Type {AVG, STDDEV, MIN, MAX, RESAMPLED_MEAN_AVG, RESAMPLED_STDDEV_AVG, RESAMPLED_MIN, RESAMPLED_MAX, P_VALUE}
 
-	public ResultsManager(int numMetrics, int numSys) {
-		this.numMetrics = numMetrics;
+	public ResultsManager(String[] metricNames, String[] sysNames) {
+		this.metricNames = metricNames;
+		this.sysNames = sysNames;
+		
+		this.numMetrics = metricNames.length;
+		int numSys = sysNames.length;
 		this.resultsBySys = new ArrayList<List<Map<Type, Double>>>(numSys);
 	}
 

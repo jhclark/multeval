@@ -104,7 +104,16 @@ public class MultEval {
 			// TODO: Eventually multi-thread this... but TER isn't threadsafe
 			SuffStatManager suffStats = collectSuffStats(metrics, data);
 
-			ResultsManager results = new ResultsManager(metrics.size(), data.getNumSystems());
+			String[] metricNames = new String[metrics.size()];
+			for (int i = 0; i < metricNames.length; i++) {
+				metricNames[i] = metrics.get(i).toString();
+			}
+			String[] sysNames = new String[data.getNumSystems()];
+			sysNames[0] = "baseline";
+			for (int i = 1; i < sysNames.length; i++) {
+				sysNames[i] = "system " + i;
+			}
+			ResultsManager results = new ResultsManager(metricNames, sysNames);
 
 			// 3) evaluate each system and report the average scores
 			runOverallEval(metrics, data, suffStats, results);
@@ -253,7 +262,8 @@ public class MultEval {
 
 				for (int iMetric = 0; iMetric < metrics.size(); iMetric++) {
 					results.report(iMetric, iSys, Type.RESAMPLED_MEAN_AVG, meanByMetric[iMetric]);
-					results.report(iMetric, iSys, Type.RESAMPLED_STDDEV_AVG, stddevByMetric[iMetric]);
+					results.report(iMetric, iSys, Type.RESAMPLED_STDDEV_AVG,
+							stddevByMetric[iMetric]);
 					results.report(iMetric, iSys, Type.RESAMPLED_MIN, minByMetric[iMetric]);
 					results.report(iMetric, iSys, Type.RESAMPLED_MAX, maxByMetric[iMetric]);
 				}

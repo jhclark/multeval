@@ -43,7 +43,7 @@ public class HypothesisManager {
 	public void loadData(String[] hypFilesBaseline, String[][] hypFilesBySys, String[] refFiles) throws IOException {
 
 		// first, load system hypotheses
-		numSystems = hypFilesBySys.length;
+		numSystems = hypFilesBySys.length + 1; // include baseline
 		allHyps.clear();
 		loadHyps(hypFilesBaseline, "baseline");
 		for (int iSys = 0; iSys < numSystems; iSys++) {

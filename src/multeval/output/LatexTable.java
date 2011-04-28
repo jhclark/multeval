@@ -1,20 +1,11 @@
 package multeval.output;
 
 import java.io.PrintWriter;
-import java.util.List;
-import java.util.Map;
 
 import multeval.ResultsManager;
+import multeval.ResultsManager.Type;
 
 public class LatexTable {
-	
-	List<String> metrics;
-	List<String> systems;
-//	Map<String, Map<String, float[]>> systemMetricData;
-	
-	public void add(String system, String metric, float avg, float sTest, float sOptTest, float p) {
-		
-	}
 
 	public void write(ResultsManager results, PrintWriter out) {
 		out.println("\\begin{table}[htb]");
@@ -22,29 +13,40 @@ public class LatexTable {
 		out.println("\\begin{footnotesize}");
 		out.println("\\begin{tabular}{|l|l|l|l|l|l|}");
 		out.println("\\hline");
-		out.println("\\bf Metric & \\bf System & \\bf Avg & \\bf $\\overline{s}_{\\text{Test}}$ &\\bf & \\bf $s_{\\text{OptTest}}$ & \\bf $p$-value \\\\");
+		out.println("\\bf Metric & \\bf System & \\bf Avg & \\bf $\\overline{s}_{\\text{sel}}$ &\\bf & \\bf $s_{\\text{Test}}$ & \\bf $p$-value \\\\");
 		out.println("\\hline");
-//		              \multicolumn{6}{|l|}{BTEC Zh-En} \\
-		for(String metric : metrics) {
-			int sysCount = systems.size();
-		
-			out.println("\\multirow{"+sysCount+"}{*}{"+metric+" $\\uparrow$}");
-			for(String system : systems) {
-				float[] data = systemMetricData.get(system).get(metric);
-				float avg = data[0];
-				float sTest = data[1];
-				float sOptTest = data[2];
-				float p = data[3];
-		        out.println(String.format("& %s & %.1f & %.1f & %.1f & %.1f \\\\", system, avg, sTest, sOptTest, p));
+		// \multicolumn{6}{|l|}{BTEC Zh-En} \\
+
+		String[] metrics = results.metricNames;
+		String[] systems = results.sysNames;
+		int sysCount = systems.length;
+		for (int iMetric = 0; iMetric < metrics.length; iMetric++) {
+			String metricName = metrics[iMetric];
+
+			out.println("\\multirow{" + sysCount + "}{*}{" + metricName + " $\\uparrow$}");
+			for (int iSys = 0; iSys < sysCount; iSys++) {
+				String sysName = systems[iSys];
+				double avg = results.get(iMetric, iSys, Type.AVG);
+				double sSel = results.get(iMetric, iSys, Type.RESAMPLED_MEAN_AVG);
+				double sTest = results.get(iMetric, iSys, Type.STDDEV);
+				if (iSys == 0) {
+					// baseline has no p-value
+					out.println(String.format("& %s & %.1f & %.1f & %.1f & % - \\\\", sysName, avg,
+							sSel, sTest));
+				} else {
+					double p = results.get(iMetric, iSys, Type.P_VALUE);
+					out.println(String.format("& %s & %.1f & %.1f & %.1f & %.1f \\\\", sysName,
+							avg, sSel, sTest, p));
+				}
 			}
 			out.println("\\hline");
 		}
 
-      out.println("\\end{tabular}");
-      out.println("\\end{footnotesize}");
-      out.println("\\end{center}");
-      //out.println("\\vspace{-.2cm}");
-      out.println("\\caption{\\label{tab:scores} Metric scores for all systems: INCLUDE METRIC VERSIONS ETC. CITATIONS ON DEMAND}");
-      out.println("\\end{table}");
+		out.println("\\end{tabular}");
+		out.println("\\end{footnotesize}");
+		out.println("\\end{center}");
+		// out.println("\\vspace{-.2cm}");
+		out.println("\\caption{\\label{tab:scores} Metric scores for all systems: INCLUDE METRIC VERSIONS ETC. CITATIONS ON DEMAND. Note p-values are relative to baseline.}");
+		out.println("\\end{table}");
 	}
 }
