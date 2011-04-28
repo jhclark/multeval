@@ -10,14 +10,14 @@ public class ArrayUtils {
 	 * @param summedStats
 	 * @param ds
 	 */
-	public static void plusEquals(double[] dest, double[] arg) {
+	public static void plusEquals(float[] dest, float[] arg) {
 		Preconditions.checkArgument(dest.length == arg.length, "Arrays not parallel");
 		for(int i = 0; i<dest.length; i++) {
 			dest[i] += arg[i];
 		}
 	}
 
-	public static int[] toIntArray(double[] suffStats) {
+	public static int[] toIntArray(float[] suffStats) {
 		int[] result = new int[suffStats.length];
 		for(int i=0; i<suffStats.length; i++) {
 			result[i] = (int) suffStats[i];

@@ -24,10 +24,10 @@ public class METEOR implements Metric {
 	@Option(shortName = "t", longName = "meteor.task", usage = "One of: rank adq hter tune (Rank is generally a good choice)", defaultValue="rank")
 	String task;
 	
-	@Option(shortName = "p", longName = "meteor.params", usage = "Custom parameters of the form 'alpha beta gamma' (overrides default)", arrayDelim=" ")
+	@Option(shortName = "p", longName = "meteor.params", usage = "Custom parameters of the form 'alpha beta gamma' (overrides default)", arrayDelim=" ", defaultValue="")
 	double[] params;
 	
-	@Option(shortName = "m", longName = "meteor.modules", usage = "Specify modules. (overrides default) Any of: exact stem synonym paraphrase", arrayDelim=" ")
+	@Option(shortName = "m", longName = "meteor.modules", usage = "Specify modules. (overrides default) Any of: exact stem synonym paraphrase", arrayDelim=" ", defaultValue="")
 	String[] modules;
 	
 	@Option(shortName = "w", longName = "meteor.weights", usage = "Specify module weights (overrides default)", arrayDelim=" ")
@@ -135,5 +135,10 @@ public class METEOR implements Metric {
 		MeteorStats stats = new MeteorStats(intStats);
 		scorer.computeMetrics(stats);
 		return stats.score;
+	}
+	
+	@Override
+	public String toString() {
+		return "METEOR";
 	}
 }

@@ -48,7 +48,8 @@ public class MathUtils {
 		for(double d : observations) {
 			varSum += (d-mean) * (d-mean);
 		}
-		return varSum / observations.length;
+		// use bessel's correction
+		return varSum / (observations.length-1);
 	}
 	
 	// from http://introcs.cs.princeton.edu/21function/ErrorFunction.java.html
@@ -87,5 +88,9 @@ public class MathUtils {
 		for(double d : samples)
 			result = Math.max(result, d);
 		return result;
+	}
+
+	public static double stddev(double[] observations) {
+		return Math.sqrt(variance(observations));
 	}
 }

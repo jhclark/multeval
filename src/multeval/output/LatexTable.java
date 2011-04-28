@@ -4,17 +4,19 @@ import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 
+import multeval.ResultsManager;
+
 public class LatexTable {
 	
 	List<String> metrics;
 	List<String> systems;
-	Map<String, Map<String, float[]>> systemMetricData;
+//	Map<String, Map<String, float[]>> systemMetricData;
 	
 	public void add(String system, String metric, float avg, float sTest, float sOptTest, float p) {
 		
 	}
 
-	public void write(PrintWriter out) {
+	public void write(ResultsManager results, PrintWriter out) {
 		out.println("\\begin{table}[htb]");
 		out.println("\\begin{center}");
 		out.println("\\begin{footnotesize}");

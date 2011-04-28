@@ -91,4 +91,9 @@ public class TER implements Metric {
 		double words = suffStats[1];
 		return edits / words;
 	}
+	
+	@Override
+	public String toString() {
+		return "TER";
+	}
 }

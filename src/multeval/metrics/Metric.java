@@ -13,5 +13,5 @@ import java.util.List;
 public interface Metric {
 	public float[] stats(String sentence, List<String> refs);
 	
-	public double score(double[] suffStats);
+	public double score(float[] suffStats);
 }

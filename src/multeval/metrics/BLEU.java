@@ -37,4 +37,9 @@ public class BLEU implements Metric {
 	public double score(double[] suffStats) {
 		return bleu.score(ArrayUtils.toIntArray(suffStats));
 	}
+	
+	@Override
+	public String toString() {
+		return "BLEU";
+	}
 }

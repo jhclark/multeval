@@ -11,28 +11,28 @@ import java.util.StringTokenizer;
 import com.google.common.base.Preconditions;
 
 public class SuffStatUtils {
-	public static double[] sumStats(List<double[]> suffStats) {
+	public static float[] sumStats(List<float[]> suffStats) {
 		Preconditions.checkArgument(suffStats.size() > 0, "Need more than zero data points.");
 		
 		int numMetricStats = suffStats.get(0).length;
-		double[] summedStats = new double[numMetricStats];
+		float[] summedStats = new float[numMetricStats];
 
-		for(double[] dataPoint : suffStats) {
+		for(float[] dataPoint : suffStats) {
 			ArrayUtils.plusEquals(summedStats, dataPoint);
 		}
 		return summedStats;
 	}
 
-	public static List<double[]> loadSuffStats(File statsIn) throws IOException {
+	public static List<float[]> loadSuffStats(File statsIn) throws IOException {
 		BufferedReader in = new BufferedReader(new FileReader(statsIn));
-		List<double[]> stats = new ArrayList<double[]>();
+		List<float[]> stats = new ArrayList<float[]>();
 		String line;
 		while((line = in.readLine()) != null) {
 			StringTokenizer tok = new StringTokenizer(line);
 			int numToks = tok.countTokens();
-			double[] lineStats = new double[numToks];
+			float[] lineStats = new float[numToks];
 			for(int i=0; i<numToks; i++) {
-				lineStats[i] = Double.parseDouble(tok.nextToken());
+				lineStats[i] = Float.parseFloat(tok.nextToken());
 			}
 			stats.add(lineStats);
 		}

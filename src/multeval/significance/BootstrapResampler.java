@@ -20,7 +20,7 @@ public class BootstrapResampler {
 
 	private final Random random = new Random();
 	private final List<Metric> metrics;
-	private final List<List<double[]>> suffStats;
+	private final List<List<float[]>> suffStats;
 	private int totalDataPoints;
 
 	/**
@@ -31,7 +31,7 @@ public class BootstrapResampler {
 	 *            and the inner array is the sufficient statistics for each metric.
 	 */
 	public BootstrapResampler(List<Metric> metrics,
-			List<List<double[]>> suffStats) {
+			List<List<float[]>> suffStats) {
 		
 		Preconditions.checkArgument(metrics.size() > 0, "Must have at least one metric.");
 		Preconditions.checkArgument(suffStats.size() > 0, "Must have at least one data point.");
@@ -70,7 +70,7 @@ public class BootstrapResampler {
 			chooseSampleMembers(totalDataPoints, sampleMembers);
 			// NOTE: We could dump the sample members for analysis here if we wanted
 			for(int iMetric = 0; iMetric < metrics.size(); iMetric++) {
-				double[] summedStats = sumStats(sampleMembers, iMetric, suffStats);
+				float[] summedStats = sumStats(sampleMembers, iMetric, suffStats);
 				Metric metric = metrics.get(iMetric);
 				double score = metric.score(summedStats);
 				metricValues.get(iMetric)[iSample] = score;
@@ -79,11 +79,11 @@ public class BootstrapResampler {
 		return metricValues;
 	}
 
-	private static double[] sumStats(int[] sampleMembers,
-			int iMetric, List<List<double[]>> suffStats) {
+	private static float[] sumStats(int[] sampleMembers,
+			int iMetric, List<List<float[]>> suffStats) {
 		
 		int numMetricStats = suffStats.get(iMetric).get(0).length;
-		double[] summedStats = new double[numMetricStats];
+		float[] summedStats = new float[numMetricStats];
 
 		for(int dataIdx : sampleMembers) {
 			ArrayUtils.plusEquals(summedStats, suffStats.get(iMetric).get(dataIdx));
@@ -106,8 +106,8 @@ public class BootstrapResampler {
 		System.err.println("Saved " + scores.length + " resampled metric scores to " + scoresOut.getAbsolutePath());
 	}
 
-	private static void printOverallInfo(String metricName, Metric metric, List<double[]> stats) {
-		double[] summedStats = SuffStatUtils.sumStats(stats);
+	private static void printOverallInfo(String metricName, Metric metric, List<float[]> stats) {
+		float[] summedStats = SuffStatUtils.sumStats(stats);
 		double score = metric.score(summedStats);
 		System.err.println("Overall " + metricName + " stats: score = " + score*100);
 	}
