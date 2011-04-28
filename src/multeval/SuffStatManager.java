@@ -4,30 +4,75 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SuffStatManager {
-	// index 1: system, index 2: optimization run, index 3: metric, index 4: sentence
-	List<List<List<float[]>>> suffStatsByMetric = new ArrayList<List<List<float[]>>>(metrics.size());
+
+	// indexices iSys, iOpt, iMetric, iHyp; inner array: various suff stats for
+	// a particular metric
+	private final List<List<List<List<float[]>>>> statsBySys;
+	private final int numMetrics;
+	private final int numOpt;
+	private final int numHyp;
+
+	private static final float[] DUMMY = new float[0];
+
+	public SuffStatManager(int numMetrics, int numSys, int numOpt, int numHyp) {
+		this.numMetrics = numMetrics;
+		this.numOpt = numOpt;
+		this.numHyp = numHyp;
+		this.statsBySys = new ArrayList<List<List<List<float[]>>>>(numSys);
+	}
 
 	public void saveStats(int iMetric, int iSys, int iOpt, int iHyp, float[] stats) {
-		// TODO Auto-generated method stub
-		
+		// first, expand as necessary
+		// TODO: Use more intelligent list type that allows batch grow
+		// operations
+		while (statsBySys.size() <= iSys) {
+			statsBySys.add(new ArrayList<List<List<float[]>>>(numOpt));
+		}
+		List<List<List<float[]>>> statsByOpt = statsBySys.get(iSys);
+		while (statsByOpt.size() <= iOpt) {
+			statsByOpt.add(new ArrayList<List<float[]>>(numMetrics));
+		}
+		List<List<float[]>> statsByMetric = statsByOpt.get(iOpt);
+		while (statsByMetric.size() <= iMetric) {
+			statsByMetric.add(new ArrayList<float[]>(numHyp));
+		}
+		List<float[]> statsByHyp = statsByMetric.get(iMetric);
+		while (statsByHyp.size() <= iHyp) {
+			statsByHyp.add(DUMMY);
+		}
+		statsByHyp.set(iHyp, stats);
 	}
 
+	// list index: iHyp; inner array: various suff stats for a particular metric
 	public List<float[]> getStats(int iMetric, int iSys, int iOpt) {
-		// TODO Auto-generated method stub
-		return null;
+		// TODO: More informative error messages w/ bounds checking
+		return getStats(iSys, iOpt).get(iMetric);
 	}
 
+	// indices: iMetric, iHyp
 	public List<List<float[]>> getStats(int iSys, int iOpt) {
-		// TODO Auto-generated method stub
-		return null;
+		// TODO: More informative error messages w/ bounds checking
+		return statsBySys.get(iSys).get(iOpt);
 	}
 
-	// index 1: metric, index 2: hypothesis, inner array: suff stats
-	public List<List<float[]>> getStatsAllOptForSys(int i) {
+	// appends all optimization runs together
+	// indices: iMetric, iHyp; inner array: various suff stats for a particular
+	// metric
+	public List<List<float[]>> getStatsAllOptForSys(int iSys) {
 
-		// TODO: We'll need all opt runs appended here
-
-		// TODO Auto-generated method stub
-		return null;
+		List<List<float[]>> resultByMetric = new ArrayList<List<float[]>>(numMetrics);
+		
+		List<List<List<float[]>>> statsByOpt = statsBySys.get(iSys);
+		
+		for(int iMetric=0; iMetric<numMetrics; iMetric++) {
+			ArrayList<float[]> resultByHyp = new ArrayList<float[]>(numHyp * numOpt);
+			resultByMetric.add(resultByHyp);
+			for (int iOpt = 0; iOpt < numOpt; iOpt++) {
+				List<List<float[]>> statsByMetric = statsByOpt.get(iOpt);
+				List<float[]> statsByHyp = statsByMetric.get(iMetric);
+				resultByHyp.addAll(statsByHyp); 
+			}
+		}
+		return resultByMetric;
 	}
 }
