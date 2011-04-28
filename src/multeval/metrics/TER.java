@@ -1,5 +1,7 @@
 package multeval.metrics;
 
+import jannopts.ConfigurationException;
+import jannopts.Configurator;
 import jannopts.Option;
 
 import java.util.List;
@@ -38,21 +40,6 @@ public class TER implements Metric {
 
 	private TERcost costfunc;
 	
-	public TER() {
-        costfunc = new TERcost();
-        costfunc._delete_cost = deleteCost;
-        costfunc._insert_cost = insertCost;
-        costfunc._shift_cost = shiftCost;
-        costfunc._match_cost = matchCost;
-        costfunc._substitute_cost = substituteCost;
-        
-//        TERcalc.setNormalize(normalized);
-//        TERcalc.setCase(caseon);
-        TERcalc.setPunct(punctuation);
-        TERcalc.setBeamWidth(beamWidth);
-        TERcalc.setShiftDist(maxShiftDistance);
-	}
-
 	@Override
 	public float[] stats(String hyp, List<String> refs) {
 		
@@ -95,5 +82,23 @@ public class TER implements Metric {
 	@Override
 	public String toString() {
 		return "TER";
+	}
+
+	@Override
+	public void configure(Configurator opts) throws ConfigurationException {
+		opts.configure(this);
+		
+        costfunc = new TERcost();
+        costfunc._delete_cost = deleteCost;
+        costfunc._insert_cost = insertCost;
+        costfunc._shift_cost = shiftCost;
+        costfunc._match_cost = matchCost;
+        costfunc._substitute_cost = substituteCost;
+        
+//        TERcalc.setNormalize(normalized);
+//        TERcalc.setCase(caseon);
+        TERcalc.setPunct(punctuation);
+        TERcalc.setBeamWidth(beamWidth);
+        TERcalc.setShiftDist(maxShiftDistance);
 	}
 }

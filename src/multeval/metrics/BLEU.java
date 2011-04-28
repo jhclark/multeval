@@ -8,6 +8,8 @@ import multeval.util.ArrayUtils;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 
+import jannopts.ConfigurationException;
+import jannopts.Configurator;
 import jannopts.Option;
 import jbleu.JBLEU;
 
@@ -41,5 +43,10 @@ public class BLEU implements Metric {
 	@Override
 	public String toString() {
 		return "BLEU";
+	}
+
+	@Override
+	public void configure(Configurator opts) throws ConfigurationException {
+		opts.configure(this);
 	}
 }

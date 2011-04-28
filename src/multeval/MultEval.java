@@ -2,6 +2,7 @@ package multeval;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -41,7 +42,7 @@ public class MultEval {
 
 		public Iterable<Class<?>> getConfigurables();
 
-		public void run();
+		public void run(Configurator opts) throws ConfigurationException;
 	}
 
 	public static class MultEvalModule implements Module {
@@ -49,7 +50,7 @@ public class MultEval {
 		@Option(shortName = "v", longName = "verbosity", usage = "Verbosity level", defaultValue = "0")
 		public int verbosity;
 
-		@Option(shortName = "o", longName = "metrics", usage = "Space-delimited list of metrics to use. Any of: bleu, meteor, ter, length", defaultValue = "bleu meteor ter length", arrayDelim = " ")
+		@Option(shortName = "o", longName = "metrics", usage = "Space-delimited list of metrics to use. Any of: bleu, meteor, ter, length", defaultValue = "bleu meteor ter", arrayDelim = " ")
 		public String[] metricNames;
 
 		@Option(shortName = "B", longName = "hyps-baseline", usage = "Space-delimited list of files containing tokenized, fullform hypotheses, one per line", arrayDelim = " ")
@@ -80,10 +81,10 @@ public class MultEval {
 		}
 
 		@Override
-		public void run() {
+		public void run(Configurator opts) throws ConfigurationException {
 
-			List<Metric> metrics = loadMetrics(metricNames);
-
+			List<Metric> metrics = loadMetrics(metricNames, opts);
+			
 			// 1) load hyps and references
 			// first index is opt run, second is hyp
 			String[][] hypFilesBySysSplit = new String[hypFilesBySys.length][];
@@ -133,7 +134,7 @@ public class MultEval {
 			// penalty, etc.
 		}
 
-		private List<Metric> loadMetrics(String[] metricNames) {
+		private List<Metric> loadMetrics(String[] metricNames, Configurator opts) throws ConfigurationException {
 
 			// TODO: Check only for selected metrics
 			LibUtil.checkLibrary("jbleu.JBLEU", "jBLEU");
@@ -143,11 +144,17 @@ public class MultEval {
 
 			List<Metric> metrics = new ArrayList<Metric>();
 			for (String metricName : metricNames) {
+				System.err.println("Loading metric: " + metricName);
 				Metric metric = KNOWN_METRICS.get(metricName.toLowerCase());
 				if (metric == null) {
 					throw new RuntimeException("Unknown metric: " + metricName
 							+ "; Known metrics are: " + KNOWN_METRICS.keySet());
 				}
+				
+				// add metric options on-the-fly as needed
+				opts.useDynamicOptions(metric.getClass());
+				
+				metric.configure(opts);
 				metrics.add(metric);
 			}
 			return metrics;
@@ -169,7 +176,7 @@ public class MultEval {
 								suffStatsSysI);
 				double[] pByMetric = ar.getTwoSidedP(numShuffles);
 				for (int iMetric = 0; iMetric < metrics.size(); iMetric++) {
-					results.report(iSys, iMetric, Type.P_VALUE, pByMetric[iMetric]);
+					results.report(iMetric, iSys, Type.P_VALUE, pByMetric[iMetric]);
 				}
 			}
 		}
@@ -274,7 +281,7 @@ public class MultEval {
 	private static final ImmutableMap<String, Module> modules =
 			new ImmutableMap.Builder<String, Module>().put("eval", new MultEvalModule()).build();
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ConfigurationException {
 
 		System.err.println("WARNING: THIS SOFTWARE IS STILL UNDER TESTING. PLEASE DO NOT REPORT ANY RESULTS COMPUTED BY THIS CODE. TESTING WILL BE COMPLETED NO LATER THAN MAY 1, 2011.");
 
@@ -290,20 +297,24 @@ public class MultEval {
 							"MultEval V0.1\nBy Jonathan Clark\nUsing Libraries: METEOR (Michael Denkowski) and TER (Matthew Snover)\n")
 							.withModuleOptions(moduleName, module.getClass());
 
-			for (Class<?> configurable : module.getConfigurables()) {
-				opts.withModuleOptions(moduleName, configurable);
-			}
-
+			
+			
 			try {
 				opts.readFrom(args);
 				opts.configure(module);
 			} catch (ConfigurationException e) {
+				
+				// show options for all potential metrics on failure
+				for (Class<?> configurable : module.getConfigurables()) {
+					opts.withModuleOptions(moduleName, configurable);
+				}
+				
 				opts.printUsageTo(System.err);
 				System.err.println("ERROR: " + e.getMessage() + "\n");
 				System.exit(1);
 			}
-
-			module.run();
+			
+			module.run(opts);
 		}
 	}
 }

@@ -31,7 +31,7 @@ public class LatexTable {
 				double sTest = results.get(iMetric, iSys, Type.STDDEV);
 				if (iSys == 0) {
 					// baseline has no p-value
-					out.println(String.format("& %s & %.1f & %.1f & %.1f & % - \\\\", sysName, avg,
+					out.println(String.format("& %s & %.1f & %.1f & %.1f & - \\\\", sysName, avg,
 							sSel, sTest));
 				} else {
 					double p = results.get(iMetric, iSys, Type.P_VALUE);

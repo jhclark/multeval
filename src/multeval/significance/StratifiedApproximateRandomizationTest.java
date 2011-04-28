@@ -65,7 +65,7 @@ public class StratifiedApproximateRandomizationTest {
 				double scoreX = metric.score(sumStats(shuffling, iMetric, suffStatsA, suffStatsB));
 				double scoreY = metric.score(sumStats(shuffling, iMetric, suffStatsB, suffStatsA));
 				double sampleDiff = Math.abs(scoreX - scoreY);
-				System.out.println(iMetric + ": " + scoreX + " - " + scoreY + " " + sampleDiff + " <> " + overallDiffs[iMetric]);
+//				System.out.println(iMetric + ": " + scoreX + " - " + scoreY + " " + sampleDiff + " <> " + overallDiffs[iMetric]);
 				if (sampleDiff >= overallDiffs[iMetric]) {
 					diffsByChance[iMetric]++;
 				}

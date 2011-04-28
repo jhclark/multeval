@@ -46,8 +46,8 @@ public class HypothesisManager {
 		numSystems = hypFilesBySys.length + 1; // include baseline
 		allHyps.clear();
 		loadHyps(hypFilesBaseline, "baseline");
-		for (int iSys = 0; iSys < numSystems; iSys++) {
-			loadHyps(hypFilesBySys[iSys], "" + iSys + 1);
+		for (int iSys = 0; iSys < hypFilesBySys.length; iSys++) {
+			loadHyps(hypFilesBySys[iSys], "" + (iSys + 1));
 		}
 
 		// TODO: Auto-detect laced refs?

@@ -1,5 +1,8 @@
 package multeval.metrics;
 
+import jannopts.ConfigurationException;
+import jannopts.Configurator;
+
 import java.util.List;
 
 /**
@@ -14,4 +17,6 @@ public interface Metric {
 	public float[] stats(String sentence, List<String> refs);
 	
 	public double score(float[] suffStats);
+
+	public void configure(Configurator opts) throws ConfigurationException;
 }

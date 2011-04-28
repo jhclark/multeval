@@ -34,6 +34,8 @@ public class ResultsManager {
 		}
 		Map<Type, Double> map = resultsByMetric.get(iSys);
 		map.put(type, d);
+		
+		System.err.println("GOT RESULT: " + sysNames[iSys] + ": " + metricNames[iMetric] + ": " + type.name() + ": " + String.format("%.2f", d*100));
 	}
 	
 	public Double get(int iMetric, int iSys, Type type) {

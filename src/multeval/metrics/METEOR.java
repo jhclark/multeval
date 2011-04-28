@@ -1,5 +1,7 @@
 package multeval.metrics;
 
+import jannopts.ConfigurationException;
+import jannopts.Configurator;
 import jannopts.Option;
 
 import java.io.File;
@@ -24,22 +26,22 @@ public class METEOR implements Metric {
 	@Option(shortName = "t", longName = "meteor.task", usage = "One of: rank adq hter tune (Rank is generally a good choice)", defaultValue="rank")
 	String task;
 	
-	@Option(shortName = "p", longName = "meteor.params", usage = "Custom parameters of the form 'alpha beta gamma' (overrides default)", arrayDelim=" ", defaultValue="")
+	@Option(shortName = "p", longName = "meteor.params", usage = "Custom parameters of the form 'alpha beta gamma' (overrides default)", arrayDelim=" ", required=false)
 	double[] params;
 	
-	@Option(shortName = "m", longName = "meteor.modules", usage = "Specify modules. (overrides default) Any of: exact stem synonym paraphrase", arrayDelim=" ", defaultValue="")
+	@Option(shortName = "m", longName = "meteor.modules", usage = "Specify modules. (overrides default) Any of: exact stem synonym paraphrase", arrayDelim=" ", required=false)
 	String[] modules;
 	
-	@Option(shortName = "w", longName = "meteor.weights", usage = "Specify module weights (overrides default)", arrayDelim=" ")
+	@Option(shortName = "w", longName = "meteor.weights", usage = "Specify module weights (overrides default)", arrayDelim=" ", required=false)
 	double[] moduleWeights;
 
 	@Option(shortName = "x", longName = "meteor.beamSize", usage = "Specify beam size (overrides default)", defaultValue="40")
 	int beamSize;
 	
-	@Option(shortName = "s", longName = "meteor.synonymDirectory", usage = "If default is not desired (NOTE: This option has a different short flag than stand-alone METEOR)", defaultValue="")
+	@Option(shortName = "s", longName = "meteor.synonymDirectory", usage = "If default is not desired (NOTE: This option has a different short flag than stand-alone METEOR)", required=false)
 	String synonymDirectory;
 	
-	@Option(shortName = "a", longName = "meteor.paraphraseFile", usage = "If default is not desired", defaultValue="")
+	@Option(shortName = "a", longName = "meteor.paraphraseFile", usage = "If default is not desired", required=false)
 	String paraphraseFile;
 	
 	@Option(shortName = "k", longName = "meteor.keepPunctuation", usage = "Consider punctuation when aligning sentences", defaultValue="true")
@@ -47,21 +49,24 @@ public class METEOR implements Metric {
 
 	private MeteorScorer scorer;
 	
-	public METEOR() {
-		
+
+	@Override
+	public void configure(Configurator opts) throws ConfigurationException {
+		opts.configure(this);
+
 		MeteorConfiguration config = new MeteorConfiguration();
 		config.setLanguage(language);
 		config.setTask(task);
 		
-		if(params.length != 0) {
+		if(params != null) {
 			config.setParameters(new ArrayList<Double>(Doubles.asList(params)));
 		}
 		
-		if(moduleWeights.length != 0) {
+		if(moduleWeights != null) {
 			config.setModuleWeights(new ArrayList<Double>(Doubles.asList(moduleWeights)));
 		}
 		
-		if(modules.length != 0) {
+		if(modules != null) {
 			List<String> moduleList = Arrays.asList(modules);
 			config.setModulesByName(new ArrayList<String>(moduleList));
 			
@@ -74,7 +79,7 @@ public class METEOR implements Metric {
 		
 		config.setBeamSize(beamSize);
 		
-		if(!synonymDirectory.isEmpty()) {
+		if(synonymDirectory != null) {
 			try {
 				// This should not ever throw a malformed url exception
 				config.setSynDirURL((new File(synonymDirectory)).toURI().toURL());
@@ -83,7 +88,7 @@ public class METEOR implements Metric {
 			}
 		}
 		
-		if(!paraphraseFile.isEmpty()) {
+		if(paraphraseFile != null) {
 			try {
 				// This should not ever throw a malformed url exception
 				config.setParaFileURL((new File(paraphraseFile)).toURI().toURL());
