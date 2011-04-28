@@ -128,7 +128,7 @@ public class METEOR implements Metric {
 	}
 
 	@Override
-	public double score(double[] suffStats) {
+	public double score(float[] suffStats) {
 		// TODO: Don't create so many garbage int arrays and MeteorStats objects
 		// ...but still keep things thread-safe
 		int[] intStats = ArrayUtils.toIntArray(suffStats);

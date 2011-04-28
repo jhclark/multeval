@@ -85,10 +85,10 @@ public class TER implements Metric {
 	}
 
 	@Override
-	public double score(double[] suffStats) {
+	public double score(float[] suffStats) {
 		Preconditions.checkArgument(suffStats.length == 2, "TER sufficient stats must be of length 2");
-		double edits = suffStats[0];
-		double words = suffStats[1];
+		float edits = suffStats[0];
+		float words = suffStats[1];
 		return edits / words;
 	}
 	
