@@ -69,7 +69,7 @@ public class MultEval {
 
 		@Option(shortName = "s", longName = "ar-shuffles", usage = "Number of shuffles to perform to estimate p-value during approximate randomization test system *PAIR*", defaultValue = "10000")
 		private int numShuffles;
-		
+
 		// TODO: Lowercasing option
 
 		@Override
@@ -141,10 +141,10 @@ public class MultEval {
 			}
 			return metrics;
 		}
-		
+
 		private void runApproximateRandomization(List<Metric> metrics, HypothesisManager data,
 				SuffStatManager suffStats, ResultsManager results) {
-			
+
 			int iBaselineSys = 0;
 			for (int iSys = 1; iSys < data.getNumSystems(); iSys++) {
 
@@ -164,7 +164,10 @@ public class MultEval {
 		}
 
 		private SuffStatManager collectSuffStats(List<Metric> metrics, HypothesisManager data) {
-			SuffStatManager suffStats = new SuffStatManager();
+			SuffStatManager suffStats =
+					new SuffStatManager(metrics.size(), data.getNumSystems(), data.getNumOptRuns(),
+							data.getNumHyps());
+
 			for (int iMetric = 0; iMetric < metrics.size(); iMetric++) {
 				Metric metric = metrics.get(iMetric);
 				System.err.println("Collecting sufficient statistics for metric: "
@@ -199,7 +202,7 @@ public class MultEval {
 					}
 					double avg = MathUtils.average(scoresByOptRun);
 					double stddev = MathUtils.stddev(scoresByOptRun);
-					
+
 					results.reportScoreAvg(iMetric, iSys, avg);
 					results.reportScoreStdDev(iMetric, iSys, stddev);
 				}
