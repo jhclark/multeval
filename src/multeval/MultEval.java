@@ -113,27 +113,6 @@ public class MultEval {
 			// penalty, etc.
 		}
 
-		private void runApproximateRandomization(List<Metric> metrics, HypothesisManager data,
-				SuffStatManager suffStats, ResultsManager results) {
-			
-			int iBaselineSys = 0;
-			for (int iSys = 1; iSys < data.getNumSystems(); iSys++) {
-
-				// index 1: metric, index 2: hypothesis, inner array: suff stats
-				List<List<double[]>> suffStatsBaseline =
-						suffStats.getStatsAllOptForSys(iBaselineSys);
-				List<List<double[]>> suffStatsSysI = suffStats.getStatsAllOptForSys(iSys);
-
-				StratifiedApproximateRandomizationTest ar =
-						new StratifiedApproximateRandomizationTest(metrics, suffStatsBaseline,
-								suffStatsSysI);
-				double[] pByMetric = ar.getTwoSidedP(numShuffles);
-				for (int iMetric = 0; iMetric < metrics.size(); iMetric++) {
-					results.reportPValue(iSys, iMetric, pByMetric[iMetric]);
-				}
-			}
-		}
-
 		private List<Metric> loadMetrics(String[] metricNames) {
 
 			// TODO: Check only for selected metrics
@@ -152,6 +131,27 @@ public class MultEval {
 				metrics.add(metric);
 			}
 			return metrics;
+		}
+		
+		private void runApproximateRandomization(List<Metric> metrics, HypothesisManager data,
+				SuffStatManager suffStats, ResultsManager results) {
+			
+			int iBaselineSys = 0;
+			for (int iSys = 1; iSys < data.getNumSystems(); iSys++) {
+
+				// index 1: metric, index 2: hypothesis, inner array: suff stats
+				List<List<float[]>> suffStatsBaseline =
+						suffStats.getStatsAllOptForSys(iBaselineSys);
+				List<List<float[]>> suffStatsSysI = suffStats.getStatsAllOptForSys(iSys);
+
+				StratifiedApproximateRandomizationTest ar =
+						new StratifiedApproximateRandomizationTest(metrics, suffStatsBaseline,
+								suffStatsSysI);
+				double[] pByMetric = ar.getTwoSidedP(numShuffles);
+				for (int iMetric = 0; iMetric < metrics.size(); iMetric++) {
+					results.reportPValue(iSys, iMetric, pByMetric[iMetric]);
+				}
+			}
 		}
 
 		private SuffStatManager collectSuffStats(List<Metric> metrics, HypothesisManager data) {
@@ -190,6 +190,7 @@ public class MultEval {
 					}
 					double avg = MathUtils.average(scoresByOptRun);
 					double stddev = MathUtils.stddev(scoresByOptRun);
+					
 					results.reportScoreAvg(iMetric, iSys, avg);
 					results.reportScoreStdDev(iMetric, iSys, stddev);
 				}

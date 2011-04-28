@@ -23,7 +23,7 @@ public class SuffStatManager {
 	}
 
 	// index 1: metric, index 2: hypothesis, inner array: suff stats
-	public List<List<double[]>> getStatsAllOptForSys(int i) {
+	public List<List<float[]>> getStatsAllOptForSys(int i) {
 
 		// TODO: We'll need all opt runs appended here
 
