@@ -1,5 +1,6 @@
 package multeval;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.ArrayList;
@@ -68,6 +69,8 @@ public class MultEval {
 
 		@Option(shortName = "s", longName = "ar-shuffles", usage = "Number of shuffles to perform to estimate p-value during approximate randomization test system *PAIR*", defaultValue = "10000")
 		private int numShuffles;
+		
+		// TODO: Lowercasing option
 
 		@Override
 		public Iterable<Class<?>> getConfigurables() {
@@ -87,7 +90,13 @@ public class MultEval {
 			}
 
 			HypothesisManager data = new HypothesisManager();
-			data.loadData(hypFilesBaseline, hypFilesBySysSplit, refFiles);
+			try {
+				data.loadData(hypFilesBaseline, hypFilesBySysSplit, refFiles);
+			} catch (IOException e) {
+				System.err.println("Error while loading data.");
+				e.printStackTrace();
+				System.exit(1);
+			}
 
 			// 2) collect sufficient stats for each metric selected
 			// TODO: Eventually multi-thread this... but TER isn't threadsafe
@@ -165,7 +174,7 @@ public class MultEval {
 					for (int iOpt = 0; iOpt < data.getNumOptRuns(); iOpt++) {
 						for (int iHyp = 0; iHyp < data.getNumHyps(); iHyp++) {
 							String hyp = data.getHypothesis(iSys, iOpt, iHyp);
-							List<String> refs = data.getReferences(iSys, iOpt, iHyp);
+							List<String> refs = data.getReferences(iHyp);
 							float[] stats = metric.stats(hyp, refs);
 							suffStats.saveStats(iMetric, iSys, iOpt, iHyp, stats);
 						}
