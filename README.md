@@ -10,7 +10,9 @@ Usage
 =====
 
 ``` bash
-multeval.sh eval -H example/hyps.lc.tok.en.0 example/hyps.lc.tok.en.2 example/hyps.lc.tok.en.2 -R example/refs.test2010.lc.tok.en
+multeval.sh eval --refs example/refs.test2010.lc.tok.en.ref* 
+	         --hyps-baseline example/hyps.lc.tok.en.baseline.opt*
+	         --hyps-sys1 example/hyps.lc.tok.en.sys1.opt*
 ```
 
 All files should contain *tokenized*, space-delimited sentences in UTF-8 encoding, one sentence per line. Unlike many metric implementations, MultEval does no tokenization or segmentation for you (see discussion below).
