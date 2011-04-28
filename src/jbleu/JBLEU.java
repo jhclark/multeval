@@ -76,11 +76,11 @@ public class JBLEU {
 	}
 	
 	private static double getAttemptedNgrams(int[] suffStats, int j) {
-		return suffStats[j + N];
+		return suffStats[j];
 	}
 
 	private static double getMatchingNgrams(int[] suffStats, int j) {
-		return suffStats[j];
+		return suffStats[j + N];
 	}
 
 	private static double getRefWords(int[] suffStats) {
@@ -107,27 +107,29 @@ public class JBLEU {
 		Preconditions.checkArgument(suffStats.length == N*2+1, "BLEU sufficient stats must be of length N*2+1");
 
 		double score = 0.0;
-		double iscore = 0.0;
-		double lenScore = Math.min(0, 1.0 - getRefWords(suffStats) / getAttemptedNgrams(suffStats, 0));
+		double brevityPenalty = Math.max(1.0, Math.exp(1.0 - getRefWords(suffStats) / getAttemptedNgrams(suffStats, 0)));
 		double smooth = 1.0;
 
 		for (int j = 0; j < N; j++) {
-			double testNgramsJ = getAttemptedNgrams(suffStats, j);
+			double attemptedNgramsJ = getAttemptedNgrams(suffStats, j);
 			double matchingNgramsJ = getMatchingNgrams(suffStats, j);
-			if (testNgramsJ == 0) {
+			final double iscore;
+			if (attemptedNgramsJ == 0) {
 				iscore = 0.0;
 			} else if (matchingNgramsJ == 0) {
 				smooth *= 2;
-				iscore = Math.log(1.0 / (smooth / testNgramsJ));
+				iscore = Math.log(1.0 / (smooth / attemptedNgramsJ));
 			} else {
-				iscore = Math.log(matchingNgramsJ / testNgramsJ);
+				double precisionAtJ = matchingNgramsJ / attemptedNgramsJ;
+				iscore = Math.log(precisionAtJ);
 			}
 			score += iscore;
 		}
-		double totalScore = Math.exp(score / 4.0 + lenScore);
+		// TODO: Allow non-uniform weights instead of just the "baseline" 1/4 from Papenini
+		double totalScore = brevityPenalty * Math.exp(score / 4.0);
 		
 		if (totalScore > 1.0) {
-			System.err.println("BLEU: Thresholding out of range score: " + totalScore);
+			System.err.println("BLEU: Thresholding out of range score: " + totalScore + "; stats: " + Arrays.toString(suffStats));
 			totalScore = 1.0;
 		} else if (totalScore < 0.0) {
 			System.err.println("BLEU: Thresholding out of range score: " + totalScore);
@@ -140,7 +142,7 @@ public class JBLEU {
 		// attempted 1-4 gram counts
 		// matching 1-4 gram counts
 		// length of selected reference for brevity penalty
-		return N*2 + 1;
+		return N * 2 + 1;
 	}
 	
 	public static void main(String[] args) {
