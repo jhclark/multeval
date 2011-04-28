@@ -2,19 +2,17 @@ package multeval.significance;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-
-import com.google.common.base.Preconditions;
 
 import multeval.metrics.Metric;
 import multeval.util.ArrayUtils;
 import multeval.util.MathUtils;
 import multeval.util.SuffStatUtils;
+
+import com.google.common.base.Preconditions;
 
 public class BootstrapResampler {
 

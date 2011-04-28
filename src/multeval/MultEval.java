@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 
+import multeval.ResultsManager.Type;
 import multeval.metrics.BLEU;
 import multeval.metrics.METEOR;
 import multeval.metrics.Metric;
@@ -71,6 +72,7 @@ public class MultEval {
 		private int numShuffles;
 
 		// TODO: Lowercasing option
+		// TODO: Output index of median system according to each metric
 
 		@Override
 		public Iterable<Class<?>> getConfigurables() {
@@ -102,7 +104,7 @@ public class MultEval {
 			// TODO: Eventually multi-thread this... but TER isn't threadsafe
 			SuffStatManager suffStats = collectSuffStats(metrics, data);
 
-			ResultsManager results = new ResultsManager();
+			ResultsManager results = new ResultsManager(metrics.size(), data.getNumSystems());
 
 			// 3) evaluate each system and report the average scores
 			runOverallEval(metrics, data, suffStats, results);
@@ -158,7 +160,7 @@ public class MultEval {
 								suffStatsSysI);
 				double[] pByMetric = ar.getTwoSidedP(numShuffles);
 				for (int iMetric = 0; iMetric < metrics.size(); iMetric++) {
-					results.reportPValue(iSys, iMetric, pByMetric[iMetric]);
+					results.report(iSys, iMetric, Type.P_VALUE, pByMetric[iMetric]);
 				}
 			}
 		}
@@ -202,9 +204,13 @@ public class MultEval {
 					}
 					double avg = MathUtils.average(scoresByOptRun);
 					double stddev = MathUtils.stddev(scoresByOptRun);
+					double min = MathUtils.min(scoresByOptRun);
+					double max = MathUtils.max(scoresByOptRun);
 
-					results.reportScoreAvg(iMetric, iSys, avg);
-					results.reportScoreStdDev(iMetric, iSys, stddev);
+					results.report(iMetric, iSys, Type.AVG, avg);
+					results.report(iMetric, iSys, Type.STDDEV, stddev);
+					results.report(iMetric, iSys, Type.MIN, min);
+					results.report(iMetric, iSys, Type.MAX, max);
 				}
 			}
 		}
@@ -246,10 +252,10 @@ public class MultEval {
 				}
 
 				for (int iMetric = 0; iMetric < metrics.size(); iMetric++) {
-					results.reportResampledScoreMeanAvg(iMetric, iSys, meanByMetric[iMetric]);
-					results.reportResampledScoreStddevAvg(iMetric, iSys, stddevByMetric[iMetric]);
-					results.reportResampledScoreMin(iMetric, iSys, minByMetric[iMetric]);
-					results.reportResampledScoreMax(iMetric, iSys, maxByMetric[iMetric]);
+					results.report(iMetric, iSys, Type.RESAMPLED_MEAN_AVG, meanByMetric[iMetric]);
+					results.report(iMetric, iSys, Type.RESAMPLED_STDDEV_AVG, stddevByMetric[iMetric]);
+					results.report(iMetric, iSys, Type.RESAMPLED_MIN, minByMetric[iMetric]);
+					results.report(iMetric, iSys, Type.RESAMPLED_MAX, maxByMetric[iMetric]);
 				}
 			}
 		}

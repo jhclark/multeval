@@ -1,40 +1,36 @@
 package multeval;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class ResultsManager {
 
-	public void reportScoreAvg(int iMetric, int iSys, double avg) {
-		// TODO Auto-generated method stub
-		
+	// indices: iSys, iMetric
+	private final List<List<Map<Type, Double>>> resultsBySys;
+	private int numMetrics;
+	
+	public enum Type {AVG, STDDEV, MIN, MAX, RESAMPLED_MEAN_AVG, RESAMPLED_STDDEV_AVG, RESAMPLED_MIN, RESAMPLED_MAX, P_VALUE}
+
+	public ResultsManager(int numMetrics, int numSys) {
+		this.numMetrics = numMetrics;
+		this.resultsBySys = new ArrayList<List<Map<Type, Double>>>(numSys);
 	}
 
-	public void reportScoreStdDev(int iMetric, int iSys, double stddev) {
-		// TODO Auto-generated method stub
-		
+	public void report(int iMetric, int iSys, Type type, double d) {
+		while(resultsBySys.size() <= iSys) {
+			resultsBySys.add(new ArrayList<Map<Type, Double>>(numMetrics));
+		}
+		List<Map<Type, Double>> resultsByMetric = resultsBySys.get(iSys);
+		while(resultsByMetric.size() <= iSys) {
+			resultsByMetric.add(new HashMap<Type, Double>());
+		}
+		Map<Type, Double> map = resultsByMetric.get(iSys);
+		map.put(type, d);
 	}
-
-	public void reportResampledScoreMeanAvg(int iMetric, int iSys, double d) {
-		// TODO Auto-generated method stub
-		
+	
+	public Double get(int iMetric, int iSys, Type type) {
+		return resultsBySys.get(iSys).get(iMetric).get(type);
 	}
-
-	public void reportResampledScoreStddevAvg(int iMetric, int iSys, double d) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void reportResampledScoreMin(int iMetric, int iSys, double d) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void reportResampledScoreMax(int iMetric, int iSys, double d) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void reportPValue(int iSys, int iMetric, double d) {
-		// TODO Auto-generated method stub
-		
-	}
-
 }
