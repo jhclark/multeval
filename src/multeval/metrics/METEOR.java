@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import multeval.util.ArrayUtils;
+import multeval.util.LibUtil;
 
 import com.google.common.primitives.Doubles;
 
@@ -52,6 +53,9 @@ public class METEOR implements Metric {
 
 	@Override
 	public void configure(Configurator opts) throws ConfigurationException {
+		LibUtil.checkLibrary("edu.cmu.meteor.scorer.MeteorScorer", "METEOR");
+		System.err.println("Using METEOR Version " + edu.cmu.meteor.util.Constants.VERSION);
+
 		opts.configure(this);
 
 		MeteorConfiguration config = new MeteorConfiguration();
@@ -121,6 +125,7 @@ public class METEOR implements Metric {
 //				config.setNormalization(Constants.NO_NORMALIZE);
 //		}
 
+		System.err.println("Loading METEOR paraphrase table...");
 		scorer = new MeteorScorer(config);
 	}
 

@@ -40,9 +40,9 @@ public class MultEval {
 
 	public static interface Module {
 
-		public Iterable<Class<?>> getConfigurables();
-
 		public void run(Configurator opts) throws ConfigurationException;
+
+		public Iterable<Class<?>> getDynamicConfigurables();
 	}
 
 	public static class MultEvalModule implements Module {
@@ -76,8 +76,8 @@ public class MultEval {
 		// TODO: Output index of median system according to each metric
 
 		@Override
-		public Iterable<Class<?>> getConfigurables() {
-			return ImmutableList.<Class<?>> of(MultEval.class, BLEU.class, METEOR.class, TER.class);
+		public Iterable<Class<?>> getDynamicConfigurables() {
+			return ImmutableList.<Class<?>>of(BLEU.class, METEOR.class, TER.class);
 		}
 
 		@Override
@@ -135,13 +135,8 @@ public class MultEval {
 		}
 
 		private List<Metric> loadMetrics(String[] metricNames, Configurator opts) throws ConfigurationException {
-
-			// TODO: Check only for selected metrics
-			LibUtil.checkLibrary("jbleu.JBLEU", "jBLEU");
-			LibUtil.checkLibrary("edu.cmu.meteor.scorer.MeteorScorer", "METEOR");
-			System.err.println("Using METEOR Version " + edu.cmu.meteor.util.Constants.VERSION);
-			LibUtil.checkLibrary("ter.TERpara", "TER");
-
+			
+			// 1) activate config options so that we fail-fast
 			List<Metric> metrics = new ArrayList<Metric>();
 			for (String metricName : metricNames) {
 				System.err.println("Loading metric: " + metricName);
@@ -152,11 +147,16 @@ public class MultEval {
 				}
 				
 				// add metric options on-the-fly as needed
-				opts.useDynamicOptions(metric.getClass());
+				opts.activateDynamicOptions(metric.getClass());
 				
-				metric.configure(opts);
 				metrics.add(metric);
 			}
+			
+			// 2) load metric resources, etc.
+			for(Metric metric : metrics) {
+				metric.configure(opts);
+			}
+			
 			return metrics;
 		}
 
@@ -297,17 +297,16 @@ public class MultEval {
 							"MultEval V0.1\nBy Jonathan Clark\nUsing Libraries: METEOR (Michael Denkowski) and TER (Matthew Snover)\n")
 							.withModuleOptions(moduleName, module.getClass());
 
-			
+			// add "dynamic" options, which might be activated later
+			// by the specified switch values
+			for(Class<?> c : module.getDynamicConfigurables()) {
+				opts.allowDynamicOptions(c);
+			}
 			
 			try {
 				opts.readFrom(args);
 				opts.configure(module);
 			} catch (ConfigurationException e) {
-				
-				// show options for all potential metrics on failure
-				for (Class<?> configurable : module.getConfigurables()) {
-					opts.withModuleOptions(moduleName, configurable);
-				}
 				
 				opts.printUsageTo(System.err);
 				System.err.println("ERROR: " + e.getMessage() + "\n");

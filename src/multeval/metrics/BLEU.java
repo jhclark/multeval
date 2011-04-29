@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import multeval.util.ArrayUtils;
+import multeval.util.LibUtil;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
@@ -47,6 +48,7 @@ public class BLEU implements Metric {
 
 	@Override
 	public void configure(Configurator opts) throws ConfigurationException {
+		LibUtil.checkLibrary("jbleu.JBLEU", "jBLEU");
 		opts.configure(this);
 	}
 }

@@ -6,6 +6,8 @@ import jannopts.Option;
 
 import java.util.List;
 
+import multeval.util.LibUtil;
+
 import ter.TERalignment;
 import ter.TERcalc;
 import ter.TERcost;
@@ -86,6 +88,7 @@ public class TER implements Metric {
 
 	@Override
 	public void configure(Configurator opts) throws ConfigurationException {
+		LibUtil.checkLibrary("ter.TERpara", "TER");
 		opts.configure(this);
 		
         costfunc = new TERcost();
