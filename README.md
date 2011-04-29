@@ -17,6 +17,18 @@ multeval.sh eval --refs example/refs.test2010.lc.tok.en.* \
 		 --meteor.language en
 ```
 
+If you'd also like 1) a Latex table at you can copy-paste into your paper and 2) the hypotheses from the median optimization run ranked by improvement/decline over your baseline system, then run it like this:
+
+``` bash
+multeval.sh eval --refs example/refs.test2010.lc.tok.en.* \
+                 --hyps-baseline example/hyps.lc.tok.en.baseline.opt* \
+                 --hyps-sys1 example/hyps.lc.tok.en.sys1.opt* \
+                 --hyps-sys2 example/hyps.lc.tok.en.sys2.opt* \
+                 --meteor.language en \
+		 --latex table.tex \
+		 --rankDir rank
+```
+
 All files should contain *tokenized*, lowercased, space-delimited sentences in UTF-8 encoding, one sentence per line. Unlike many metric implementations, MultEval does no tokenization or segmentation for you (see discussion below).
 
 Generally, you should evaluate full forms (i.e. without word segmentation). For languages without a canonical notion of words (e.g. Chinese, Japanese), we recommend splitting all non-Latin characters (e.g. each character that is not part of a borrowed Western word, URL, etc. should be evaluated as its own word.)
