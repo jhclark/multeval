@@ -138,8 +138,8 @@ public class JBLEU {
 			double ngramOrderWeight = 0.25;
 			score += iscore * ngramOrderWeight;
 			
-			assert Math.exp(iscore * ngramOrderWeight) <= 1.0 : String.format("ERROR for order %d-grams iscore: %f -> %f :: %s", j+1, iscore, Math.exp(iscore * ngramOrderWeight), Arrays.toString(suffStats));
-			assert Math.exp(score * ngramOrderWeight) <= 1.0;
+//			assert Math.exp(iscore * ngramOrderWeight) <= 1.0 : String.format("ERROR for order %d-grams iscore: %f -> %f :: %s", j+1, iscore, Math.exp(iscore * ngramOrderWeight), Arrays.toString(suffStats));
+//			assert Math.exp(score * ngramOrderWeight) <= 1.0;
 		}
 
 		double totalScore = brevityPenalty * Math.exp(score);
