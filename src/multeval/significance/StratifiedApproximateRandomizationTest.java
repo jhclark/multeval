@@ -66,27 +66,34 @@ public class StratifiedApproximateRandomizationTest {
 				double scoreY = metric.score(sumStats(shuffling, iMetric, suffStatsB, suffStatsA));
 				double sampleDiff = Math.abs(scoreX - scoreY);
 //				System.out.println(iMetric + ": " + scoreX + " - " + scoreY + " " + sampleDiff + " <> " + overallDiffs[iMetric]);
-				if (sampleDiff >= overallDiffs[iMetric]) {
+				// the != is important. if we want to score the same system against itself,
+				// having a zero difference should not be attributed to chance.
+				if (sampleDiff > overallDiffs[iMetric]) {
 					diffsByChance[iMetric]++;
 				}
 			}
 		}
 
 		double[] p = new double[metrics.size()];
-		for(int iMetric = 0; iMetric < metrics.size(); iMetric++) {
+		for (int iMetric = 0; iMetric < metrics.size(); iMetric++) {
+			// +1 applies here, though it only matters for small numbers of
+			// shufflings, which we typically never do. it's necessary to ensure
+			// the probability of falsely rejecting the null hypothesis is no
+			// greater than the rejection level of the test (see william
+			// morgan on significance tests)
 			p[iMetric] = ((double) diffsByChance[iMetric] + 1.0) / ((double) numShuffles + 1.0);
 		}
 		return p;
 	}
 
-	private float[] sumStats(boolean[] shuffling,int iMetric,
+	private static float[] sumStats(boolean[] shuffling, int iMetric,
 			List<List<float[]>> suffStatsA, List<List<float[]>> suffStatsB) {
 
 		int numStats = suffStatsA.get(iMetric).get(0).length;
 		float[] summedStats = new float[numStats];
 		List<float[]> metricStatsA = suffStatsA.get(iMetric);
 		List<float[]> metricStatsB = suffStatsB.get(iMetric);
-		for (int iRow =0; iRow<metricStatsA.size();iRow++) {
+		for (int iRow = 0; iRow < metricStatsA.size(); iRow++) {
 			float[] row = shuffling[iRow] ? metricStatsA.get(iRow) : metricStatsB.get(iRow);
 			ArrayUtils.plusEquals(summedStats, row);
 		}
@@ -98,37 +105,4 @@ public class StratifiedApproximateRandomizationTest {
 			shuffling[i] = random.nextBoolean();
 		}
 	}
-	
-//	public static void main(String[] args) throws IOException {
-//		if(args.length != 7) { 
-//			System.err.println("Usage: program bleuStatsA meteorStatsA terStatsA bleuStatsB meteorStatsB terStatsB numShuffles");
-//			System.exit(1);
-//		}
-//		
-//		File bleuStatsA = new File(args[0]);
-//		File meteorStatsA = new File(args[1]);
-//		File terStatsA = new File(args[2]);
-//		File bleuStatsB = new File(args[3]);
-//		File meteorStatsB = new File(args[4]);
-//		File terStatsB = new File(args[5]);
-//		int numShuffles = Integer.parseInt(args[6]);
-//		
-//		List<Metric> metrics = Arrays.asList(new BLEU(), new METEOR(METEOR.RANKING_EN_WEIGHTS), new TER());
-//		List<List<double[]>> suffStatsA = new ArrayList<List<double[]>>(metrics.size());
-//		suffStatsA.add(SuffStatUtils.loadSuffStats(bleuStatsA));
-//		suffStatsA.add(SuffStatUtils.loadSuffStats(meteorStatsA));
-//		suffStatsA.add(SuffStatUtils.loadSuffStats(terStatsA));
-//		
-//		List<List<double[]>> suffStatsB = new ArrayList<List<double[]>>(metrics.size());
-//		suffStatsB.add(SuffStatUtils.loadSuffStats(bleuStatsB));
-//		suffStatsB.add(SuffStatUtils.loadSuffStats(meteorStatsB));
-//		suffStatsB.add(SuffStatUtils.loadSuffStats(terStatsB));
-//		
-//		StratifiedApproximateRandomizationTest test = new StratifiedApproximateRandomizationTest(metrics, suffStatsA, suffStatsB);
-//		System.out.println("Running test with " + numShuffles + " shuffles");
-//		double[] p = test.getTwoSidedP(numShuffles);
-//		System.out.println("BLEU p-value: " + p[0]);
-//		System.out.println("METEOR p-value: " + p[1]);
-//		System.out.println("TER p-value: " + p[2]);
-//	}
 }

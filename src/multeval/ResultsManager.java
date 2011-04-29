@@ -29,16 +29,28 @@ public class ResultsManager {
 			resultsBySys.add(new ArrayList<Map<Type, Double>>(numMetrics));
 		}
 		List<Map<Type, Double>> resultsByMetric = resultsBySys.get(iSys);
-		while(resultsByMetric.size() <= iSys) {
+		while(resultsByMetric.size() <= iMetric) {
 			resultsByMetric.add(new HashMap<Type, Double>());
 		}
-		Map<Type, Double> map = resultsByMetric.get(iSys);
+		Map<Type, Double> map = resultsByMetric.get(iMetric);
 		map.put(type, d);
 		
 		System.err.println("GOT RESULT: " + sysNames[iSys] + ": " + metricNames[iMetric] + ": " + type.name() + ": " + String.format("%.2f", d*100));
 	}
 	
 	public Double get(int iMetric, int iSys, Type type) {
-		return resultsBySys.get(iSys).get(iMetric).get(type);
+		List<Map<Type, Double>> resultsByMetric = resultsBySys.get(iSys);
+		if(resultsByMetric == null) {
+			throw new RuntimeException("No results found for system + " + iSys);
+		}
+		Map<Type, Double> resultsByType = resultsByMetric.get(iMetric);
+		if(resultsByType == null) {
+			throw new RuntimeException("No results found for system " + iSys + " for metric " + iMetric);
+		}
+		Double result = resultsByType.get(type);
+		if(result == null) {
+			throw new RuntimeException("No results found for system " + iSys + " for metric " + iMetric + " of type " + type);			
+		}
+		return result;
 	}
 }

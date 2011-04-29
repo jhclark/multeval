@@ -48,5 +48,6 @@ public class LatexTable {
 		// out.println("\\vspace{-.2cm}");
 		out.println("\\caption{\\label{tab:scores} Metric scores for all systems: INCLUDE METRIC VERSIONS ETC. CITATIONS ON DEMAND. Note p-values are relative to baseline.}");
 		out.println("\\end{table}");
+		out.flush();
 	}
 }

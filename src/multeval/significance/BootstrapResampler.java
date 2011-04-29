@@ -1,16 +1,11 @@
 package multeval.significance;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import multeval.metrics.Metric;
 import multeval.util.ArrayUtils;
-import multeval.util.MathUtils;
-import multeval.util.SuffStatUtils;
 
 import com.google.common.base.Preconditions;
 
@@ -94,63 +89,5 @@ public class BootstrapResampler {
 			sampleMembersOut[i] = random.nextInt(totalPointsAvailable);
 		}
 	}
-	
-	private static void saveSamples(File scoresOut, double[] scores) throws FileNotFoundException {
-		PrintWriter out = new PrintWriter(scoresOut);
-		for(double score : scores) {
-			out.println(score);
-		}
-		out.close();
-		System.err.println("Saved " + scores.length + " resampled metric scores to " + scoresOut.getAbsolutePath());
-	}
 
-	private static void printOverallInfo(String metricName, Metric metric, List<float[]> stats) {
-		float[] summedStats = SuffStatUtils.sumStats(stats);
-		double score = metric.score(summedStats);
-		System.err.println("Overall " + metricName + " stats: score = " + score*100);
-	}
-	
-	private static void printResampleStats(String metricName, double[] samples) {
-		double mean = MathUtils.average(samples)*100;
-		double stddev = Math.sqrt(MathUtils.variance(samples))*100;
-		double min = MathUtils.min(samples)*100;
-		double max = MathUtils.max(samples)*100;
-		System.err.printf("Resampled %s stats: mean = %.2f stddev = %.2f min = %.2f max = %.2f\n", metricName, mean, stddev, min, max);
-	}
-	
-//	public static void main(String[] args) throws IOException {
-//		if(args.length != 7) {
-//			System.err.println("Usage: program bleuSuffstatsIn meteorSuffstatsIn terSuffstatsIn bleuScoresOut meteorScoresOut terScoresOut numSamples");
-//			System.exit(1);
-//		}
-//		File bleuStatsIn = new File(args[0]);
-//		File meteorStatsIn = new File(args[1]);
-//		File terStatsIn = new File(args[2]);
-//		File bleuScoresOut = new File(args[3]);
-//		File meteorScoresOut = new File(args[4]);
-//		File terScoresOut = new File(args[5]);
-//		int numSamples = Integer.parseInt(args[6]);
-//		
-//		List<Metric> metrics = Arrays.asList(new BLEU(), new METEOR(METEOR.RANKING_EN_WEIGHTS), new TER());
-//		List<List<double[]>> suffStats = new ArrayList<List<double[]>>(metrics.size());
-//		suffStats.add(SuffStatUtils.loadSuffStats(bleuStatsIn));
-//		suffStats.add(SuffStatUtils.loadSuffStats(meteorStatsIn));
-//		suffStats.add(SuffStatUtils.loadSuffStats(terStatsIn));
-//		
-//		printOverallInfo("BLEU", metrics.get(0), suffStats.get(0));
-//		printOverallInfo("METEOR", metrics.get(1), suffStats.get(1));
-//		printOverallInfo("TER", metrics.get(2), suffStats.get(2));
-//		
-//		System.err.println("Performing bootstrap resampling...");
-//		BootstrapResampler resampler = new BootstrapResampler(metrics, suffStats);
-//		List<double[]> samples = resampler.resample(numSamples);
-//		
-//		printResampleStats("BLEU", samples.get(0));
-//		printResampleStats("METEOR", samples.get(1));
-//		printResampleStats("TER", samples.get(2));
-//		
-//		saveSamples(bleuScoresOut, samples.get(0));
-//		saveSamples(meteorScoresOut, samples.get(1));
-//		saveSamples(terScoresOut, samples.get(2));
-//	}
 }

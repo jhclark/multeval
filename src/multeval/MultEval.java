@@ -1,10 +1,16 @@
 package multeval;
 
+import jannopts.ConfigurationException;
+import jannopts.Configurator;
+import jannopts.Option;
+import jannopts.util.StringUtils;
+
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import multeval.ResultsManager.Type;
@@ -15,14 +21,8 @@ import multeval.metrics.TER;
 import multeval.output.LatexTable;
 import multeval.significance.BootstrapResampler;
 import multeval.significance.StratifiedApproximateRandomizationTest;
-import multeval.util.LibUtil;
 import multeval.util.MathUtils;
 import multeval.util.SuffStatUtils;
-
-import jannopts.ConfigurationException;
-import jannopts.Configurator;
-import jannopts.Option;
-import jannopts.util.StringUtils;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -40,7 +40,7 @@ public class MultEval {
 
 	public static interface Module {
 
-		public void run(Configurator opts) throws ConfigurationException;
+		public void run(Configurator opts) throws ConfigurationException, FileNotFoundException;
 
 		public Iterable<Class<?>> getDynamicConfigurables();
 	}
@@ -72,19 +72,22 @@ public class MultEval {
 		@Option(shortName = "s", longName = "ar-shuffles", usage = "Number of shuffles to perform to estimate p-value during approximate randomization test system *PAIR*", defaultValue = "10000")
 		private int numShuffles;
 
+		@Option(shortName = "L", longName = "latex", usage = "Latex-formatted table including measures that are commonly (or should be commonly) reported", required = false)
+		private String latexOutFile;
+
 		// TODO: Lowercasing option
 		// TODO: Output index of median system according to each metric
 
 		@Override
 		public Iterable<Class<?>> getDynamicConfigurables() {
-			return ImmutableList.<Class<?>>of(BLEU.class, METEOR.class, TER.class);
+			return ImmutableList.<Class<?>> of(BLEU.class, METEOR.class, TER.class);
 		}
 
 		@Override
-		public void run(Configurator opts) throws ConfigurationException {
+		public void run(Configurator opts) throws ConfigurationException, FileNotFoundException {
 
 			List<Metric> metrics = loadMetrics(metricNames, opts);
-			
+
 			// 1) load hyps and references
 			// first index is opt run, second is hyp
 			String[][] hypFilesBySysSplit = new String[hypFilesBySys.length][];
@@ -127,15 +130,22 @@ public class MultEval {
 			runApproximateRandomization(metrics, data, suffStats, results);
 
 			// 6) output pretty table
-			LatexTable table = new LatexTable();
-			table.write(results, new PrintWriter(System.out));
+			if (latexOutFile != null) {
+				LatexTable table = new LatexTable();
+				File file = new File(latexOutFile);
+				System.err.println("Writing Latex table to " + file.getAbsolutePath());
+				PrintWriter out = new PrintWriter(file);
+				table.write(results, out);
+				out.close();
+			}
 
 			// 7) show statistics such as most frequent OOV's length, brevity
 			// penalty, etc.
 		}
 
-		private List<Metric> loadMetrics(String[] metricNames, Configurator opts) throws ConfigurationException {
-			
+		private List<Metric> loadMetrics(String[] metricNames, Configurator opts)
+				throws ConfigurationException {
+
 			// 1) activate config options so that we fail-fast
 			List<Metric> metrics = new ArrayList<Metric>();
 			for (String metricName : metricNames) {
@@ -145,18 +155,18 @@ public class MultEval {
 					throw new RuntimeException("Unknown metric: " + metricName
 							+ "; Known metrics are: " + KNOWN_METRICS.keySet());
 				}
-				
+
 				// add metric options on-the-fly as needed
 				opts.activateDynamicOptions(metric.getClass());
-				
+
 				metrics.add(metric);
 			}
-			
+
 			// 2) load metric resources, etc.
-			for(Metric metric : metrics) {
+			for (Metric metric : metrics) {
 				metric.configure(opts);
 			}
-			
+
 			return metrics;
 		}
 
@@ -165,6 +175,9 @@ public class MultEval {
 
 			int iBaselineSys = 0;
 			for (int iSys = 1; iSys < data.getNumSystems(); iSys++) {
+
+				System.err.println("Performing approximate randomization to estimate p-value between baseline system and system "
+						+ (iSys + 1) + " (of " + data.getNumSystems() + ")");
 
 				// index 1: metric, index 2: hypothesis, inner array: suff stats
 				List<List<float[]>> suffStatsBaseline =
@@ -207,6 +220,7 @@ public class MultEval {
 
 		private void runOverallEval(List<Metric> metrics, HypothesisManager data,
 				SuffStatManager suffStats, ResultsManager results) {
+
 			for (int iMetric = 0; iMetric < metrics.size(); iMetric++) {
 				Metric metric = metrics.get(iMetric);
 				System.err.println("Scoring with metric: " + metric.toString());
@@ -243,7 +257,11 @@ public class MultEval {
 				for (int iOpt = 0; iOpt < data.getNumOptRuns(); iOpt++) {
 
 					System.err.println("Performing bootstrap resampling to estimate stddev for test set selection (System "
-							+ (iSys + 1) + " of " + data.getNumSystems() + ")");
+							+ (iSys + 1)
+							+ " of "
+							+ data.getNumSystems()
+							+ "; opt run "
+							+ (iOpt + 1) + " of " + data.getNumOptRuns() + ")");
 
 					// index 1: metric, index 2: hypothesis, inner array: suff
 					// stats
@@ -281,7 +299,7 @@ public class MultEval {
 	private static final ImmutableMap<String, Module> modules =
 			new ImmutableMap.Builder<String, Module>().put("eval", new MultEvalModule()).build();
 
-	public static void main(String[] args) throws ConfigurationException {
+	public static void main(String[] args) throws ConfigurationException, FileNotFoundException {
 
 		System.err.println("WARNING: THIS SOFTWARE IS STILL UNDER TESTING. PLEASE DO NOT REPORT ANY RESULTS COMPUTED BY THIS CODE. TESTING WILL BE COMPLETED NO LATER THAN MAY 1, 2011.");
 
@@ -299,20 +317,20 @@ public class MultEval {
 
 			// add "dynamic" options, which might be activated later
 			// by the specified switch values
-			for(Class<?> c : module.getDynamicConfigurables()) {
+			for (Class<?> c : module.getDynamicConfigurables()) {
 				opts.allowDynamicOptions(c);
 			}
-			
+
 			try {
 				opts.readFrom(args);
 				opts.configure(module);
 			} catch (ConfigurationException e) {
-				
+
 				opts.printUsageTo(System.err);
 				System.err.println("ERROR: " + e.getMessage() + "\n");
 				System.exit(1);
 			}
-			
+
 			module.run(opts);
 		}
 	}
