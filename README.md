@@ -39,7 +39,9 @@ For a more detailed description of the METEOR options, please see http://github.
 Discussion on Tokenization, Segmentation, etc.
 ----------------------------------------------
 
-A few words on casing, tokenization, normalization, segmentation, and punctuation in evaluation.
+While tokenization *can* introduce bias in many metrics by changing the length of hypotheses and references, noise can also be introduced into the evaluation process by strange interactions between running a detokenizer followed by tokenizer. Therefore, since research often isn't focused on details such as tokenization, we recommend evaluating on full-form references and hypotheses (i.e. not segmented, unless you're working with a language without a canonical notion of words) that are *tokenized*. Of course, in a bake-off scenario or in research in which multiple tokenization schemes are being compared, a standard tokenization will be necessary to have a comparable evaluation.
+
+Still, special care must be taken for issues such as segmentation, that can effect matching of resources such as paraphrase tables in METEOR. Since METEOR doesn't use paraphrases including punctuation, this isn't an issue for tokenization, while lowercased full-forms remain a requirement for METEOR evaluation.
 
 
 Cased vs Uncased Evaluation
