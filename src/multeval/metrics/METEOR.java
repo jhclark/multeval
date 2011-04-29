@@ -18,6 +18,7 @@ import com.google.common.primitives.Doubles;
 import edu.cmu.meteor.scorer.MeteorConfiguration;
 import edu.cmu.meteor.scorer.MeteorScorer;
 import edu.cmu.meteor.scorer.MeteorStats;
+import edu.cmu.meteor.util.Constants;
 
 public class METEOR implements Metric {
 	
@@ -45,8 +46,10 @@ public class METEOR implements Metric {
 	@Option(shortName = "a", longName = "meteor.paraphraseFile", usage = "If default is not desired", required=false)
 	String paraphraseFile;
 	
-	@Option(shortName = "k", longName = "meteor.keepPunctuation", usage = "Consider punctuation when aligning sentences", defaultValue="true")
+	@Option(shortName = "k", longName = "meteor.keepPunctuation", usage = "Consider punctuation when aligning sentences (if false, the meteor tokenizer will be run, after which punctuation will be removed)", defaultValue="true")
 	boolean keepPunctuation;
+	
+	// TODO: Meteor normalization?
 
 	private MeteorScorer scorer;
 	
@@ -100,30 +103,12 @@ public class METEOR implements Metric {
 				throw new Error(e);
 			}
 		}
-//
-//		// Normalization & SGML
-//		Boolean normalize = Boolean
-//				.parseBoolean(props.getProperty("normalize"));
-//		Boolean sgml = Boolean.parseBoolean(props.getProperty("sgml"));
-//		Boolean keepPunctuation = Boolean.parseBoolean(props
-//				.getProperty("keepPunctuation"));
-//		Boolean nBest = Boolean.parseBoolean(props.getProperty("nBest"));
-//		if (sgml) {
-//			if (keepPunctuation)
-//				config.setNormalization(Constants.NORMALIZE_KEEP_PUNCT);
-//			else
-//				config.setNormalization(Constants.NORMALIZE_NO_PUNCT);
-//		} else {
-//			if (nBest) {
-//				config.setNormalization(Constants.NO_NORMALIZE);
-//			} else if (normalize) {
-//				if (keepPunctuation)
-//					config.setNormalization(Constants.NORMALIZE_KEEP_PUNCT);
-//				else
-//					config.setNormalization(Constants.NORMALIZE_NO_PUNCT);
-//			} else
-//				config.setNormalization(Constants.NO_NORMALIZE);
-//		}
+		
+		if(keepPunctuation) {
+			config.setNormalization(Constants.NO_NORMALIZE);
+		} else {
+			config.setNormalization(Constants.NORMALIZE_NO_PUNCT);
+		}
 
 		System.err.println("Loading METEOR paraphrase table...");
 		scorer = new MeteorScorer(config);
