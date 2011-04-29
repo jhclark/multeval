@@ -1,7 +1,7 @@
 Overview
 ========
 
-MultEval takes machine translation hypotheses from several runs of an optimizer and provides 3 popular metric scores, as well as, variances (via bootstrap resampling) and p-values (via approximate randomization). This allows researchers to mitigate some of the risk of using unstable optimizers such as MERT, MIRA, and MCMC.
+MultEval takes machine translation hypotheses from several runs of an optimizer and provides 3 popular metric scores, as well as, variances (via bootstrap resampling) and p-values (via approximate randomization). This allows researchers to mitigate some of the risk of using unstable optimizers such as MERT, MIRA, and MCMC. It is intended to help in evaluating the impact of in-house experimental variations on translation quality; it is currently not setup to do bake-off style comparisons (bake-offs can't require multiple optimizer runs nor a standard tokenization).
 
 It is a user-friendly implementation of:
 Jonathan Clark, Chris Dyer, Alon Lavie, and Noah Smith, "Better Hypothesis Testing for Statistical Machine Translation: Controlling for Optimizer Instability", Proceedings of the Association for Computational Lingustics, 2011. [PDF](http://www.cs.cmu.edu/~jhclark/pubs/significance.pdf)
@@ -17,7 +17,7 @@ multeval.sh eval --refs example/refs.test2010.lc.tok.en.* \
 		 --meteor.language en
 ```
 
-All files should contain *tokenized*, space-delimited sentences in UTF-8 encoding, one sentence per line. Unlike many metric implementations, MultEval does no tokenization or segmentation for you (see discussion below).
+All files should contain *tokenized*, lowercased, space-delimited sentences in UTF-8 encoding, one sentence per line. Unlike many metric implementations, MultEval does no tokenization or segmentation for you (see discussion below).
 
 Generally, you should evaluate full forms (i.e. without word segmentation). For languages without a canonical notion of words (e.g. Chinese, Japanese), we recommend splitting all non-Latin characters (e.g. each character that is not part of a borrowed Western word, URL, etc. should be evaluated as its own word.)
 
@@ -25,9 +25,15 @@ For a more detailed description of the METEOR options, please see http://github.
 
 
 Discussion on Tokenization, Segmentation, etc.
-==============================================
+----------------------------------------------
 
 A few words on casing, tokenization, normalization, segmentation, and punctuation in evaluation.
+
+
+Cased vs Uncased Evaluation
+---------------------------
+
+For now, this program assumes you will give it lowercased input. Cased variants of BLEU and TER will be coming soon.
 
 
 Adding Your Own Metric
