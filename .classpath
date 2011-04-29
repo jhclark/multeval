@@ -3,7 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/guava-r09.jar"/>
-	<classpathentry kind="lib" path="lib/jannopts.jar"/>
+	<classpathentry kind="lib" path="lib/jannopts.jar" sourcepath="/jannopts/src"/>
 	<classpathentry kind="lib" path="lib/meteor-1.2/meteor-1.2.jar" sourcepath="lib/meteor-1.2"/>
 	<classpathentry kind="lib" path="lib/tercom-0.7.26.jar" sourcepath="lib/tercom-0.7.25/src"/>
 	<classpathentry kind="output" path="bin"/>
