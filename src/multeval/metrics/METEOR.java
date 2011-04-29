@@ -144,7 +144,7 @@ public class METEOR implements Metric {
 		int[] intStats = ArrayUtils.toIntArray(suffStats);
 		MeteorStats stats = new MeteorStats(intStats);
 		scorer.computeMetrics(stats);
-		return stats.score;
+		return stats.score * 100;
 	}
 	
 	@Override

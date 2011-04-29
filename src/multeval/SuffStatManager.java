@@ -42,6 +42,12 @@ public class SuffStatManager {
 		}
 		statsByHyp.set(iHyp, stats);
 	}
+	
+	// inner array: various suff stats for a particular metric
+	public float[] getStats(int iMetric, int iSys, int iOpt, int iHyp) {
+		// TODO: More informative error messages w/ bounds checking
+		return getStats(iMetric, iSys, iOpt).get(iHyp);
+	}
 
 	// list index: iHyp; inner array: various suff stats for a particular metric
 	public List<float[]> getStats(int iMetric, int iSys, int iOpt) {

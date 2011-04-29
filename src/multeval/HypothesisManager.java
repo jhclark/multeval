@@ -123,14 +123,23 @@ public class HypothesisManager {
 	public int getNumSystems() {
 		return numSystems;
 	}
+	
+
+	public List<String> getHypotheses(int iSys, int iOpt) {
+		// TODO: More informative error messages w/ bounds checking
+		return allHyps.get(iSys).get(iOpt);
+	}
 
 	public String getHypothesis(int iSys, int iOpt, int iHyp) {
-		// TODO: More informative error messages w/ bounds checking
-		return allHyps.get(iSys).get(iOpt).get(iHyp);
+		return getHypotheses(iSys, iOpt).get(iHyp);
 	}
 
 	public List<String> getReferences(int iHyp) {
 		// TODO: More informative error messages w/ bounds checking
 		return allRefs.get(iHyp);
+	}
+
+	public List<List<String>> getAllReferences() {
+		return allRefs;
 	}
 }

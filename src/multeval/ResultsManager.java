@@ -13,7 +13,7 @@ public class ResultsManager {
 	public final String[] metricNames;
 	public final String[] sysNames;
 	
-	public enum Type {AVG, STDDEV, MIN, MAX, RESAMPLED_MEAN_AVG, RESAMPLED_STDDEV_AVG, RESAMPLED_MIN, RESAMPLED_MAX, P_VALUE}
+	public enum Type {AVG, STDDEV, MIN, MAX, RESAMPLED_MEAN_AVG, RESAMPLED_STDDEV_AVG, RESAMPLED_MIN, RESAMPLED_MAX, P_VALUE, MEDIAN, MEDIAN_IDX}
 
 	public ResultsManager(String[] metricNames, String[] sysNames) {
 		this.metricNames = metricNames;
@@ -35,7 +35,7 @@ public class ResultsManager {
 		Map<Type, Double> map = resultsByMetric.get(iMetric);
 		map.put(type, d);
 		
-		System.err.println("GOT RESULT: " + sysNames[iSys] + ": " + metricNames[iMetric] + ": " + type.name() + ": " + String.format("%.2f", d*100));
+		System.err.println("GOT RESULT: " + sysNames[iSys] + ": " + metricNames[iMetric] + ": " + type.name() + ": " + String.format("%.2f", d));
 	}
 	
 	public Double get(int iMetric, int iSys, Type type) {

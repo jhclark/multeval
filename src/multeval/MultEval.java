@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import multeval.ResultsManager.Type;
+import multeval.analysis.DiffRanker;
 import multeval.metrics.BLEU;
 import multeval.metrics.METEOR;
 import multeval.metrics.Metric;
@@ -75,8 +76,10 @@ public class MultEval {
 		@Option(shortName = "L", longName = "latex", usage = "Latex-formatted table including measures that are commonly (or should be commonly) reported", required = false)
 		private String latexOutFile;
 
+		@Option(shortName = "r", longName = "rankDir", usage = "Rank hypotheses of median optimization run of each system with regard to improvement/decline over median baseline system and output to the specified directory for analysis", required = false)
+		private String rankDir;
+
 		// TODO: Lowercasing option
-		// TODO: Output index of median system according to each metric
 
 		@Override
 		public Iterable<Class<?>> getDynamicConfigurables() {
@@ -122,6 +125,10 @@ public class MultEval {
 			// 3) evaluate each system and report the average scores
 			runOverallEval(metrics, data, suffStats, results);
 
+			// run diff ranking, if requested (MUST be run after overall eval,
+			// which computes median systems)
+			runDiffRankEval(metrics, data, suffStats, results);
+
 			// 4) run bootstrap resampling for each system, for each
 			// optimization run
 			runBootstrapResampling(metrics, data, suffStats, results);
@@ -141,6 +148,69 @@ public class MultEval {
 
 			// 7) show statistics such as most frequent OOV's length, brevity
 			// penalty, etc.
+		}
+
+		private void runDiffRankEval(List<Metric> metrics, HypothesisManager data,
+				SuffStatManager suffStats, ResultsManager results) throws FileNotFoundException {
+
+			if (rankDir != null) {
+
+				File rankOutDir = new File(rankDir);
+				rankOutDir.mkdirs();
+				System.err.println("Outputting ranked hypotheses to: " + rankOutDir.getAbsolutePath());
+
+				DiffRanker ranker = new DiffRanker(metricNames);
+				List<List<String>> refs = data.getAllReferences();
+
+				int iBaselineSys = 0;
+				for (int iMetric = 0; iMetric < metrics.size(); iMetric++) {
+					int iBaselineMedianIdx =
+							results.get(iMetric, iBaselineSys, Type.MEDIAN_IDX).intValue();
+					List<String> hypsMedianBaseline =
+							data.getHypotheses(iBaselineSys, iBaselineMedianIdx);
+
+					// we must always recalculate all metric scores since
+					// the median system might change based on which metric
+					// we're sorting by
+					double[][] sentMetricScoresBaseline =
+							getSentLevelScores(metrics, data, suffStats, iBaselineSys,
+									iBaselineMedianIdx);
+
+					for (int iSys = 1; iSys < data.getNumSystems(); iSys++) {
+						File outFile =
+								new File(rankOutDir, String.format("sys%d.sortedby.%s", (iSys + 1),
+										metricNames[iMetric]));
+
+						int iSysMedianIdx = results.get(iMetric, iSys, Type.MEDIAN_IDX).intValue();
+
+						List<String> hypsMedianSys = data.getHypotheses(iSys, iSysMedianIdx);
+
+						double[][] sentMetricScoresSys =
+								getSentLevelScores(metrics, data, suffStats, iSys, iSysMedianIdx);
+
+						PrintWriter out = new PrintWriter(outFile);
+						ranker.write(hypsMedianBaseline, hypsMedianSys, refs,
+								sentMetricScoresBaseline, sentMetricScoresSys, iMetric, out);
+						out.close();
+					}
+				}
+			}
+		}
+
+		private double[][] getSentLevelScores(List<Metric> metrics, HypothesisManager data,
+				SuffStatManager suffStats, int iSys, int iOpt) {
+
+			double[][] result = new double[data.getNumHyps()][metrics.size()];
+			for (int iHyp = 0; iHyp < data.getNumHyps(); iHyp++) {
+				for (int iMetric = 0; iMetric < metrics.size(); iMetric++) {
+
+					Metric metric = metrics.get(iMetric);
+					float[] stats = suffStats.getStats(iMetric, iSys, iOpt, iHyp);
+					result[iHyp][iMetric] = metric.score(stats);
+				}
+
+			}
+			return result;
 		}
 
 		private List<Metric> loadMetrics(String[] metricNames, Configurator opts)
@@ -236,11 +306,15 @@ public class MultEval {
 					double stddev = MathUtils.stddev(scoresByOptRun);
 					double min = MathUtils.min(scoresByOptRun);
 					double max = MathUtils.max(scoresByOptRun);
+					int medianIdx = MathUtils.medianIndex(scoresByOptRun);
+					double median = scoresByOptRun[medianIdx];
 
 					results.report(iMetric, iSys, Type.AVG, avg);
+					results.report(iMetric, iSys, Type.MEDIAN, median);
 					results.report(iMetric, iSys, Type.STDDEV, stddev);
 					results.report(iMetric, iSys, Type.MIN, min);
 					results.report(iMetric, iSys, Type.MAX, max);
+					results.report(iMetric, iSys, Type.MEDIAN_IDX, medianIdx);
 				}
 			}
 		}
