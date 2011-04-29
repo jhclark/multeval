@@ -106,8 +106,18 @@ public class JBLEU {
 	public double score(int[] suffStats) {
 		Preconditions.checkArgument(suffStats.length == N*2+1, "BLEU sufficient stats must be of length N*2+1");
 
+		final double brevityPenalty;
+		double refWords = getRefWords(suffStats);
+		double hypWords = getAttemptedNgrams(suffStats, 0);
+		if(hypWords < refWords) {
+			brevityPenalty = Math.exp(1.0 - refWords / hypWords);
+		} else {
+			brevityPenalty = 1.0;
+		}
+		assert brevityPenalty >= 0.0;
+		assert brevityPenalty <= 1.0;
+		
 		double score = 0.0;
-		double brevityPenalty = Math.max(1.0, Math.exp(1.0 - getRefWords(suffStats) / getAttemptedNgrams(suffStats, 0)));
 		double smooth = 1.0;
 
 		for (int j = 0; j < N; j++) {
@@ -118,15 +128,21 @@ public class JBLEU {
 				iscore = 0.0;
 			} else if (matchingNgramsJ == 0) {
 				smooth *= 2;
-				iscore = Math.log(1.0 / (smooth / attemptedNgramsJ));
+				double smoothedPrecision = 1.0 / (smooth * attemptedNgramsJ);
+				iscore = Math.log(smoothedPrecision);
 			} else {
 				double precisionAtJ = matchingNgramsJ / attemptedNgramsJ;
 				iscore = Math.log(precisionAtJ);
 			}
-			score += iscore;
+			// TODO: Allow non-uniform weights instead of just the "baseline" 1/4 from Papenini			
+			double ngramOrderWeight = 0.25;
+			score += iscore * ngramOrderWeight;
+			
+			assert Math.exp(iscore * ngramOrderWeight) <= 1.0 : String.format("ERROR for order %d-grams iscore: %f -> %f :: %s", j+1, iscore, Math.exp(iscore * ngramOrderWeight), Arrays.toString(suffStats));
+			assert Math.exp(score * ngramOrderWeight) <= 1.0;
 		}
-		// TODO: Allow non-uniform weights instead of just the "baseline" 1/4 from Papenini
-		double totalScore = brevityPenalty * Math.exp(score / 4.0);
+
+		double totalScore = brevityPenalty * Math.exp(score);
 		
 		if (totalScore > 1.0) {
 			System.err.println("BLEU: Thresholding out of range score: " + totalScore + "; stats: " + Arrays.toString(suffStats));
