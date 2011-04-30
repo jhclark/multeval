@@ -13,10 +13,10 @@ import java.util.List;
  * @author jhclark
  * 
  */
-public interface Metric {
-	public float[] stats(String sentence, List<String> refs);
+public interface Metric<Stats extends SuffStats<Stats>> {
+	public Stats stats(String sentence, List<String> refs);
 	
-	public double score(float[] suffStats);
+	public double score(Stats suffStats);
 
 	public void configure(Configurator opts) throws ConfigurationException;
 }

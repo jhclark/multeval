@@ -18,6 +18,7 @@ import multeval.analysis.DiffRanker;
 import multeval.metrics.BLEU;
 import multeval.metrics.METEOR;
 import multeval.metrics.Metric;
+import multeval.metrics.SuffStats;
 import multeval.metrics.TER;
 import multeval.output.LatexTable;
 import multeval.significance.BootstrapResampler;
@@ -89,7 +90,7 @@ public class MultEval {
 		@Override
 		public void run(Configurator opts) throws ConfigurationException, FileNotFoundException {
 
-			List<Metric> metrics = loadMetrics(metricNames, opts);
+			List<Metric<?>> metrics = loadMetrics(metricNames, opts);
 
 			// 1) load hyps and references
 			// first index is opt run, second is hyp
@@ -150,7 +151,7 @@ public class MultEval {
 			// penalty, etc.
 		}
 
-		private void runDiffRankEval(List<Metric> metrics, HypothesisManager data,
+		private void runDiffRankEval(List<Metric<?>> metrics, HypothesisManager data,
 				SuffStatManager suffStats, ResultsManager results) throws FileNotFoundException {
 
 			if (rankDir != null) {
@@ -197,7 +198,7 @@ public class MultEval {
 			}
 		}
 
-		private double[][] getSentLevelScores(List<Metric> metrics, HypothesisManager data,
+		private double[][] getSentLevelScores(List<Metric<?>> metrics, HypothesisManager data,
 				SuffStatManager suffStats, int iSys, int iOpt) {
 
 			double[][] result = new double[data.getNumHyps()][metrics.size()];
@@ -205,7 +206,7 @@ public class MultEval {
 				for (int iMetric = 0; iMetric < metrics.size(); iMetric++) {
 
 					Metric metric = metrics.get(iMetric);
-					float[] stats = suffStats.getStats(iMetric, iSys, iOpt, iHyp);
+					SuffStats<?> stats = suffStats.getStats(iMetric, iSys, iOpt, iHyp);
 					result[iHyp][iMetric] = metric.score(stats);
 				}
 
@@ -213,14 +214,14 @@ public class MultEval {
 			return result;
 		}
 
-		private List<Metric> loadMetrics(String[] metricNames, Configurator opts)
+		private List<Metric<?>> loadMetrics(String[] metricNames, Configurator opts)
 				throws ConfigurationException {
 
 			// 1) activate config options so that we fail-fast
-			List<Metric> metrics = new ArrayList<Metric>();
+			List<Metric<?>> metrics = new ArrayList<Metric<?>>();
 			for (String metricName : metricNames) {
 				System.err.println("Loading metric: " + metricName);
-				Metric metric = KNOWN_METRICS.get(metricName.toLowerCase());
+				Metric<?> metric = KNOWN_METRICS.get(metricName.toLowerCase());
 				if (metric == null) {
 					throw new RuntimeException("Unknown metric: " + metricName
 							+ "; Known metrics are: " + KNOWN_METRICS.keySet());
@@ -233,14 +234,14 @@ public class MultEval {
 			}
 
 			// 2) load metric resources, etc.
-			for (Metric metric : metrics) {
+			for (Metric<?> metric : metrics) {
 				metric.configure(opts);
 			}
 
 			return metrics;
 		}
 
-		private void runApproximateRandomization(List<Metric> metrics, HypothesisManager data,
+		private void runApproximateRandomization(List<Metric<?>> metrics, HypothesisManager data,
 				SuffStatManager suffStats, ResultsManager results) {
 
 			int iBaselineSys = 0;
@@ -250,9 +251,9 @@ public class MultEval {
 						+ (iSys + 1) + " (of " + data.getNumSystems() + ")");
 
 				// index 1: metric, index 2: hypothesis, inner array: suff stats
-				List<List<float[]>> suffStatsBaseline =
+				List<List<SuffStats<?>>> suffStatsBaseline =
 						suffStats.getStatsAllOptForSys(iBaselineSys);
-				List<List<float[]>> suffStatsSysI = suffStats.getStatsAllOptForSys(iSys);
+				List<List<SuffStats<?>>> suffStatsSysI = suffStats.getStatsAllOptForSys(iSys);
 
 				StratifiedApproximateRandomizationTest ar =
 						new StratifiedApproximateRandomizationTest(metrics, suffStatsBaseline,
@@ -264,13 +265,13 @@ public class MultEval {
 			}
 		}
 
-		private SuffStatManager collectSuffStats(List<Metric> metrics, HypothesisManager data) {
+		private SuffStatManager collectSuffStats(List<Metric<?>> metrics, HypothesisManager data) {
 			SuffStatManager suffStats =
 					new SuffStatManager(metrics.size(), data.getNumSystems(), data.getNumOptRuns(),
 							data.getNumHyps());
 
 			for (int iMetric = 0; iMetric < metrics.size(); iMetric++) {
-				Metric metric = metrics.get(iMetric);
+				Metric<?> metric = metrics.get(iMetric);
 				System.err.println("Collecting sufficient statistics for metric: "
 						+ metric.toString());
 
@@ -279,7 +280,7 @@ public class MultEval {
 						for (int iHyp = 0; iHyp < data.getNumHyps(); iHyp++) {
 							String hyp = data.getHypothesis(iSys, iOpt, iHyp);
 							List<String> refs = data.getReferences(iHyp);
-							float[] stats = metric.stats(hyp, refs);
+							SuffStats<?> stats = metric.stats(hyp, refs);
 							suffStats.saveStats(iMetric, iSys, iOpt, iHyp, stats);
 						}
 					}
@@ -288,7 +289,7 @@ public class MultEval {
 			return suffStats;
 		}
 
-		private void runOverallEval(List<Metric> metrics, HypothesisManager data,
+		private void runOverallEval(List<Metric<?>> metrics, HypothesisManager data,
 				SuffStatManager suffStats, ResultsManager results) {
 
 			for (int iMetric = 0; iMetric < metrics.size(); iMetric++) {
@@ -298,8 +299,8 @@ public class MultEval {
 				for (int iSys = 0; iSys < data.getNumSystems(); iSys++) {
 					double[] scoresByOptRun = new double[data.getNumOptRuns()];
 					for (int iOpt = 0; iOpt < data.getNumOptRuns(); iOpt++) {
-						List<float[]> stats = suffStats.getStats(iMetric, iSys, iOpt);
-						float[] sumStats = SuffStatUtils.sumStats(stats);
+						List<SuffStats<?>> stats = suffStats.getStats(iMetric, iSys, iOpt);
+						SuffStats<?> sumStats = SuffStatUtils.sumStats(stats);
 						scoresByOptRun[iOpt] = metric.score(sumStats);
 					}
 					double avg = MathUtils.average(scoresByOptRun);
@@ -319,7 +320,7 @@ public class MultEval {
 			}
 		}
 
-		private void runBootstrapResampling(List<Metric> metrics, HypothesisManager data,
+		private void runBootstrapResampling(List<Metric<?>> metrics, HypothesisManager data,
 				SuffStatManager suffStats, ResultsManager results) {
 			for (int iSys = 0; iSys < data.getNumSystems(); iSys++) {
 
@@ -339,7 +340,7 @@ public class MultEval {
 
 					// index 1: metric, index 2: hypothesis, inner array: suff
 					// stats
-					List<List<float[]>> suffStatsSysI = suffStats.getStats(iSys, iOpt);
+					List<List<SuffStats<?>>> suffStatsSysI = suffStats.getStats(iSys, iOpt);
 					BootstrapResampler boot = new BootstrapResampler(metrics, suffStatsSysI);
 					List<double[]> sampledScoresByMetric = boot.resample(numBootstrapSamples);
 

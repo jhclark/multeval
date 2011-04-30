@@ -5,15 +5,15 @@ import java.util.List;
 import java.util.Random;
 
 import multeval.metrics.Metric;
-import multeval.util.ArrayUtils;
+import multeval.metrics.SuffStats;
 
 import com.google.common.base.Preconditions;
 
 public class BootstrapResampler {
 
 	private final Random random = new Random();
-	private final List<Metric> metrics;
-	private final List<List<float[]>> suffStats;
+	private final List<Metric<?>> metrics;
+	private final List<List<SuffStats<?>>> suffStats;
 	private int totalDataPoints;
 
 	/**
@@ -23,8 +23,8 @@ public class BootstrapResampler {
 	 *            second dimension is number of data points (i.e. sentences)
 	 *            and the inner array is the sufficient statistics for each metric.
 	 */
-	public BootstrapResampler(List<Metric> metrics,
-			List<List<float[]>> suffStats) {
+	public BootstrapResampler(List<Metric<?>> metrics,
+			List<List<SuffStats<?>>> suffStats) {
 		
 		Preconditions.checkArgument(metrics.size() > 0, "Must have at least one metric.");
 		Preconditions.checkArgument(suffStats.size() > 0, "Must have at least one data point.");
@@ -63,7 +63,9 @@ public class BootstrapResampler {
 			chooseSampleMembers(totalDataPoints, sampleMembers);
 			// NOTE: We could dump the sample members for analysis here if we wanted
 			for(int iMetric = 0; iMetric < metrics.size(); iMetric++) {
-				float[] summedStats = sumStats(sampleMembers, iMetric, suffStats);
+				SuffStats<?> summedStats = sumStats(sampleMembers, iMetric, suffStats);
+				
+				// hack around generics by erasure
 				Metric metric = metrics.get(iMetric);
 				double score = metric.score(summedStats);
 				metricValues.get(iMetric)[iSample] = score;
@@ -72,14 +74,13 @@ public class BootstrapResampler {
 		return metricValues;
 	}
 
-	private static float[] sumStats(int[] sampleMembers,
-			int iMetric, List<List<float[]>> suffStats) {
+	private static SuffStats<?> sumStats(int[] sampleMembers,
+			int iMetric, List<List<SuffStats<?>>> ss) {
 		
-		int numMetricStats = suffStats.get(iMetric).get(0).length;
-		float[] summedStats = new float[numMetricStats];
+		SuffStats<?> summedStats = ss.get(iMetric).get(0).create();
 
 		for(int dataIdx : sampleMembers) {
-			ArrayUtils.plusEquals(summedStats, suffStats.get(iMetric).get(dataIdx));
+			summedStats.add(ss.get(iMetric).get(dataIdx));
 		}
 		return summedStats;
 	}

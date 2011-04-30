@@ -1,21 +1,20 @@
 package multeval.metrics;
 
+import jannopts.ConfigurationException;
+import jannopts.Configurator;
+import jannopts.Option;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import multeval.util.ArrayUtils;
+import jbleu.JBLEU;
 import multeval.util.LibUtil;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 
-import jannopts.ConfigurationException;
-import jannopts.Configurator;
-import jannopts.Option;
-import jbleu.JBLEU;
-
 // a MultiMetric wrapper around the jBLEU metric
-public class BLEU implements Metric {
+public class BLEU implements Metric<IntStats> {
 	
 	@Option(shortName = "c", longName = "bleu.closestRefLength", usage = "Use closest reference length when determining brevity penalty? (true behaves like IBM BLEU, false behaves like old NIST BLEU)", defaultValue="true")
 	boolean closestRefLength;
@@ -23,7 +22,7 @@ public class BLEU implements Metric {
 	private JBLEU bleu = new JBLEU();
 
 	@Override
-	public float[] stats(String hyp, List<String> refs) {
+	public IntStats stats(String hyp, List<String> refs) {
 		
 		List<String> tokHyp = Lists.newArrayList(Splitter.on(' ').split(hyp));
 		List<List<String>> tokRefs = new ArrayList<List<String>>();
@@ -31,14 +30,14 @@ public class BLEU implements Metric {
 			tokRefs.add(Lists.newArrayList(Splitter.on(' ').split(ref)));
 		}
 		
-		int[] result = new int[JBLEU.getSuffStatCount()];
-		bleu.stats(tokHyp, tokRefs, result);
-		return ArrayUtils.toFloatArray(result);
+		IntStats result = new IntStats(JBLEU.getSuffStatCount());
+		bleu.stats(tokHyp, tokRefs, result.arr);
+		return result;
 	}
 
 	@Override
-	public double score(float[] suffStats) {
-		return bleu.score(ArrayUtils.toIntArray(suffStats)) * 100;
+	public double score(IntStats suffStats) {
+		return bleu.score(suffStats.arr) * 100;
 	}
 	
 	@Override

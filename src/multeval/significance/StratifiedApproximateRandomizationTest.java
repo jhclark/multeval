@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Random;
 
 import multeval.metrics.Metric;
+import multeval.metrics.SuffStats;
 import multeval.util.ArrayUtils;
 import multeval.util.SuffStatUtils;
 
@@ -12,10 +13,10 @@ import com.google.common.base.Preconditions;
 public class StratifiedApproximateRandomizationTest {
 
 	private static final Random random = new Random();
-	private final List<Metric> metrics;
+	private final List<Metric<?>> metrics;
 
-	private final List<List<float[]>> suffStatsA;
-	private final List<List<float[]>> suffStatsB;
+	private final List<List<SuffStats<?>>> suffStatsA;
+	private final List<List<SuffStats<?>>> suffStatsB;
 	private int totalDataPoints;
 
 	/**
@@ -24,8 +25,8 @@ public class StratifiedApproximateRandomizationTest {
 	 *            number of data points (i.e. sentences) and the inner array is
 	 *            the sufficient statistics for each metric.
 	 */
-	public StratifiedApproximateRandomizationTest(List<Metric> metrics,
-			List<List<float[]>> suffStatsA, List<List<float[]>> suffStatsB) {
+	public StratifiedApproximateRandomizationTest(List<Metric<?>> metrics,
+			List<List<SuffStats<?>>> suffStatsA, List<List<SuffStats<?>>> suffStatsB) {
 
 		Preconditions.checkArgument(metrics.size() > 0, "Must have at least one metric.");
 		Preconditions.checkArgument(suffStatsA.size() > 0, "Must have at least one data point.");
@@ -86,16 +87,15 @@ public class StratifiedApproximateRandomizationTest {
 		return p;
 	}
 
-	private static float[] sumStats(boolean[] shuffling, int iMetric,
-			List<List<float[]>> suffStatsA, List<List<float[]>> suffStatsB) {
+	private static SuffStats<?> sumStats(boolean[] shuffling, int iMetric,
+			List<List<SuffStats<?>>> suffStatsA, List<List<SuffStats<?>>> suffStatsB) {
 
-		int numStats = suffStatsA.get(iMetric).get(0).length;
-		float[] summedStats = new float[numStats];
-		List<float[]> metricStatsA = suffStatsA.get(iMetric);
-		List<float[]> metricStatsB = suffStatsB.get(iMetric);
+		SuffStats<?> summedStats = suffStatsA.get(iMetric).get(0).create();
+		List<SuffStats<?>> metricStatsA = suffStatsA.get(iMetric);
+		List<SuffStats<?>> metricStatsB = suffStatsB.get(iMetric);
 		for (int iRow = 0; iRow < metricStatsA.size(); iRow++) {
-			float[] row = shuffling[iRow] ? metricStatsA.get(iRow) : metricStatsB.get(iRow);
-			ArrayUtils.plusEquals(summedStats, row);
+			SuffStats<?> row = shuffling[iRow] ? metricStatsA.get(iRow) : metricStatsB.get(iRow);
+			summedStats.add(row);
 		}
 		return summedStats;
 	}
