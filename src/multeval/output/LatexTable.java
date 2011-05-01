@@ -27,7 +27,7 @@ public class LatexTable {
 			for (int iSys = 0; iSys < sysCount; iSys++) {
 				String sysName = systems[iSys];
 				double avg = results.get(iMetric, iSys, Type.AVG);
-				double sSel = results.get(iMetric, iSys, Type.RESAMPLED_MEAN_AVG);
+				double sSel = results.get(iMetric, iSys, Type.RESAMPLED_STDDEV_AVG);
 				double sTest = results.get(iMetric, iSys, Type.STDDEV);
 				if (iSys == 0) {
 					// baseline has no p-value

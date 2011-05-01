@@ -32,7 +32,7 @@ public class Length extends Metric<IntStats> {
 	public double score(IntStats suffStats) {
 		int hypLen = suffStats.arr[0];
 		int refLen = suffStats.arr[1];
-		return (double) hypLen / (double) refLen;
+		return ((double) hypLen / (double) refLen) * 100;
 	}
 	
 	@Override
