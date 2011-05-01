@@ -44,7 +44,9 @@ All files should contain *tokenized*, lowercased, space-delimited sentences in U
 
 Generally, you should evaluate full forms (i.e. without word segmentation). For languages without a canonical notion of words (e.g. Chinese, Japanese), we recommend splitting all non-Latin characters (e.g. each character that is not part of a borrowed Western word, URL, etc. should be evaluated as its own word.)
 
-For a more detailed description of the METEOR options, please see http://github.com/mjdenkowski/meteor
+For a more detailed description of the various METEOR options, please see http://github.com/mjdenkowski/meteor.
+
+METEOR and its paraphrase tables will automatically be downloaded from the web the first time you run multeval.sh. They are not included in the initial download due to the large size (~200MB) of the paraphrase tables.
 
 
 Discussion on Tokenization, Segmentation, etc.
