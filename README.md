@@ -60,6 +60,11 @@ Cased vs Uncased Evaluation
 
 For now, this program assumes you will give it lowercased input. Cased variants of BLEU and TER will be coming soon.
 
+Compatibility and Accuracy
+==========================
+
+MultEval produces *exactly* the same metric scores you would obtain by running the metrics as stand-alone programs -- with the exception that MultEval does not perform tokenization. MultEval calls METEOR and TER using library API calls, and we regression test against gold-standard scores produced by these metrics in stand-alone mode. Its internal jBLEU library is a direct port of NIST's mteval-v13a.pl; we regression test against mteval-v13m.pl (which allows disabling normalization), included in the METEOR distribution.
+
 
 Adding Your Own Metric
 ======================
