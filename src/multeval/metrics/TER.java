@@ -14,7 +14,7 @@ import ter.TERcost;
 
 import com.google.common.base.Preconditions;
 
-public class TER implements Metric<IntStats> {
+public class TER extends Metric<IntStats> {
 
 	@Option(shortName = "P", longName = "ter.punctuation", usage = "Use punctuation in TER?", defaultValue = "false")
 	boolean punctuation;

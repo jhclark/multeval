@@ -5,7 +5,6 @@ import java.util.Random;
 
 import multeval.metrics.Metric;
 import multeval.metrics.SuffStats;
-import multeval.util.ArrayUtils;
 import multeval.util.SuffStatUtils;
 
 import com.google.common.base.Preconditions;
@@ -50,9 +49,9 @@ public class StratifiedApproximateRandomizationTest {
 		double[] scoresB = new double[metrics.size()];
 
 		for (int iMetric = 0; iMetric < metrics.size(); iMetric++) {
-			Metric metric = metrics.get(iMetric);
-			scoresA[iMetric] = metric.score(SuffStatUtils.sumStats(suffStatsA.get(iMetric)));
-			scoresB[iMetric] = metric.score(SuffStatUtils.sumStats(suffStatsB.get(iMetric)));
+			Metric<?> metric = metrics.get(iMetric);
+			scoresA[iMetric] = metric.scoreStats(SuffStatUtils.sumStats(suffStatsA.get(iMetric)));
+			scoresB[iMetric] = metric.scoreStats(SuffStatUtils.sumStats(suffStatsB.get(iMetric)));
 			overallDiffs[iMetric] = Math.abs(scoresA[iMetric] - scoresB[iMetric]);
 		}
 
@@ -61,10 +60,10 @@ public class StratifiedApproximateRandomizationTest {
 		for (int i = 0; i < numShuffles; i++) {
 			chooseShuffling(shuffling);
 			for (int iMetric = 0; iMetric < metrics.size(); iMetric++) {
-				Metric metric = metrics.get(iMetric);
+				Metric<?> metric = metrics.get(iMetric);
 
-				double scoreX = metric.score(sumStats(shuffling, iMetric, suffStatsA, suffStatsB));
-				double scoreY = metric.score(sumStats(shuffling, iMetric, suffStatsB, suffStatsA));
+				double scoreX = metric.scoreStats(sumStats(shuffling, iMetric, suffStatsA, suffStatsB));
+				double scoreY = metric.scoreStats(sumStats(shuffling, iMetric, suffStatsB, suffStatsA));
 				double sampleDiff = Math.abs(scoreX - scoreY);
 //				System.out.println(iMetric + ": " + scoreX + " - " + scoreY + " " + sampleDiff + " <> " + overallDiffs[iMetric]);
 				// the != is important. if we want to score the same system against itself,

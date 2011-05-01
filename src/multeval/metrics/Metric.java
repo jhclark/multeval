@@ -13,10 +13,17 @@ import java.util.List;
  * @author jhclark
  * 
  */
-public interface Metric<Stats extends SuffStats<Stats>> {
-	public Stats stats(String sentence, List<String> refs);
+public abstract class Metric<Stats extends SuffStats<Stats>> {
 	
-	public double score(Stats suffStats);
+	public abstract Stats stats(String sentence, List<String> refs);
+	
+	public abstract double score(Stats suffStats);
+	
+	// hack around generics by erasure
+	@SuppressWarnings("unchecked")
+	public double scoreStats(SuffStats<?> suffStats) {
+		return score((Stats)suffStats);
+	}
 
-	public void configure(Configurator opts) throws ConfigurationException;
+	public abstract void configure(Configurator opts) throws ConfigurationException;
 }

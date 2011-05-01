@@ -19,7 +19,7 @@ import edu.cmu.meteor.scorer.MeteorScorer;
 import edu.cmu.meteor.scorer.MeteorStats;
 import edu.cmu.meteor.util.Constants;
 
-public class METEOR implements Metric<MStats> {
+public class METEOR extends Metric<METEORStats> {
 
 	@Option(shortName = "l", longName = "meteor.language", usage = "Two-letter language code of a supported METEOR language (e.g. 'en')")
 	String language;
@@ -36,7 +36,7 @@ public class METEOR implements Metric<MStats> {
 	@Option(shortName = "w", longName = "meteor.weights", usage = "Specify module weights (overrides default)", arrayDelim = " ", required = false)
 	double[] moduleWeights;
 
-	@Option(shortName = "x", longName = "meteor.beamSize", usage = "Specify beam size (overrides default)", defaultValue = "40")
+	@Option(shortName = "x", longName = "meteor.beamSize", usage = "Specify beam size (overrides default)", defaultValue = ""+Constants.DEFAULT_BEAM_SIZE)
 	int beamSize;
 
 	@Option(shortName = "s", longName = "meteor.synonymDirectory", usage = "If default is not desired (NOTE: This option has a different short flag than stand-alone METEOR)", required = false)
@@ -113,15 +113,15 @@ public class METEOR implements Metric<MStats> {
 	}
 
 	@Override
-	public MStats stats(String hyp, List<String> refs) {
+	public METEORStats stats(String hyp, List<String> refs) {
 		// TODO: Don't create so many garbage MeteorStats objects just to be
 		// copy-constructed
 		MeteorStats result = scorer.getMeteorStats(hyp, new ArrayList<String>(refs));
-		return new MStats(result);
+		return new METEORStats(result);
 	}
 
 	@Override
-	public double score(MStats suffStats) {
+	public double score(METEORStats suffStats) {
 		scorer.computeMetrics(suffStats.meteorStats);
 		return suffStats.meteorStats.score * 100;
 	}

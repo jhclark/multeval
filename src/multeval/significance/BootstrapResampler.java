@@ -66,8 +66,8 @@ public class BootstrapResampler {
 				SuffStats<?> summedStats = sumStats(sampleMembers, iMetric, suffStats);
 				
 				// hack around generics by erasure
-				Metric metric = metrics.get(iMetric);
-				double score = metric.score(summedStats);
+				Metric<?> metric = metrics.get(iMetric);
+				double score = metric.scoreStats(summedStats);
 				metricValues.get(iMetric)[iSample] = score;
 			}
 		}

@@ -14,7 +14,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 
 // a MultiMetric wrapper around the jBLEU metric
-public class BLEU implements Metric<IntStats> {
+public class BLEU extends Metric<IntStats> {
 	
 	@Option(shortName = "c", longName = "bleu.closestRefLength", usage = "Use closest reference length when determining brevity penalty? (true behaves like IBM BLEU, false behaves like old NIST BLEU)", defaultValue="true")
 	boolean closestRefLength;

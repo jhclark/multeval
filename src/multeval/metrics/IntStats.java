@@ -1,5 +1,7 @@
 package multeval.metrics;
 
+import java.util.Arrays;
+
 import multeval.util.ArrayUtils;
 
 public class IntStats extends SuffStats<IntStats> {
@@ -17,5 +19,10 @@ public class IntStats extends SuffStats<IntStats> {
 	@Override
 	public SuffStats<IntStats> create() {
 		return new IntStats(arr.length);
+	}
+	
+	@Override
+	public String toString() {
+		return Arrays.toString(arr);
 	}
 }

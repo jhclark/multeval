@@ -28,13 +28,14 @@ import multeval.util.SuffStatUtils;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.io.Files;
 
 public class MultEval {
 
 	// case sensitivity option? both? use punctuation?
 	// report length!
 
-	public static Map<String, Metric> KNOWN_METRICS = ImmutableMap.<String, Metric> builder()
+	public static Map<String, Metric<?>> KNOWN_METRICS = ImmutableMap.<String, Metric<?>> builder()
 			.put("bleu", new BLEU())
 			.put("meteor", new METEOR())
 			.put("ter", new TER())
@@ -94,8 +95,9 @@ public class MultEval {
 
 			// 1) load hyps and references
 			// first index is opt run, second is hyp
-			String[][] hypFilesBySysSplit = new String[hypFilesBySys.length][];
-			for (int i = 0; i < hypFilesBySys.length; i++) {
+			int numSystems = hypFilesBySys == null ? 0 : hypFilesBySys.length;
+			String[][] hypFilesBySysSplit = new String[numSystems][];
+			for (int i = 0; i < numSystems; i++) {
 				hypFilesBySysSplit[i] = StringUtils.split(hypFilesBySys[i], " ", Integer.MAX_VALUE);
 			}
 
@@ -158,7 +160,8 @@ public class MultEval {
 
 				File rankOutDir = new File(rankDir);
 				rankOutDir.mkdirs();
-				System.err.println("Outputting ranked hypotheses to: " + rankOutDir.getAbsolutePath());
+				System.err.println("Outputting ranked hypotheses to: "
+						+ rankOutDir.getAbsolutePath());
 
 				DiffRanker ranker = new DiffRanker(metricNames);
 				List<List<String>> refs = data.getAllReferences();
@@ -205,9 +208,11 @@ public class MultEval {
 			for (int iHyp = 0; iHyp < data.getNumHyps(); iHyp++) {
 				for (int iMetric = 0; iMetric < metrics.size(); iMetric++) {
 
-					Metric metric = metrics.get(iMetric);
+					Metric<?> metric = metrics.get(iMetric);
 					SuffStats<?> stats = suffStats.getStats(iMetric, iSys, iOpt, iHyp);
-					result[iHyp][iMetric] = metric.score(stats);
+					result[iHyp][iMetric] = metric.scoreStats(stats);
+
+					System.err.println("hyp " + (iHyp + 1) + ": " + result[iHyp][iMetric]);
 				}
 
 			}
@@ -293,15 +298,16 @@ public class MultEval {
 				SuffStatManager suffStats, ResultsManager results) {
 
 			for (int iMetric = 0; iMetric < metrics.size(); iMetric++) {
-				Metric metric = metrics.get(iMetric);
+				Metric<?> metric = metrics.get(iMetric);
 				System.err.println("Scoring with metric: " + metric.toString());
 
 				for (int iSys = 0; iSys < data.getNumSystems(); iSys++) {
 					double[] scoresByOptRun = new double[data.getNumOptRuns()];
 					for (int iOpt = 0; iOpt < data.getNumOptRuns(); iOpt++) {
-						List<SuffStats<?>> stats = suffStats.getStats(iMetric, iSys, iOpt);
-						SuffStats<?> sumStats = SuffStatUtils.sumStats(stats);
-						scoresByOptRun[iOpt] = metric.score(sumStats);
+						List<SuffStats<?>> statsBySent = suffStats.getStats(iMetric, iSys, iOpt);
+						SuffStats<?> corpusStats = SuffStatUtils.sumStats(statsBySent);
+						System.err.println(corpusStats);
+						scoresByOptRun[iOpt] = metric.scoreStats(corpusStats);
 					}
 					double avg = MathUtils.average(scoresByOptRun);
 					double stddev = MathUtils.stddev(scoresByOptRun);
