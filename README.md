@@ -9,7 +9,16 @@ Jonathan Clark, Chris Dyer, Alon Lavie, and Noah Smith, "Better Hypothesis Testi
 Usage
 =====
 
-To run the example data and get its BLEU, METEOR, and TER scores along with their standard deviations and p-values, use:
+To evaluate a single system from the example data and get its BLEU, METEOR, and TER scores along with its standard deviation use:
+
+``` bash
+multeval.sh eval --refs example/refs.test2010.lc.tok.en.* \
+                 --hyps-baseline example/hyps.lc.tok.en.baseline.opt* \
+                 --meteor.language en
+```
+
+
+To compare several systems from the example data and get its BLEU, METEOR, and TER scores along with their standard deviations and p-values, use:
 
 ``` bash
 multeval.sh eval --refs example/refs.test2010.lc.tok.en.* \
