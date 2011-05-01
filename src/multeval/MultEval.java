@@ -16,6 +16,7 @@ import java.util.Map;
 import multeval.ResultsManager.Type;
 import multeval.analysis.DiffRanker;
 import multeval.metrics.BLEU;
+import multeval.metrics.Length;
 import multeval.metrics.METEOR;
 import multeval.metrics.Metric;
 import multeval.metrics.SuffStats;
@@ -28,7 +29,6 @@ import multeval.util.SuffStatUtils;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.io.Files;
 
 public class MultEval {
 
@@ -39,6 +39,7 @@ public class MultEval {
 			.put("bleu", new BLEU())
 			.put("meteor", new METEOR())
 			.put("ter", new TER())
+			.put("length", new Length())
 			.build();
 
 	public static interface Module {
@@ -53,7 +54,7 @@ public class MultEval {
 		@Option(shortName = "v", longName = "verbosity", usage = "Verbosity level", defaultValue = "0")
 		public int verbosity;
 
-		@Option(shortName = "o", longName = "metrics", usage = "Space-delimited list of metrics to use. Any of: bleu, meteor, ter, length", defaultValue = "bleu meteor ter", arrayDelim = " ")
+		@Option(shortName = "o", longName = "metrics", usage = "Space-delimited list of metrics to use. Any of: bleu, meteor, ter, length", defaultValue = "bleu meteor ter length", arrayDelim = " ")
 		public String[] metricNames;
 
 		@Option(shortName = "B", longName = "hyps-baseline", usage = "Space-delimited list of files containing tokenized, fullform hypotheses, one per line", arrayDelim = " ")
@@ -212,7 +213,7 @@ public class MultEval {
 					SuffStats<?> stats = suffStats.getStats(iMetric, iSys, iOpt, iHyp);
 					result[iHyp][iMetric] = metric.scoreStats(stats);
 
-					System.err.println("hyp " + (iHyp + 1) + ": " + result[iHyp][iMetric]);
+//					System.err.println("hyp " + (iHyp + 1) + ": " + result[iHyp][iMetric]);
 				}
 
 			}
@@ -306,7 +307,6 @@ public class MultEval {
 					for (int iOpt = 0; iOpt < data.getNumOptRuns(); iOpt++) {
 						List<SuffStats<?>> statsBySent = suffStats.getStats(iMetric, iSys, iOpt);
 						SuffStats<?> corpusStats = SuffStatUtils.sumStats(statsBySent);
-						System.err.println(corpusStats);
 						scoresByOptRun[iOpt] = metric.scoreStats(corpusStats);
 					}
 					double avg = MathUtils.average(scoresByOptRun);
@@ -381,8 +381,6 @@ public class MultEval {
 			new ImmutableMap.Builder<String, Module>().put("eval", new MultEvalModule()).build();
 
 	public static void main(String[] args) throws ConfigurationException, FileNotFoundException {
-
-		System.err.println("WARNING: THIS SOFTWARE IS STILL UNDER TESTING. PLEASE DO NOT REPORT ANY RESULTS COMPUTED BY THIS CODE. TESTING WILL BE COMPLETED NO LATER THAN MAY 1, 2011.");
 
 		if (args.length == 0 || !modules.keySet().contains(args[0])) {
 			System.err.println("Usage: program <module_name> <module_options>");
