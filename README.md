@@ -62,6 +62,31 @@ Cased vs Uncased Evaluation
 
 For now, this program assumes you will give it lowercased input. Cased variants of BLEU and TER will be coming soon.
 
+
+Using MultEval for Error Analysis
+=================================
+
+In addition to metrics and statistical analyses for quantitative analysis, MultEval comes with several tools to help
+you qualitatively determine how your translation systems are doing. First, is the ability to rank hypotheses with regard
+to its improvement or decline over the baseline system (command line given above). Note, some metrics (e.g. BLEU) are
+notoriously unstable at the sentence level.
+
+Second, is the ability to take a n-best list from a decoder (e.g. Moses, cdec), score all of the hypotheses using
+all of the metrics in MultEval, and then sort the hypotheses for each sentence by each of the metrics so that the
+first sentence output for each sentence is the n-best oracle. You can get this by running:
+
+
+``` bash
+multeval.sh nbest --nbest cdec.kbest \
+	    	  --refs example/refs.test2010.lc.tok.en.* \
+		  --meteor.language en \
+		  --rankDir rank \
+		  > kbest.scored
+```
+
+For even more detailed analysis, you should also consider using the METEOR X-Ray analysis tool.
+
+
 Compatibility and Accuracy
 ==========================
 
