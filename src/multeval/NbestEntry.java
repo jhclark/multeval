@@ -12,7 +12,7 @@ public class NbestEntry {
 	public float total;
 	public double[] metricScores;
 	
-	public static NbestEntry parse(String cdecStr) {
+	public static NbestEntry parse(String cdecStr, int origRank) {
 		
 		NbestEntry result = new NbestEntry();
 		
@@ -22,6 +22,7 @@ public class NbestEntry {
 		result.hyp = columns.next();
 		result.feats = columns.next();
 		result.total = Float.parseFloat(columns.next());
+		result.origRank = origRank;
 		
 		return result;
 	}
@@ -29,10 +30,10 @@ public class NbestEntry {
     public String toString(String[] metricNames) {
 		StringBuilder metricString = new StringBuilder();
 		if(metricScores != null) {
-		    metricString.append(" ||| ");
+		    metricString.append(" |||");
 	
 		    for(int iMetric=0; iMetric<metricNames.length; iMetric++) {
-		    	metricString.append(String.format(metricNames[iMetric] + "=" + metricScores[iMetric]));
+		    	metricString.append(" " + metricNames[iMetric] + "=" + metricScores[iMetric]);
 		    }
 		}
 	

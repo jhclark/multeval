@@ -114,7 +114,7 @@ public class MultEval {
 		
 			// 1) count hyps for error checking
 			String lastLine = FileUtils.getLastLine(nbestList);
-			NbestEntry lastEntry = NbestEntry.parse(lastLine);
+			NbestEntry lastEntry = NbestEntry.parse(lastLine, -1);
 			int numHyps = lastEntry.sentId+1; // zero-based
 			
 			// 2) load refs
@@ -138,7 +138,7 @@ public class MultEval {
 			List<NbestEntry> hyps = new ArrayList<NbestEntry>(1000);
 			int curHyp = 0;
 			while((line = in.readLine()) != null) {
-				NbestEntry entry = NbestEntry.parse(line);
+				NbestEntry entry = NbestEntry.parse(line, hyps.size());
 				if(curHyp != entry.sentId) {
 					List<String> sentRefs = allRefs.get(curHyp);
 					processHyp(metrics, hyps, sentRefs, out, metricRankFiles);
@@ -194,7 +194,7 @@ public class MultEval {
 						public int compare(NbestEntry a, NbestEntry b) {
 						    double da = a.metricScores[i];
 						    double db = b.metricScores[i];
-						    return (da == db ? 0 : (da < db ? -1 : 1));
+						    return (da == db ? 0 : (da > db ? -1 : 1));
 						}
 					    });
 					
