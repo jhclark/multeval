@@ -75,13 +75,12 @@ Second, is the ability to take a n-best list from a decoder (e.g. Moses, cdec), 
 all of the metrics in MultEval, and then sort the hypotheses for each sentence by each of the metrics so that the
 first sentence output for each sentence is the n-best oracle. You can get this by running:
 
-
 ``` bash
 multeval.sh nbest --nbest cdec.kbest \
-	    	  --refs example/refs.test2010.lc.tok.en.* \
-		  --meteor.language en \
-		  --rankDir rank \
-		  > kbest.scored
+                  --refs example/refs.test2010.lc.tok.en.* \
+                  --meteor.language en \
+                  --rankDir rank \
+                  > kbest.scored
 ```
 
 For even more detailed analysis, you should also consider using the METEOR X-Ray analysis tool.
