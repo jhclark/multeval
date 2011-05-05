@@ -2,7 +2,8 @@
 set -eo pipefail
 
 version=1.2
-libDir=lib
+scriptDir=$(dirname $0)
+libDir=$scriptDir/lib
 meteorPath=$libDir/meteor-$version
 meteorUrl=http://www.cs.cmu.edu/~alavie/METEOR/download/meteor-${version}.tgz
 if [ ! -e $meteorPath ]; then
