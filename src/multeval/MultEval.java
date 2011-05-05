@@ -5,11 +5,17 @@ import jannopts.Configurator;
 import jannopts.Option;
 import jannopts.util.StringUtils;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -24,9 +30,11 @@ import multeval.metrics.TER;
 import multeval.output.LatexTable;
 import multeval.significance.BootstrapResampler;
 import multeval.significance.StratifiedApproximateRandomizationTest;
+import multeval.util.FileUtils;
 import multeval.util.MathUtils;
 import multeval.util.SuffStatUtils;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -41,12 +49,162 @@ public class MultEval {
 			.put("ter", new TER())
 			.put("length", new Length())
 			.build();
+	
+	private static List<Metric<?>> loadMetrics(String[] metricNames, Configurator opts)
+		throws ConfigurationException {
+
+		// 1) activate config options so that we fail-fast
+		List<Metric<?>> metrics = new ArrayList<Metric<?>>();
+		for (String metricName : metricNames) {
+			System.err.println("Loading metric: " + metricName);
+			Metric<?> metric = KNOWN_METRICS.get(metricName.toLowerCase());
+			if (metric == null) {
+				throw new RuntimeException("Unknown metric: " + metricName
+						+ "; Known metrics are: " + KNOWN_METRICS.keySet());
+			}
+		
+			// add metric options on-the-fly as needed
+			opts.activateDynamicOptions(metric.getClass());
+		
+			metrics.add(metric);
+		}
+		
+		// 2) load metric resources, etc.
+		for (Metric<?> metric : metrics) {
+			metric.configure(opts);
+		}
+		
+		return metrics;
+	}
 
 	public static interface Module {
 
-		public void run(Configurator opts) throws ConfigurationException, FileNotFoundException;
+		public void run(Configurator opts) throws ConfigurationException, FileNotFoundException, IOException;
 
 		public Iterable<Class<?>> getDynamicConfigurables();
+	}
+	
+	public static class NbestModule implements Module {
+
+		@Option(shortName = "v", longName = "verbosity", usage = "Verbosity level", defaultValue = "0")
+		public int verbosity;
+
+		@Option(shortName = "o", longName = "metrics", usage = "Space-delimited list of metrics to use. Any of: bleu, meteor, ter, length", defaultValue = "bleu meteor ter", arrayDelim = " ")
+		public String[] metricNames;
+
+		@Option(shortName = "N", longName = "nbest", usage = "File containing tokenized, fullform hypotheses, one per line")
+		public String nbestList;
+
+		@Option(shortName = "R", longName = "refs", usage = "Space-delimited list of files containing tokenized, fullform references, one per line", arrayDelim = " ")
+		public String[] refFiles;
+
+		@Option(shortName = "r", longName = "rankDir", usage = "Rank hypotheses of median optimization run of each system with regard to improvement/decline over median baseline system and output to the specified directory for analysis", required = false)
+		private String rankDir;
+
+		@Override
+		public Iterable<Class<?>> getDynamicConfigurables() {
+			return ImmutableList.<Class<?>> of(BLEU.class, METEOR.class, TER.class);
+		}
+		
+		
+
+		@Override
+		public void run(Configurator opts) throws ConfigurationException, IOException {
+			List<Metric<?>> metrics = loadMetrics(metricNames, opts);
+		
+			// 1) count hyps for error checking
+			String lastLine = FileUtils.getLastLine(nbestList);
+			NbestEntry lastEntry = NbestEntry.parse(lastLine);
+			int numHyps = lastEntry.sentId+1; // zero-based
+			
+			// 2) load refs
+			List<List<String>> allRefs = HypothesisManager.loadRefs(refFiles, numHyps);
+			
+			System.err.println("Found " + numHyps + " hypotheses with " + allRefs.get(0).size() + " references");
+			
+			// 3) process n-best list and write results
+			PrintStream out = System.out;
+			PrintWriter[] metricRankFiles = null;
+			if(rankDir != null) {
+				new File(rankDir).mkdirs();
+			    metricRankFiles = new PrintWriter[metrics.size()];
+			    for(int iMetric=0; iMetric<metrics.size(); iMetric++) {
+			    	metricRankFiles[iMetric] = new PrintWriter(new File(rankDir, metricNames[iMetric]+".sorted"));
+			    }
+			}
+			
+			BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(nbestList), Charsets.UTF_8));
+			String line;
+			List<NbestEntry> hyps = new ArrayList<NbestEntry>(1000);
+			int curHyp = 0;
+			while((line = in.readLine()) != null) {
+				NbestEntry entry = NbestEntry.parse(line);
+				if(curHyp != entry.sentId) {
+					List<String> sentRefs = allRefs.get(curHyp);
+					processHyp(metrics, hyps, sentRefs, out, metricRankFiles);
+					
+				    if(curHyp % 100 == 0) {
+				    	System.err.println("Processed " + curHyp + " hypotheses so far...");
+				    }
+					
+					hyps.clear();
+					curHyp = entry.sentId;
+				}
+				hyps.add(entry);
+			}
+			
+			List<String> sentRefs = allRefs.get(curHyp);
+			processHyp(metrics, hyps, sentRefs, out, metricRankFiles);
+
+			out.close();
+			if(rankDir != null) {
+			    for(int iMetric=0; iMetric<metrics.size(); iMetric++) {
+			    	metricRankFiles[iMetric].close();
+			    }
+			}
+		}
+
+	    // process all hypotheses corresponding to a single sentence
+	    private void processHyp(List<Metric<?>> metrics, List<NbestEntry> hyps, List<String> sentRefs, PrintStream out, PrintWriter[] metricRankFiles) {
+			
+			// score all of the hypotheses in the n-best list
+			for(int iRank = 0; iRank < hyps.size(); iRank++) {
+				double[] metricScores = new double[metrics.size()];
+				NbestEntry entry = hyps.get(iRank);
+				
+				for (int iMetric = 0; iMetric < metrics.size(); iMetric++) {
+					Metric<?> metric = metrics.get(iMetric);
+					SuffStats<?> stats = metric.stats(entry.hyp, sentRefs);
+					metricScores[iMetric] = metric.scoreStats(stats);
+				}
+				
+				entry.metricScores = metricScores;
+			}
+
+			// and write them to an output file
+			for(NbestEntry entry : hyps) {
+			    out.println(entry.toString(metricNames));
+			}
+			
+			if(metricRankFiles != null) {
+			    for(int iMetric = 0; iMetric < metrics.size(); iMetric++) {
+					// now rank them by each metric
+				    final int i = iMetric;
+					Collections.sort(hyps, new Comparator<NbestEntry>() {
+						public int compare(NbestEntry a, NbestEntry b) {
+						    double da = a.metricScores[i];
+						    double db = b.metricScores[i];
+						    return (da == db ? 0 : (da < db ? -1 : 1));
+						}
+					    });
+					
+					// and write them to an output file
+					for(NbestEntry entry : hyps) {
+					    metricRankFiles[iMetric].println(entry.toString(metricNames));
+					}
+			    }
+			}
+		}
 	}
 
 	public static class MultEvalModule implements Module {
@@ -220,33 +378,6 @@ public class MultEval {
 			return result;
 		}
 
-		private List<Metric<?>> loadMetrics(String[] metricNames, Configurator opts)
-				throws ConfigurationException {
-
-			// 1) activate config options so that we fail-fast
-			List<Metric<?>> metrics = new ArrayList<Metric<?>>();
-			for (String metricName : metricNames) {
-				System.err.println("Loading metric: " + metricName);
-				Metric<?> metric = KNOWN_METRICS.get(metricName.toLowerCase());
-				if (metric == null) {
-					throw new RuntimeException("Unknown metric: " + metricName
-							+ "; Known metrics are: " + KNOWN_METRICS.keySet());
-				}
-
-				// add metric options on-the-fly as needed
-				opts.activateDynamicOptions(metric.getClass());
-
-				metrics.add(metric);
-			}
-
-			// 2) load metric resources, etc.
-			for (Metric<?> metric : metrics) {
-				metric.configure(opts);
-			}
-
-			return metrics;
-		}
-
 		private void runApproximateRandomization(List<Metric<?>> metrics, HypothesisManager data,
 				SuffStatManager suffStats, ResultsManager results) {
 
@@ -377,18 +508,18 @@ public class MultEval {
 		}
 	}
 
-	private static final ImmutableMap<String, Module> modules =
-			new ImmutableMap.Builder<String, Module>().put("eval", new MultEvalModule()).build();
+	private static final ImmutableMap<String, Module> MODULES =
+			new ImmutableMap.Builder<String, Module>().put("eval", new MultEvalModule()).put("nbest", new NbestModule()).build();
 
-	public static void main(String[] args) throws ConfigurationException, FileNotFoundException {
+	public static void main(String[] args) throws ConfigurationException, IOException {
 
-		if (args.length == 0 || !modules.keySet().contains(args[0])) {
+		if (args.length == 0 || !MODULES.keySet().contains(args[0])) {
 			System.err.println("Usage: program <module_name> <module_options>");
-			System.err.println("Available modules: " + modules.keySet().toString());
+			System.err.println("Available modules: " + MODULES.keySet().toString());
 			System.exit(1);
 		} else {
 			String moduleName = args[0];
-			Module module = modules.get(moduleName);
+			Module module = MODULES.get(moduleName);
 			Configurator opts =
 					new Configurator().withProgramHeader(
 							"MultEval V0.1\nBy Jonathan Clark\nUsing Libraries: METEOR (Michael Denkowski) and TER (Matthew Snover)\n")

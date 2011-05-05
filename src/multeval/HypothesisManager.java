@@ -50,17 +50,24 @@ public class HypothesisManager {
 			loadHyps(hypFilesBySys[iSys], "" + (iSys + 1));
 		}
 
-		// TODO: Auto-detect laced refs?
-
 		numRefs = refFiles.length;
-		allRefs.clear();
-		while (allRefs.size() <= numHyps) {
+		allRefs = loadRefs(refFiles, numHyps);
+	}
+
+	public static List<List<String>> loadRefs(String[] refFiles, int numHypsHint) throws IOException {
+		
+		// TODO: Auto-detect laced refs?
+		
+		List<List<String>> allRefs = new ArrayList<List<String>>();
+		
+		int numRefs = refFiles.length;
+		while (allRefs.size() <= numHypsHint) {
 			allRefs.add(new ArrayList<String>(numRefs));
 		}
 		for (String refFile : refFiles) {
 			List<String> oneRefPerHyp = loadSentences(refFile, "non-laced references");
-			if (numHyps != oneRefPerHyp.size()) {
-				throw new RuntimeException("Non-parallel inputs detected. Expected " + numHyps
+			if (numHypsHint != oneRefPerHyp.size()) {
+				throw new RuntimeException("Non-parallel inputs detected. Expected " + numHypsHint
 						+ " references, but got " + oneRefPerHyp.size());
 			}
 
@@ -69,6 +76,8 @@ public class HypothesisManager {
 				allRefs.get(iHyp).add(ref);
 			}
 		}
+		
+		return allRefs;
 	}
 
 	private void loadHyps(String[] hypFiles, String sys) throws IOException {
@@ -100,7 +109,7 @@ public class HypothesisManager {
 		}
 	}
 
-	private static List<String> loadSentences(String hypFile, String forWhat) throws IOException {
+	public static List<String> loadSentences(String hypFile, String forWhat) throws IOException {
 
 		File file = new File(hypFile);
 		// TODO: Say what system (or reference) this is for
