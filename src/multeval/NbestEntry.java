@@ -11,8 +11,9 @@ public class NbestEntry {
 	public String feats;
 	public float total;
 	public double[] metricScores;
+	public int[] metricRank;
 	
-	public static NbestEntry parse(String cdecStr, int origRank) {
+	public static NbestEntry parse(String cdecStr, int origRank, int numMetrics) {
 		
 		NbestEntry result = new NbestEntry();
 		
@@ -23,11 +24,18 @@ public class NbestEntry {
 		result.feats = columns.next();
 		result.total = Float.parseFloat(columns.next());
 		result.origRank = origRank;
+		result.metricRank = new int[numMetrics];
 		
 		return result;
 	}
 
     public String toString(String[] metricNames) {
+    	
+    	StringBuilder rankStr = new StringBuilder("origRank="+origRank);
+    	for(int iMetric=0; iMetric<metricNames.length; iMetric++) {
+	    	rankStr.append(" " + metricNames[iMetric] + "Rank=" + metricRank[iMetric]);
+	    }
+    	
 		StringBuilder metricString = new StringBuilder();
 		if(metricScores != null) {
 		    metricString.append(" |||");
@@ -37,6 +45,6 @@ public class NbestEntry {
 		    }
 		}
 	
-		return String.format("%d ||| %s ||| %s ||| %f ||| origRank=%d", sentId, hyp, feats, total, origRank) + metricString.toString();
+		return String.format("%d ||| %s ||| %s ||| %f ||| %s", sentId, hyp, feats, total, rankStr.toString()) + metricString.toString();
     }
 }
