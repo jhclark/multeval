@@ -16,6 +16,8 @@ public abstract class Metric<Stats extends SuffStats<Stats>> {
   public abstract double score(Stats suffStats);
 
   public abstract void configure(Configurator opts) throws ConfigurationException;
+  
+  public abstract boolean isBiggerBetter();
 
   public String[] getSubmetricNames() {
     return new String[0];

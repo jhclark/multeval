@@ -41,4 +41,9 @@ public class Length extends Metric<IntStats> {
   public void configure(Configurator opts) throws ConfigurationException {
     opts.configure(this);
   }
+
+  @Override
+  public boolean isBiggerBetter() {
+    return true;
+  }
 }

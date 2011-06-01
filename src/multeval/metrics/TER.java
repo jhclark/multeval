@@ -100,4 +100,9 @@ public class TER extends Metric<IntStats> {
     TERcalc.setBeamWidth(beamWidth);
     TERcalc.setShiftDist(maxShiftDistance);
   }
+
+  @Override
+  public boolean isBiggerBetter() {
+    return false;
+  }
 }

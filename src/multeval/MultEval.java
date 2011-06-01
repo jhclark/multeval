@@ -211,7 +211,7 @@ public class MultEval {
         
         topbestStatsByMetric.get(iMetric).add(hyps.get(0).metricStats.get(iMetric));
         
-        sortByMetricScore(hyps, iMetric);
+        sortByMetricScore(hyps, iMetric, metrics.get(iMetric).isBiggerBetter());
         oracleStatsByMetric.get(iMetric).add(hyps.get(0).metricStats.get(iMetric));
         
         // and record the rank of each
@@ -236,7 +236,7 @@ public class MultEval {
 
       if (metricRankFiles != null) {
         for(int iMetric = 0; iMetric < metrics.size(); iMetric++) {
-          sortByMetricScore(hyps, iMetric);
+          sortByMetricScore(hyps, iMetric, metrics.get(iMetric).isBiggerBetter());
 
           // and write them to an output file
           for(NbestEntry entry : hyps) {
@@ -246,12 +246,16 @@ public class MultEval {
       }
     }
 
-    private void sortByMetricScore(List<NbestEntry> hyps, final int i) {
+    private void sortByMetricScore(List<NbestEntry> hyps, final int i, final boolean isBiggerBetter) {
       Collections.sort(hyps, new Comparator<NbestEntry>() {
         public int compare(NbestEntry a, NbestEntry b) {
           double da = a.metricScores[i];
           double db = b.metricScores[i];
-          return (da == db ? 0 : (da > db ? -1 : 1));
+          if(isBiggerBetter) {
+            return (da == db ? 0 : (da > db ? -1 : 1));
+          } else {
+            return (da == db ? 0 : (da < db ? -1 : 1));
+          }
         }
       });
     }

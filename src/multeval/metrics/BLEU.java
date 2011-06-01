@@ -69,4 +69,9 @@ public class BLEU extends Metric<IntStats> {
     LibUtil.checkLibrary("jbleu.JBLEU", "jBLEU");
     opts.configure(this);
   }
+
+  @Override
+  public boolean isBiggerBetter() {
+    return true;
+  }
 }

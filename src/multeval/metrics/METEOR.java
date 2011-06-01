@@ -139,4 +139,9 @@ public class METEOR extends Metric<METEORStats> {
   public String toString() {
     return "METEOR";
   }
+
+  @Override
+  public boolean isBiggerBetter() {
+    return true;
+  }
 }
