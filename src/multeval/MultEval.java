@@ -108,12 +108,20 @@ public class MultEval {
       BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(nbestList), Charsets.UTF_8));
       String line;
       List<NbestEntry> hyps = new ArrayList<NbestEntry>(1000);
+      List<List<SuffStats<?>>> oracleStatsByMetric = new ArrayList<List<SuffStats<?>>>(metrics.size());
+      List<List<SuffStats<?>>> topbestStatsByMetric = new ArrayList<List<SuffStats<?>>>(metrics.size());
+      for(int i=0;i<metrics.size(); i++) {
+        oracleStatsByMetric.add(new ArrayList<SuffStats<?>>());
+        topbestStatsByMetric.add(new ArrayList<SuffStats<?>>());
+      }
+      
       int curHyp = 0;
       while((line = in.readLine()) != null) {
         NbestEntry entry = NbestEntry.parse(line, hyps.size(), metrics.size());
         if (curHyp != entry.sentId) {
+          System.err.println("hyp #"+curHyp);
           List<String> sentRefs = allRefs.get(curHyp);
-          processHyp(metrics, submetricNames, hyps, sentRefs, out, metricRankFiles);
+          processHyp(metrics, submetricNames, hyps, sentRefs, out, metricRankFiles, oracleStatsByMetric, topbestStatsByMetric);
 
           if (curHyp % 100 == 0) {
             System.err.println("Processed " + curHyp + " hypotheses so far...");
@@ -126,13 +134,26 @@ public class MultEval {
       }
 
       List<String> sentRefs = allRefs.get(curHyp);
-      processHyp(metrics, submetricNames, hyps, sentRefs, out, metricRankFiles);
+      processHyp(metrics, submetricNames, hyps, sentRefs, out, metricRankFiles, oracleStatsByMetric, topbestStatsByMetric);
 
       out.close();
       if (rankDir != null) {
+        System.err.println("Wrote n-best list ranked by metrics to: " + rankDir);
         for(int iMetric = 0; iMetric < metrics.size(); iMetric++) {
           metricRankFiles[iMetric].close();
         }
+      }
+      
+      for(int i=0; i<metrics.size(); i++) {
+        Metric<?> metric = metrics.get(i);
+        
+        SuffStats<?> topbestStats = SuffStatUtils.sumStats(topbestStatsByMetric.get(i));
+        double topbestScore = metric.scoreStats(topbestStats);
+        System.err.println(String.format("%s topbest score: %.2f", metric.toString(), topbestScore));
+        
+        SuffStats<?> oracleStats = SuffStatUtils.sumStats(oracleStatsByMetric.get(i));
+        double oracleScore = metric.scoreStats(oracleStats);
+        System.err.println(String.format("%s oracle score: %.2f", metric.toString(), oracleScore));
       }
     }
 
@@ -154,10 +175,13 @@ public class MultEval {
 
     // process all hypotheses corresponding to a single sentence
     private void processHyp(List<Metric<?>> metrics, String[] submetricNames, List<NbestEntry> hyps,
-        List<String> sentRefs, PrintStream out, PrintWriter[] metricRankFiles) {
+        List<String> sentRefs, PrintStream out, PrintWriter[] metricRankFiles,
+        List<List<SuffStats<?>>> oracleStatsByMetric, List<List<SuffStats<?>>> topbestStatsByMetric) {
 
       // score all of the hypotheses in the n-best list
       for(int iRank = 0; iRank < hyps.size(); iRank++) {
+        
+        List<SuffStats<?>> metricStats = new ArrayList<SuffStats<?>>(metrics.size());
         double[] metricScores = new double[metrics.size()];
         double[] submetricScores = new double[submetricNames.length];
         NbestEntry entry = hyps.get(iRank);
@@ -166,6 +190,8 @@ public class MultEval {
         for(int iMetric = 0; iMetric < metrics.size(); iMetric++) {
           Metric<?> metric = metrics.get(iMetric);
           SuffStats<?> stats = metric.stats(entry.hyp, sentRefs);
+          
+          metricStats.add(stats);
           metricScores[iMetric] = metric.scoreStats(stats);
 
           for(double sub : metric.scoreSubmetricsStats(stats)) {
@@ -173,15 +199,21 @@ public class MultEval {
             iSubmetric++;
           }
         }
-
+        
+        entry.metricStats = metricStats;
         entry.metricScores = metricScores;
         entry.submetricScores = submetricScores;
       }
 
-      // assign rank by each metric
+      // assign rank by each metric and save suff stats for the topbest hyp
+      // accoring to each metric
       for(int iMetric = 0; iMetric < metrics.size(); iMetric++) {
+        
+        topbestStatsByMetric.get(iMetric).add(hyps.get(0).metricStats.get(iMetric));
+        
         sortByMetricScore(hyps, iMetric);
-
+        oracleStatsByMetric.get(iMetric).add(hyps.get(0).metricStats.get(iMetric));
+        
         // and record the rank of each
         for(int iRank = 0; iRank < hyps.size(); iRank++) {
           hyps.get(iRank).metricRank[iMetric] = iRank;

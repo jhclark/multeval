@@ -63,8 +63,8 @@ Cased vs Uncased Evaluation
 For now, this program assumes you will give it lowercased input. Cased variants of BLEU and TER will be coming soon.
 
 
-Using MultEval for Error Analysis
-=================================
+Using MultEval for Error Analysis and Oracle Scoring
+====================================================
 
 In addition to metrics and statistical analyses for quantitative analysis, MultEval comes with several tools to help
 you qualitatively determine how your translation systems are doing. First, is the ability to rank hypotheses with regard
@@ -82,6 +82,8 @@ multeval.sh nbest --nbest cdec.kbest \
                   --rankDir rank \
                   > kbest.scored
 ```
+
+MultEval will also display the corpus-level oracle score over the n-best list according to each metric.
 
 For even more detailed analysis, you should also consider using the METEOR X-Ray analysis tool.
 

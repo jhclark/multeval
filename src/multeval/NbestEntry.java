@@ -2,6 +2,8 @@ package multeval;
 
 import java.util.*;
 
+import multeval.metrics.*;
+
 import com.google.common.base.*;
 
 public class NbestEntry {
@@ -15,6 +17,7 @@ public class NbestEntry {
   public int[] metricRank;
 
   public double[] submetricScores;
+  public List<SuffStats<?>> metricStats;
 
   public static NbestEntry parse(String cdecStr, int origRank, int numMetrics) {
 
