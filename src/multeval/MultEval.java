@@ -18,17 +18,22 @@ import multeval.analysis.DiffRanker;
 import multeval.metrics.BLEU;
 import multeval.metrics.Length;
 import multeval.metrics.METEOR;
+import multeval.metrics.METEORStats;
 import multeval.metrics.Metric;
 import multeval.metrics.SuffStats;
 import multeval.metrics.TER;
 import multeval.output.LatexTable;
 import multeval.significance.BootstrapResampler;
 import multeval.significance.StratifiedApproximateRandomizationTest;
+import multeval.util.CollectionUtils;
 import multeval.util.MathUtils;
 import multeval.util.SuffStatUtils;
 
+import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Multiset;
+import com.google.common.collect.Multiset.Entry;
 
 public class MultEval {
 
@@ -128,6 +133,8 @@ public class MultEval {
 
 			// 3) evaluate each system and report the average scores
 			runOverallEval(metrics, data, suffStats, results);
+			
+			runOOVAnalysis(metrics, data, suffStats, results);
 
 			// run diff ranking, if requested (MUST be run after overall eval,
 			// which computes median systems)
@@ -213,7 +220,8 @@ public class MultEval {
 					SuffStats<?> stats = suffStats.getStats(iMetric, iSys, iOpt, iHyp);
 					result[iHyp][iMetric] = metric.scoreStats(stats);
 
-//					System.err.println("hyp " + (iHyp + 1) + ": " + result[iHyp][iMetric]);
+					// System.err.println("hyp " + (iHyp + 1) + ": " +
+					// result[iHyp][iMetric]);
 				}
 
 			}
@@ -324,6 +332,46 @@ public class MultEval {
 					results.report(iMetric, iSys, Type.MEDIAN_IDX, medianIdx);
 				}
 			}
+		}
+
+		private void runOOVAnalysis(List<Metric<?>> metrics, HypothesisManager data,
+				SuffStatManager suffStats, ResultsManager results) {
+
+			for (int iMetric = 0; iMetric < metrics.size(); iMetric++) {
+				Metric<?> metric = metrics.get(iMetric);
+
+				// just do this with METEOR since it's the most forgiving
+				if (metric instanceof METEOR) {
+					METEOR meteor = (METEOR) metric;
+
+					for (int iSys = 0; iSys < data.getNumSystems(); iSys++) {
+						Multiset<String> unmatchedHypWords = HashMultiset.create();
+						Multiset<String> unmatchedRefWords = HashMultiset.create();
+						int medianIdx = results.get(iMetric, iSys, Type.MEDIAN_IDX).intValue();
+
+						List<SuffStats<?>> statsBySent =
+								suffStats.getStats(iMetric, iSys, medianIdx);
+						for (int iHyp = 0; iHyp < data.getNumHyps(); iHyp++) {
+							METEORStats sentStats = (METEORStats) statsBySent.get(iHyp);
+							unmatchedHypWords.addAll(meteor.getUnmatchedHypWords(sentStats));
+							unmatchedRefWords.addAll(meteor.getUnmatchedRefWords(sentStats));
+						}
+
+						// print OOVs for this system
+						List<Entry<String>> unmatchedHypWordsSorted =
+								CollectionUtils.sortByCount(unmatchedHypWords);
+						List<Entry<String>> unmatchedRefWordsSorted =
+								CollectionUtils.sortByCount(unmatchedRefWords);
+
+						int nHead = 10;
+						System.err.println("Top unmatched hypothesis words accoring to METEOR: "
+								+ CollectionUtils.head(unmatchedHypWordsSorted, nHead));
+						System.err.println("Top unmatched reference words accoring to METEOR: "
+								+ CollectionUtils.head(unmatchedRefWordsSorted, nHead));
+					}
+				}
+			}
+
 		}
 
 		private void runBootstrapResampling(List<Metric<?>> metrics, HypothesisManager data,

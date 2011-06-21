@@ -12,8 +12,11 @@ import java.util.List;
 
 import multeval.util.LibUtil;
 
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Multiset;
 import com.google.common.primitives.Doubles;
 
+import edu.cmu.meteor.aligner.Match;
 import edu.cmu.meteor.scorer.MeteorConfiguration;
 import edu.cmu.meteor.scorer.MeteorScorer;
 import edu.cmu.meteor.scorer.MeteorStats;
@@ -36,7 +39,8 @@ public class METEOR extends Metric<METEORStats> {
 	@Option(shortName = "w", longName = "meteor.weights", usage = "Specify module weights (overrides default)", arrayDelim = " ", required = false)
 	double[] moduleWeights;
 
-	@Option(shortName = "x", longName = "meteor.beamSize", usage = "Specify beam size (overrides default)", defaultValue = ""+Constants.DEFAULT_BEAM_SIZE)
+	@Option(shortName = "x", longName = "meteor.beamSize", usage = "Specify beam size (overrides default)", defaultValue = ""
+			+ Constants.DEFAULT_BEAM_SIZE)
 	int beamSize;
 
 	@Option(shortName = "s", longName = "meteor.synonymDirectory", usage = "If default is not desired (NOTE: This option has a different short flag than stand-alone METEOR)", required = false)
@@ -124,6 +128,40 @@ public class METEOR extends Metric<METEORStats> {
 	public double score(METEORStats suffStats) {
 		scorer.computeMetrics(suffStats.meteorStats);
 		return suffStats.meteorStats.score * 100;
+	}
+
+	public Multiset<String> getUnmatchedHypWords(METEORStats stats) {
+
+		List<String> hypWords = stats.meteorStats.alignment.words1;
+		Multiset<String> result = HashMultiset.create(hypWords);
+		for (Match m : stats.meteorStats.alignment.matches) {
+			if (m != null) {
+				int hypMatchStart = m.matchStart;
+				int hypMatchLen = m.matchLength;
+				for (int i = 0; i < hypMatchLen; i++) {
+					String matchedHypWord = hypWords.get(hypMatchStart + i);
+					result.remove(matchedHypWord);
+				}
+			}
+		}
+		return result;
+	}
+
+	public Multiset<String> getUnmatchedRefWords(METEORStats stats) {
+
+		List<String> refWords = stats.meteorStats.alignment.words2;
+		Multiset<String> result = HashMultiset.create(refWords);
+		for (Match m : stats.meteorStats.alignment.matches) {
+			if (m != null) {
+				int refMatchStart = m.start;
+				int refMatchLen = m.length;
+				for (int i = 0; i < refMatchLen; i++) {
+					String matchedRefWord = refWords.get(refMatchStart + i);
+					result.remove(matchedRefWord);
+				}
+			}
+		}
+		return result;
 	}
 
 	@Override
