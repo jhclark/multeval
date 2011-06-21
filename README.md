@@ -1,4 +1,4 @@
-Overview
+dOverview
 ========
 
 MultEval takes machine translation hypotheses from several runs of an optimizer and provides 3 popular metric scores, as well as, standard deviations (via bootstrap resampling) and p-values (via approximate randomization). This allows researchers to mitigate some of the risk of using unstable optimizers such as MERT, MIRA, and MCMC. It is intended to help in evaluating the impact of in-house experimental variations on translation quality; it is currently not setup to do bake-off style comparisons (bake-offs can't require multiple optimizer runs nor a standard tokenization).
@@ -17,6 +17,7 @@ multeval.sh eval --refs example/refs.test2010.lc.tok.en.* \
                  --meteor.language en
 ```
 
+To help the user determine if any tokenization mismatch happened, MultEval also prints the top OOVs according to METEOR.
 
 To compare several systems from the example data and get its BLEU, METEOR, and TER scores along with their standard deviations and p-values, use:
 
