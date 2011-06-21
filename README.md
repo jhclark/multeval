@@ -9,6 +9,13 @@ Jonathan Clark, Chris Dyer, Alon Lavie, and Noah Smith, "Better Hypothesis Testi
 Usage
 =====
 
+First, download and unpack the program:
+
+``` bash
+wget https://github.com/downloads/jhclark/multeval/multeval-0.1.tgz
+tar -xvzf https://github.com/downloads/jhclark/multeval/multeval-0.1.tgz
+```
+
 To evaluate a single system from the example data and get its BLEU, METEOR, and TER scores along with its standard deviation use:
 
 ``` bash
@@ -17,7 +24,7 @@ multeval.sh eval --refs example/refs.test2010.lc.tok.en.* \
                  --meteor.language en
 ```
 
-To help the user determine if any tokenization mismatch happened, MultEval also prints the top OOVs according to METEOR.
+The first time you run this command, METEOR (and its sizable paraphrase tables) will be downloaded. Also, to help the user determine if any tokenization mismatch happened, MultEval also prints the top OOVs according to METEOR.
 
 To compare several systems from the example data and get its BLEU, METEOR, and TER scores along with their standard deviations and p-values, use:
 
