@@ -1,4 +1,4 @@
-MultEval, Meteor, and jBLEU (but not TerCom) are licensed under
+MultEval, Meteor, TER, and jBLEU are licensed under
 the following conditions:
 
                    GNU LESSER GENERAL PUBLIC LICENSE

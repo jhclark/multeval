@@ -63,6 +63,32 @@ Cased vs Uncased Evaluation
 
 For now, this program assumes you will give it lowercased input. Cased variants of BLEU and TER will be coming soon.
 
+
+Using MultEval for Error Analysis and Oracle Scoring
+====================================================
+
+In addition to metrics and statistical analyses for quantitative analysis, MultEval comes with several tools to help
+you qualitatively determine how your translation systems are doing. First, is the ability to rank hypotheses with regard
+to its improvement or decline over the baseline system (command line given above). Note, some metrics (e.g. BLEU) are
+notoriously unstable at the sentence level.
+
+Second, is the ability to take a n-best list from a decoder (e.g. Moses, cdec), score all of the hypotheses using
+all of the metrics in MultEval, and then sort the hypotheses for each sentence by each of the metrics so that the
+first sentence output for each sentence is the n-best oracle. You can get this by running:
+
+``` bash
+multeval.sh nbest --nbest cdec.kbest \
+                  --refs example/refs.test2010.lc.tok.en.* \
+                  --meteor.language en \
+                  --rankDir rank \
+                  > kbest.scored
+```
+
+MultEval will also display the corpus-level oracle score over the n-best list according to each metric.
+
+For even more detailed analysis, you should also consider using the METEOR X-Ray analysis tool.
+
+
 Compatibility and Accuracy
 ==========================
 
@@ -81,7 +107,7 @@ Libraries
 MultEval uses the following libraries:
 
 *  METEOR 1.2 (LGPL License, http://www.cs.cmu.edu/~alavie/METEOR/ -- WordNet database has a compatible free license)
-*  Translation Error Rate 0.7 (TerCom, http://www.cs.umd.edu/~snover/tercom/, NOTE: TER is licensed *for research purposes only* -- please see its license before using)
+*  Translation Error Rate 0.7 (LGPL License, TerCom, http://www.cs.umd.edu/~snover/tercom/)
 *  Google Guava (Apache License)
 *  Java Annotation Options (jannopts, LGPL License)
 

@@ -1,61 +1,77 @@
 package multeval.metrics;
 
-import jannopts.ConfigurationException;
-import jannopts.Configurator;
+import jannopts.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
-import jbleu.JBLEU;
-import multeval.util.LibUtil;
+import jbleu.*;
+import multeval.util.*;
 
-import com.google.common.base.CharMatcher;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
+import com.google.common.base.*;
+import com.google.common.collect.*;
 
 // a MultiMetric wrapper around the jBLEU metric
 public class BLEU extends Metric<IntStats> {
 
-	// @Option(shortName = "c", longName = "bleu.closestRefLength", usage =
-	// "Use closest reference length when determining brevity penalty? (true behaves like IBM BLEU, false behaves like old NIST BLEU)",
-	// defaultValue="true")
-	// boolean closestRefLength;
+  // @Option(shortName = "c", longName = "bleu.closestRefLength", usage =
+  // "Use closest reference length when determining brevity penalty? (true behaves like IBM BLEU, false behaves like old NIST BLEU)",
+  // defaultValue="true")
+  // boolean closestRefLength;
 
-	private JBLEU bleu = new JBLEU();
+  private JBLEU bleu = new JBLEU();
 
-	@Override
-	public IntStats stats(String hyp, List<String> refs) {
+  public static final String[] SUBMETRIC_NAMES = { "bleu1", "bleu2", "bleu3", "bleu4", "brevity" };
 
-		List<String> tokHyp =
-				Lists.newArrayList(Splitter.on(CharMatcher.BREAKING_WHITESPACE).split(hyp));
-		List<List<String>> tokRefs = tokenizeRefs(refs);
+  @Override
+  public IntStats stats(String hyp, List<String> refs) {
 
-		IntStats result = new IntStats(JBLEU.getSuffStatCount());
-		bleu.stats(tokHyp, tokRefs, result.arr);
-		return result;
-	}
+    List<String> tokHyp = Lists.newArrayList(Splitter.on(CharMatcher.BREAKING_WHITESPACE).split(hyp));
+    List<List<String>> tokRefs = tokenizeRefs(refs);
 
-	public static List<List<String>> tokenizeRefs(List<String> refs) {
-		List<List<String>> tokRefs = new ArrayList<List<String>>();
-		for (String ref : refs) {
-			tokRefs.add(Lists.newArrayList(Splitter.on(CharMatcher.BREAKING_WHITESPACE).split(ref)));
-		}
-		return tokRefs;
-	}
+    IntStats result = new IntStats(JBLEU.getSuffStatCount());
+    bleu.stats(tokHyp, tokRefs, result.arr);
+    return result;
+  }
 
-	@Override
-	public double score(IntStats suffStats) {
-		return bleu.score(suffStats.arr) * 100;
-	}
+  public static List<List<String>> tokenizeRefs(List<String> refs) {
+    List<List<String>> tokRefs = new ArrayList<List<String>>();
+    for(String ref : refs) {
+      tokRefs.add(Lists.newArrayList(Splitter.on(CharMatcher.BREAKING_WHITESPACE).split(ref)));
+    }
+    return tokRefs;
+  }
 
-	@Override
-	public String toString() {
-		return "BLEU";
-	}
+  @Override
+  public double score(IntStats suffStats) {
+    return bleu.score(suffStats.arr) * 100;
+  }
 
-	@Override
-	public void configure(Configurator opts) throws ConfigurationException {
-		LibUtil.checkLibrary("jbleu.JBLEU", "jBLEU");
-		opts.configure(this);
-	}
+  @Override
+  public double[] scoreSubmetrics(IntStats suffStats) {
+    int N = 4;
+    double[] result = new double[N + 1];
+    bleu.score(suffStats.arr, result);
+    return result;
+  }
+
+  @Override
+  public String[] getSubmetricNames() {
+    return SUBMETRIC_NAMES;
+  }
+
+  @Override
+  public String toString() {
+    return "BLEU";
+  }
+
+  @Override
+  public void configure(Configurator opts) throws ConfigurationException {
+    LibUtil.checkLibrary("jbleu.JBLEU", "jBLEU");
+    opts.configure(this);
+  }
+
+  @Override
+  public boolean isBiggerBetter() {
+    return true;
+  }
 }
