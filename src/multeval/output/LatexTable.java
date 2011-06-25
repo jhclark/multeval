@@ -34,7 +34,7 @@ public class LatexTable {
           out.println(String.format("& %s & %.1f & %.1f & %.1f & - \\\\", sysName, avg, sSel, sTest));
         } else {
           double p = results.get(iMetric, iSys, Type.P_VALUE);
-          out.println(String.format("& %s & %.1f & %.1f & %.1f & %.1f \\\\", sysName, avg, sSel, sTest, p));
+          out.println(String.format("& %s & %.1f & %.1f & %.1f & %.2f \\\\", sysName, avg, sSel, sTest, p));
         }
       }
       out.println("\\hline");
