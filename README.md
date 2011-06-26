@@ -62,6 +62,7 @@ What do p-values actually mean?
 A p-value is a model's estimate (where the model is a significance test) that a particular difference in scores arose by chance. Multeval uses approximate randomization, a test that approximates a permutation test via sampling shufflings of like hypotheses between systems.
 
 The most important points are:
+
 * a p-value **does** tell you whether a difference of this magnitude is likely to be generated again by some random process (a randomized optimizer)
 * a p-value **does not** tell you whether a difference of this magnitude is meaningful (in terms of translation quality)
 
@@ -124,7 +125,7 @@ Libraries
 MultEval uses the following libraries:
 
 *  METEOR 1.2 (LGPL License, http://www.cs.cmu.edu/~alavie/METEOR/ -- WordNet database has a compatible free license)
-*  Translation Error Rate 0.7 (LGPL License, TerCom, http://www.cs.umd.edu/~snover/tercom/)
+*  Translation Error Rate 0.7 (LGPL License, TerCom, http://www.cs.umd.edu/~snover/tercom/ -- Thanks to Matt Snover for relicensing this)
 *  Google Guava (Apache License)
 *  Java Annotation Options (jannopts, LGPL License)
 
