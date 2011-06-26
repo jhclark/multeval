@@ -1,4 +1,4 @@
-dOverview
+Overview
 ========
 
 MultEval takes machine translation hypotheses from several runs of an optimizer and provides 3 popular metric scores, as well as, standard deviations (via bootstrap resampling) and p-values (via approximate randomization). This allows researchers to mitigate some of the risk of using unstable optimizers such as MERT, MIRA, and MCMC. It is intended to help in evaluating the impact of in-house experimental variations on translation quality; it is currently not setup to do bake-off style comparisons (bake-offs can't require multiple optimizer runs nor a standard tokenization).
