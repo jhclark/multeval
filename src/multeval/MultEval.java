@@ -552,6 +552,11 @@ public class MultEval {
         double[] minByMetric = new double[metrics.size()];
         double[] maxByMetric = new double[metrics.size()];
 
+	for(int i=0; i<metrics.size(); i++) {
+	  minByMetric[i] = Double.MAX_VALUE;
+	  maxByMetric[i] = Double.MIN_VALUE;
+	}
+
         for(int iOpt = 0; iOpt < data.getNumOptRuns(); iOpt++) {
 
           System.err.println("Performing bootstrap resampling to estimate stddev for test set selection (System "
