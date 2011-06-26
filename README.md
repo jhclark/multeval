@@ -56,6 +56,16 @@ For a more detailed description of the various METEOR options, please see http:/
 
 METEOR and its paraphrase tables will automatically be downloaded from the web the first time you run multeval.sh. They are not included in the initial download due to the large size (~200MB) of the paraphrase tables.
 
+What do p-values actually mean?
+-------------------------------
+
+A p-value is a model's estimate (where the model is a significance test) that a particular difference in scores arose by chance. Multeval uses approximate randomization, a test that approximates a permutation test via sampling shufflings of like hypotheses between systems.
+
+The most important points are:
+* a p-value **does** tell you whether a difference of this magnitude is likely to be generated again by some random process (a randomized optimizer)
+* a p-value **does not** tell you whether a difference of this magnitude is meaningful (in terms of translation quality)
+
+So even though a large difference may more frequently correspond to larger p-values, this is not guaranteed. In fact, small differences can be quite significant and vice versa.
 
 Discussion on Tokenization, Segmentation, etc.
 ----------------------------------------------
