@@ -66,7 +66,12 @@ The most important points are:
 * a p-value **does** tell you whether a difference of this magnitude is likely to be generated again by some random process (a randomized optimizer)
 * a p-value **does not** tell you whether a difference of this magnitude is meaningful (in terms of translation quality)
 
-So even though a large difference may more frequently correspond to larger p-values, this is not guaranteed. In fact, small differences can be quite significant and vice versa.
+So even though a large difference may more frequently correspond to larger p-values, this is not guaranteed. In fact, small differences can be quite significant and vice versa. For example, if you give a single optimizer sample with identical hypotheses, there will be zero difference in scores and also a p-value of zero, since shuffling hypotheses between the systems produces no change, indicating that this difference (of zero) is likely to be reproducible. This also demonstrates that this significance test does not account for the user giving it too few (optimizer) samples, which is why it's important to report how many optimizer samples you used.
+
+Rounding
+--------
+
+MultEval generally rounds to one decimal place for metrics and two decimal places for p-values just before externally reporting values in tables. One should expect that our current evaluation measures and significance testing models are not likely to be very discriminant beyond this point and so assigning meaning to finer distinctions is not necessarily informative.
 
 Discussion on Tokenization, Segmentation, etc.
 ----------------------------------------------
