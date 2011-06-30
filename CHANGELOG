@@ -1,0 +1,6 @@
+V0.2 - 6/29/2011
+* Use more aggressive shuffling algorithm for approximate randomization for better p-values in corner cases
+* Dump prettier ASCII table upon completion
+
+V0.1 - 6/21/2011
+* Initial Release
