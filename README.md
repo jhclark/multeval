@@ -6,6 +6,8 @@ MultEval takes machine translation hypotheses from several runs of an optimizer 
 It is a user-friendly implementation of:
 Jonathan Clark, Chris Dyer, Alon Lavie, and Noah Smith, "Better Hypothesis Testing for Statistical Machine Translation: Controlling for Optimizer Instability", Proceedings of the Association for Computational Lingustics, 2011. [PDF](http://www.cs.cmu.edu/~jhclark/pubs/significance.pdf)
 
+To keep updated on new versions of this software, subscribe to our low-traffic announcement mailing list: http://groups.google.com/group/multeval-announce
+
 Usage
 =====
 
