@@ -9,15 +9,17 @@ public class ResultsManager {
   private int numMetrics;
   public final String[] metricNames;
   public final String[] sysNames;
+  public final int numOptRuns;
 
   public enum Type {
     AVG, STDDEV, MIN, MAX, RESAMPLED_MEAN_AVG, RESAMPLED_STDDEV_AVG, RESAMPLED_MIN, RESAMPLED_MAX, P_VALUE, MEDIAN,
     MEDIAN_IDX
   }
 
-  public ResultsManager(String[] metricNames, String[] sysNames) {
+  public ResultsManager(String[] metricNames, String[] sysNames, int numOptRuns) {
     this.metricNames = metricNames;
     this.sysNames = sysNames;
+	this.numOptRuns = numOptRuns;
 
     this.numMetrics = metricNames.length;
     int numSys = sysNames.length;
@@ -35,8 +37,8 @@ public class ResultsManager {
     Map<Type, Double> map = resultsByMetric.get(iMetric);
     map.put(type, d);
 
-    System.err.println("GOT RESULT: " + sysNames[iSys] + ": " + metricNames[iMetric] + ": " + type.name() + ": "
-        + String.format("%.2f", d));
+    System.err.println("RESULT: " + sysNames[iSys] + ": " + metricNames[iMetric] + ": " + type.name() + ": "
+        + String.format("%.6f", d)); // too much precision here, but AsciiTable fixes this
   }
 
   public Double get(int iMetric, int iSys, Type type) {

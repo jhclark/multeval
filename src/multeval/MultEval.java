@@ -294,6 +294,9 @@ public class MultEval {
 
     @Option(shortName = "r", longName = "rankDir", usage = "Rank hypotheses of median optimization run of each system with regard to improvement/decline over median baseline system and output to the specified directory for analysis", required = false)
     private String rankDir;
+    
+    @Option(shortName = "D", longName = "debug", usage = "Show debugging output?", required = false, defaultValue="false")
+    private boolean debug;
 
     // TODO: Lowercasing option
 
@@ -337,7 +340,7 @@ public class MultEval {
       for(int i = 1; i < sysNames.length; i++) {
         sysNames[i] = "system " + i;
       }
-      ResultsManager results = new ResultsManager(metricNames, sysNames);
+      ResultsManager results = new ResultsManager(metricNames, sysNames, data.getNumOptRuns());
 
       // 3) evaluate each system and report the average scores
       runOverallEval(metrics, data, suffStats, results);
@@ -363,6 +366,9 @@ public class MultEval {
         table.write(results, out);
         out.close();
       }
+      
+      AsciiTable table = new AsciiTable();
+      table.write(results, System.out);
 
       // 7) show statistics such as most frequent OOV's length, brevity
       // penalty, etc.
@@ -443,7 +449,7 @@ public class MultEval {
         List<List<SuffStats<?>>> suffStatsSysI = suffStats.getStatsAllOptForSys(iSys);
 
         StratifiedApproximateRandomizationTest ar = new StratifiedApproximateRandomizationTest(metrics,
-            suffStatsBaseline, suffStatsSysI);
+            suffStatsBaseline, suffStatsSysI, data.getNumHyps(), data.getNumOptRuns(), debug);
         double[] pByMetric = ar.getTwoSidedP(numShuffles);
         for(int iMetric = 0; iMetric < metrics.size(); iMetric++) {
           results.report(iMetric, iSys, Type.P_VALUE, pByMetric[iMetric]);
