@@ -2,7 +2,7 @@
 set -xeo pipefail
 scriptDir=$(dirname $0)
 
-dist=multeval-0.1
+dist=multeval-0.2
 distDir=$scriptDir/dist
 mkdir -p $distDir/$dist
 mkdir -p $distDir/$dist/lib
