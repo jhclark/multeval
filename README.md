@@ -8,15 +8,13 @@ Jonathan Clark, Chris Dyer, Alon Lavie, and Noah Smith, "Better Hypothesis Testi
 
 To keep updated on new versions of this software, subscribe to our low-traffic announcement mailing list: http://groups.google.com/group/multeval-announce
 
-Download this software at Google Code: http://code.google.com/p/multeval/downloads
-
 Usage
 =====
 
 First, download and unpack the program:
 
 ``` bash
-wget 'http://code.google.com/p/multeval/downloads/detail?name=multeval-0.2.tgz'
+wget https://github.com/downloads/jhclark/multeval/multeval-0.2.tgz
 tar -xvzf multeval-0.2.tgz
 ```
 
