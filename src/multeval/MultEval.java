@@ -11,7 +11,7 @@ import multeval.analysis.*;
 import multeval.metrics.*;
 import multeval.output.*;
 import multeval.significance.*;
-import multeval.util.*;
+%import multeval.util.*;
 
 import com.google.common.base.*;
 import com.google.common.collect.*;
@@ -23,7 +23,7 @@ public class MultEval {
   // report length!
 
   public static Map<String, Metric<?>> KNOWN_METRICS = ImmutableMap.<String, Metric<?>> builder()
-      .put("bleu", new BLEU()).put("meteor", new METEOR()).put("ter", new TER()).put("length", new Length()).build();
+      .put("bleu", new BLEU()).put("meteor", new multeval.metrics.METEOR()).put("ter", new TER()).put("length", new Length()).build();
 
   private static List<Metric<?>> loadMetrics(String[] metricNames, Configurator opts) throws ConfigurationException {
 
@@ -76,7 +76,7 @@ public class MultEval {
 
     @Override
     public Iterable<Class<?>> getDynamicConfigurables() {
-      return ImmutableList.<Class<?>> of(BLEU.class, METEOR.class, TER.class);
+      return ImmutableList.<Class<?>> of(BLEU.class, multeval.metrics.METEOR.class, TER.class);
     }
 
     @Override
@@ -302,7 +302,7 @@ public class MultEval {
 
     @Override
     public Iterable<Class<?>> getDynamicConfigurables() {
-      return ImmutableList.<Class<?>> of(BLEU.class, METEOR.class, TER.class);
+      return ImmutableList.<Class<?>> of(BLEU.class, multeval.metrics.METEOR.class, TER.class);
     }
 
     @Override
@@ -517,8 +517,8 @@ public class MultEval {
 	  Metric<?> metric = metrics.get(iMetric);
 
 	  // just do this with METEOR since it's the most forgiving
-	  if (metric instanceof METEOR) {
-	      METEOR meteor = (METEOR) metric;
+	  if (metric instanceof multeval.metrics.METEOR) {
+	      multeval.metrics.METEOR meteor = (multeval.metrics.METEOR) metric;
 	      
 	      for (int iSys = 0; iSys < data.getNumSystems(); iSys++) {
 		  Multiset<String> unmatchedHypWords = HashMultiset.create();
@@ -614,7 +614,7 @@ public class MultEval {
       String moduleName = args[0];
       Module module = MODULES.get(moduleName);
       Configurator opts = new Configurator().withProgramHeader(
-          "MultEval V0.1\nBy Jonathan Clark\nUsing Libraries: METEOR (Michael Denkowski) and TER (Matthew Snover)\n")
+          "MultEval V0.2\nBy Jonathan Clark\nUsing Libraries: METEOR (Michael Denkowski) and TER (Matthew Snover)\n")
           .withModuleOptions(moduleName, module.getClass());
 
       // add "dynamic" options, which might be activated later
