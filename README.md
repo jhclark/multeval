@@ -136,6 +136,17 @@ MultEval uses the following libraries:
 *  Google Guava (Apache License)
 *  Java Annotation Options (jannopts, LGPL License)
 
+Building
+========
+
+Should you want to build MultEval yourself instead of using the provided tarball distribution, you'll need to download meteor and install it under lib/meteor-1.2/meteor-1.2.jar. Then you can just run ant:
+
+``` bash
+$ ant
+```
+
+NOTE: There's a strange generics-related javac bug that's known to cause the build to fail under OpenJDK V1.6.0_17. However, this seems to be resolved as of version 1.6.0_21.
+
 
 Citation
 ========
