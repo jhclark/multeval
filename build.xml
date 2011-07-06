@@ -4,11 +4,20 @@
   <property name="version" value="0.2" />
   <property name="meteor_version" value="1.2" />
 
+  <property name="meteor_jar" value="lib/meteor-${meteor_version}/meteor-${meteor_version}.jar"/>
+  <available file="${meteor_jar}" property="meteor.present"/>
+
+  <target name="has_meteor" if="meteor.present"/>
+  <target name="not_has_meteor" unless="meteor.present">
+    <fail message="Did not find METEOR JAR required for compilation at ${meteor_jar}"/>
+  </target>
+  <target name="check_meteor" depends="has_meteor,not_has_meteor"/>
+
   <!-- Compile the Java code -->
-  <target name="compile">
+  <target name="compile" depends="check_meteor">
     <mkdir dir="bin" />
     <javac compiler="javac1.5" srcdir="src" destdir="bin"
-	   classpath="lib/guava-r09.jar:lib/tercom-0.7.26.jar:lib/jannopts.jar:lib/meteor-1.2/meteor-1.2.jar"
+	   classpath="lib/guava-r09.jar:lib/tercom-0.7.26.jar:lib/jannopts.jar:${meteor_jar}"
 	   includeantruntime="false"
 	   debug="on" encoding="utf8" />
   </target>
