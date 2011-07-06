@@ -11,7 +11,7 @@ import multeval.analysis.*;
 import multeval.metrics.*;
 import multeval.output.*;
 import multeval.significance.*;
-%import multeval.util.*;
+import multeval.util.*;
 
 import com.google.common.base.*;
 import com.google.common.collect.*;
