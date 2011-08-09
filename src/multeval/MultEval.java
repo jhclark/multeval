@@ -110,32 +110,36 @@ public class MultEval {
       String line;
       List<NbestEntry> hyps = new ArrayList<NbestEntry>(1000);
       List<List<SuffStats<?>>> oracleStatsByMetric = new ArrayList<List<SuffStats<?>>>(metrics.size());
+      List<List<SuffStats<?>>> woracleStatsByMetric = new ArrayList<List<SuffStats<?>>>(metrics.size());
       List<List<SuffStats<?>>> topbestStatsByMetric = new ArrayList<List<SuffStats<?>>>(metrics.size());
       for(int i=0;i<metrics.size(); i++) {
         oracleStatsByMetric.add(new ArrayList<SuffStats<?>>());
+        woracleStatsByMetric.add(new ArrayList<SuffStats<?>>());
         topbestStatsByMetric.add(new ArrayList<SuffStats<?>>());
       }
       
       int curHyp = 0;
+      int iLine = 0;
       while((line = in.readLine()) != null) {
+        iLine++;
         NbestEntry entry = NbestEntry.parse(line, hyps.size(), metrics.size());
         if (curHyp != entry.sentId) {
-          System.err.println("hyp #"+curHyp);
           List<String> sentRefs = allRefs.get(curHyp);
-          processHyp(metrics, submetricNames, hyps, sentRefs, out, metricRankFiles, oracleStatsByMetric, topbestStatsByMetric);
+          processHyp(metrics, submetricNames, hyps, sentRefs, out, metricRankFiles, oracleStatsByMetric, woracleStatsByMetric, topbestStatsByMetric);
 
-          if (curHyp % 100 == 0) {
-            System.err.println("Processed " + curHyp + " hypotheses so far...");
+          if (iLine % 10000 == 0) {
+            System.err.println("Processed " + iLine + " lines (" + curHyp + " hypotheses) so far...");
           }
 
           hyps.clear();
+          entry.origRank = 0;
           curHyp = entry.sentId;
         }
         hyps.add(entry);
       }
 
       List<String> sentRefs = allRefs.get(curHyp);
-      processHyp(metrics, submetricNames, hyps, sentRefs, out, metricRankFiles, oracleStatsByMetric, topbestStatsByMetric);
+      processHyp(metrics, submetricNames, hyps, sentRefs, out, metricRankFiles, oracleStatsByMetric, woracleStatsByMetric, topbestStatsByMetric);
 
       out.close();
       if (rankDir != null) {
@@ -150,11 +154,18 @@ public class MultEval {
         
         SuffStats<?> topbestStats = SuffStatUtils.sumStats(topbestStatsByMetric.get(i));
         double topbestScore = metric.scoreStats(topbestStats);
-        System.err.println(String.format("%s topbest score: %.2f", metric.toString(), topbestScore));
+	String topbestSub = metric.scoreSubmetricsString(topbestStats);
+        System.err.println(String.format("%s topbest score: %.2f (%s)", metric.toString(), topbestScore, topbestSub));
         
         SuffStats<?> oracleStats = SuffStatUtils.sumStats(oracleStatsByMetric.get(i));
         double oracleScore = metric.scoreStats(oracleStats);
-        System.err.println(String.format("%s oracle score: %.2f", metric.toString(), oracleScore));
+	String oracleSub = metric.scoreSubmetricsString(oracleStats);
+        System.err.println(String.format("%s oracle score: %.2f (%s)", metric.toString(), oracleScore, topbestSub));
+
+        SuffStats<?> woracleStats = SuffStatUtils.sumStats(woracleStatsByMetric.get(i));
+        double woracleScore = metric.scoreStats(woracleStats);
+	String woracleSub = metric.scoreSubmetricsString(woracleStats);
+        System.err.println(String.format("%s worst-oracle score: %.2f (%s)", metric.toString(), woracleScore, woracleSub));
       }
     }
 
@@ -175,9 +186,15 @@ public class MultEval {
     }
 
     // process all hypotheses corresponding to a single sentence
-    private void processHyp(List<Metric<?>> metrics, String[] submetricNames, List<NbestEntry> hyps,
-        List<String> sentRefs, PrintStream out, PrintWriter[] metricRankFiles,
-        List<List<SuffStats<?>>> oracleStatsByMetric, List<List<SuffStats<?>>> topbestStatsByMetric) {
+    private void processHyp(List<Metric<?>> metrics,
+                            String[] submetricNames,
+                            List<NbestEntry> hyps,
+                            List<String> sentRefs,
+                            PrintStream out,
+                            PrintWriter[] metricRankFiles,
+                            List<List<SuffStats<?>>> oracleStatsByMetric,
+                            List<List<SuffStats<?>>> woracleStatsByMetric,
+                            List<List<SuffStats<?>>> topbestStatsByMetric) {
 
       // score all of the hypotheses in the n-best list
       for(int iRank = 0; iRank < hyps.size(); iRank++) {
@@ -214,6 +231,7 @@ public class MultEval {
         
         sortByMetricScore(hyps, iMetric, metrics.get(iMetric).isBiggerBetter());
         oracleStatsByMetric.get(iMetric).add(hyps.get(0).metricStats.get(iMetric));
+        woracleStatsByMetric.get(iMetric).add(hyps.get(hyps.size()-1).metricStats.get(iMetric));
         
         // and record the rank of each
         for(int iRank = 0; iRank < hyps.size(); iRank++) {
