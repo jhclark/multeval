@@ -57,8 +57,17 @@ public class METEOR extends Metric<METEORStats> {
 
     opts.configure(this);
 
+    // do some sanity checking
+    if(Constants.getLanguageID(Constants.normLanguageName(language)) == Constants.LANG_OTHER) {
+	throw new ConfigurationException("Unrecognized METEOR language: "+language);
+    }
+    if(Constants.getTaskID(task) == Constants.TASK_CUSTOM) {
+	throw new ConfigurationException("Unrecognized METEOR task: "+task);
+    }
+
     MeteorConfiguration config = new MeteorConfiguration();
     config.setLanguage(language);
+    // task must be set after language due to Meteor initializing defaults
     config.setTask(task);
 
     if (params != null) {
