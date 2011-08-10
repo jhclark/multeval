@@ -38,4 +38,17 @@ public abstract class Metric<Stats extends SuffStats<Stats>> {
   public double[] scoreSubmetricsStats(SuffStats<?> suffStats) {
     return scoreSubmetrics((Stats) suffStats);
   }
+
+  public String scoreSubmetricsString(SuffStats<?> suffStats) {
+    StringBuilder builder = new StringBuilder();
+    String[] names = getSubmetricNames();
+    double[] subs = scoreSubmetricsStats(suffStats);
+    for(int i=0; i<names.length; i++) {
+      builder.append(String.format("%s=%.2f", names[i], subs[i]));
+      if(i < names.length - 1) {
+        builder.append("; ");
+      }
+    }
+    return builder.toString();
+  }
 }
