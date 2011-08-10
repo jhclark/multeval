@@ -42,6 +42,11 @@ public class BLEU extends Metric<IntStats> {
   }
 
   @Override
+  public String getMetricDescription() {
+    return String.format("jBLEU V%s (an exact reimplementation of NIST's mteval-v13.pl without tokenization)".format(JBLEU.VERSION));
+  }
+
+  @Override
   public double score(IntStats suffStats) {
     return bleu.score(suffStats.arr) * 100;
   }

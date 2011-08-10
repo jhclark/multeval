@@ -9,6 +9,7 @@ import java.util.*;
 import multeval.util.*;
 import com.google.common.primitives.*;
 import com.google.common.collect.*;
+import com.google.common.base.*;
 
 import edu.cmu.meteor.scorer.*;
 import edu.cmu.meteor.util.*;
@@ -49,6 +50,24 @@ public class METEOR extends Metric<METEORStats> {
   // TODO: Meteor normalization?
 
   private MeteorScorer scorer;
+
+  @Override
+  public String getMetricDescription() {
+    StringBuilder builder = new StringBuilder();
+    builder.append("Meteor V"+edu.cmu.meteor.util.Constants.VERSION);
+    builder.append(" " + language);
+    builder.append(" on " + task + " task");
+    if(modules == null) {
+      builder.append(" with all default modules");
+    } else {
+      builder.append(" with modules " + Joiner.on(", ").join(modules));
+    }
+    if(keepPunctuation) {
+      builder.append(" NOT");
+    }
+    builder.append(" ignoring punctuation");
+    return builder.toString();
+  }
 
   @Override
   public void configure(Configurator opts) throws ConfigurationException {

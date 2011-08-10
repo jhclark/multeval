@@ -14,8 +14,8 @@ Usage
 First, download and unpack the program:
 
 ``` bash
-wget https://github.com/downloads/jhclark/multeval/multeval-0.2.tgz
-tar -xvzf multeval-0.2.tgz
+wget https://github.com/downloads/jhclark/multeval/multeval-0.3.tgz
+tar -xvzf multeval-0.3.tgz
 ```
 
 To evaluate a single system from the example data and get its BLEU, METEOR, and TER scores along with its standard deviation use:
@@ -131,7 +131,7 @@ Libraries
 
 MultEval uses the following libraries:
 
-*  METEOR 1.2 (LGPL License, http://www.cs.cmu.edu/~alavie/METEOR/ -- WordNet database has a compatible free license)
+*  METEOR 1.3 (LGPL License, http://www.cs.cmu.edu/~alavie/METEOR/ -- WordNet database has a compatible free license)
 *  Translation Error Rate 0.7 (LGPL License, TerCom, http://www.cs.umd.edu/~snover/tercom/ -- Thanks to Matt Snover for relicensing this)
 *  Google Guava (Apache License)
 *  Java Annotation Options (jannopts, LGPL License)
@@ -139,7 +139,7 @@ MultEval uses the following libraries:
 Building
 ========
 
-Should you want to build MultEval yourself instead of using the provided tarball distribution, you'll need to download meteor and install it under lib/meteor-1.2/meteor-1.2.jar. Then you can just run ant:
+Should you want to build MultEval yourself instead of using the provided tarball distribution, you'll need to download meteor and install it under lib/meteor-1.3/meteor-1.3.jar. Then you can just run ant:
 
 ``` bash
 $ ant

@@ -38,6 +38,11 @@ public class TER extends Metric<IntStats> {
   private TERcost costfunc;
 
   @Override
+  public String getMetricDescription() {
+    return "Translation Error Rate (TER) V0.7.25";
+  }
+
+  @Override
   public IntStats stats(String hyp, List<String> refs) {
 
     double totwords = 0;

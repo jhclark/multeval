@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -xeo pipefail
 scriptDir=$(dirname $0)
+source $scriptDir/constants
 
-version=0.1
 dist=multeval-$version
 distDir=$scriptDir/dist
 mkdir -p $distDir/$dist
@@ -14,6 +14,7 @@ cp -r multeval.sh \
     get_deps.sh \
     LICENSE.txt \
     README.md \
+    CHANGELOG \
     multeval-$version.jar \
     example \
     $distDir/$dist

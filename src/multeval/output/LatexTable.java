@@ -1,13 +1,15 @@
 package multeval.output;
 
 import java.io.*;
+import java.util.*;
 
 import multeval.*;
+import multeval.metrics.*;
 import multeval.ResultsManager.Type;
 
 public class LatexTable {
 
-  public void write(ResultsManager results, PrintWriter out) {
+  public void write(ResultsManager results, List<Metric<?>> metricList, PrintWriter out) {
     out.println("\\begin{table}[htb]");
     out.println("\\begin{center}");
     out.println("\\begin{footnotesize}");
@@ -44,7 +46,11 @@ public class LatexTable {
     out.println("\\end{footnotesize}");
     out.println("\\end{center}");
     // out.println("\\vspace{-.2cm}");
-    out.println("\\caption{\\label{tab:scores} Metric scores for all systems: INCLUDE METRIC VERSIONS ETC. CITATIONS ON DEMAND. Note p-values are relative to baseline.}");
+    StringBuilder metricDescs = new StringBuilder();
+    for(Metric<?> metric : metricList) {
+      metricDescs.append(metric.getMetricDescription() + "; ");
+    }
+    out.println("\\caption{\\label{tab:scores} Metric scores for all systems: "+metricDescs.toString()+". p-values are relative to baseline and indicate whether a difference of this magnitude (between the baseline and the system on that line) is likely to be generated again by some random process (a randomized optimizer). Metric scores are averages over multiple runs. $s_sel$ indicates the variance due to test set selection and has nothing to do with optimizer instability.}");
     out.println("\\end{table}");
     out.flush();
   }

@@ -381,7 +381,7 @@ public class MultEval {
         File file = new File(latexOutFile);
         System.err.println("Writing Latex table to " + file.getAbsolutePath());
         PrintWriter out = new PrintWriter(file);
-        table.write(results, out);
+        table.write(results, metrics, out);
         out.close();
       }
       
@@ -632,7 +632,7 @@ public class MultEval {
       String moduleName = args[0];
       Module module = MODULES.get(moduleName);
       Configurator opts = new Configurator().withProgramHeader(
-          "MultEval V0.2\nBy Jonathan Clark\nUsing Libraries: METEOR (Michael Denkowski) and TER (Matthew Snover)\n")
+          "MultEval V0.3\nBy Jonathan Clark\nUsing Libraries: METEOR (Michael Denkowski) and TER (Matthew Snover)\n")
           .withModuleOptions(moduleName, module.getClass());
 
       // add "dynamic" options, which might be activated later

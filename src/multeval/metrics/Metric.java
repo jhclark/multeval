@@ -19,6 +19,9 @@ public abstract class Metric<Stats extends SuffStats<Stats>> {
   
   public abstract boolean isBiggerBetter();
 
+  // this should include version!
+  public abstract String getMetricDescription();
+
   public String[] getSubmetricNames() {
     return new String[0];
   }

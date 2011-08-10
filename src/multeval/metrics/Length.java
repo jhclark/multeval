@@ -13,6 +13,11 @@ import com.google.common.collect.*;
 public class Length extends Metric<IntStats> {
 
   @Override
+  public String getMetricDescription() {
+    return "Hypothesis length over reference length as a percent";
+  }
+
+  @Override
   public IntStats stats(String hyp, List<String> refs) {
 
     List<String> hypToks = Lists.newArrayList(Splitter.on(CharMatcher.BREAKING_WHITESPACE).split(hyp));
