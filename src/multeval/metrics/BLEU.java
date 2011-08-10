@@ -20,7 +20,7 @@ public class BLEU extends Metric<IntStats> {
 
   private JBLEU bleu = new JBLEU();
 
-  public static final String[] SUBMETRIC_NAMES = { "bleu1", "bleu2", "bleu3", "bleu4", "brevity" };
+  public static final String[] SUBMETRIC_NAMES = { "bleu1p", "bleu2p", "bleu3p", "bleu4p", "brevity" };
 
   @Override
   public IntStats stats(String hyp, List<String> refs) {
