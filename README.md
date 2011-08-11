@@ -58,6 +58,15 @@ For a more detailed description of the various METEOR options, please see http:/
 
 METEOR and its paraphrase tables will automatically be downloaded from the web the first time you run multeval.sh. They are not included in the initial download due to the large size (~200MB) of the paraphrase tables.
 
+The ASCII table produced by multeval looks something like this:
+
+```
+n=3            BLEU (s_sel/s_opt/p)   METEOR (s_sel/s_opt/p) TER (s_sel/s_opt/p)    Length (s_sel/s_opt/p) 
+baseline       18.5 (0.3/0.1/-)       29.3 (0.1/0.0/-)       65.7 (0.4/0.2/-)       107.5 (0.4/0.1/-)      
+system 1       18.8 (0.3/0.3/0.00)    30.3 (0.1/0.1/0.00)    64.8 (0.4/0.6/0.00)    107.7 (0.3/0.7/0.09)   
+system 2       18.5 (0.3/0.1/0.00)    29.3 (0.1/0.0/0.00)    65.7 (0.4/0.2/0.00)    107.5 (0.4/0.1/0.00)
+```
+
 The LaTeX table produced by multeval looks something like this:
 
 ![Latex Table](https://github.com/jhclark/multeval/raw/HEAD/table.png)
