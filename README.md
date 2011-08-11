@@ -60,7 +60,7 @@ METEOR and its paraphrase tables will automatically be downloaded from the web t
 
 The LaTeX table produced by multeval looks something like this:
 
-![Latex Table](table.png)
+![Latex Table](https://github.com/jhclark/multeval/blob/master/table.png)
 
 What do p-values actually mean?
 -------------------------------
