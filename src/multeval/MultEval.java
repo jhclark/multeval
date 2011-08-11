@@ -310,6 +310,9 @@ public class MultEval {
     @Option(shortName = "L", longName = "latex", usage = "Latex-formatted table including measures that are commonly (or should be commonly) reported", required = false)
     private String latexOutFile;
 
+    @Option(shortName = "F", longName = "fullLatexDoc", usage = "Output a fully compilable Latex document instead of just the table alone", required = false, defaultValue="false")
+    private boolean fullLatexDoc;
+
     @Option(shortName = "r", longName = "rankDir", usage = "Rank hypotheses of median optimization run of each system with regard to improvement/decline over median baseline system and output to the specified directory for analysis", required = false)
     private String rankDir;
     
@@ -381,7 +384,7 @@ public class MultEval {
         File file = new File(latexOutFile);
         System.err.println("Writing Latex table to " + file.getAbsolutePath());
         PrintWriter out = new PrintWriter(file);
-        table.write(results, metrics, out);
+        table.write(results, metrics, out, fullLatexDoc);
         out.close();
       }
       
