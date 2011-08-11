@@ -58,6 +58,10 @@ For a more detailed description of the various METEOR options, please see http:/
 
 METEOR and its paraphrase tables will automatically be downloaded from the web the first time you run multeval.sh. They are not included in the initial download due to the large size (~200MB) of the paraphrase tables.
 
+The LaTeX table produced by multeval looks something like this:
+
+![Latex Table](table.png)
+
 What do p-values actually mean?
 -------------------------------
 
