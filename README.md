@@ -88,13 +88,16 @@ Rounding
 
 MultEval generally rounds to one decimal place for metrics and two decimal places for p-values just before externally reporting values in tables. One should expect that our current evaluation measures and significance testing models are not likely to be very discriminant beyond this point and so assigning meaning to finer distinctions is not necessarily informative.
 
-Discussion on Tokenization, Segmentation, etc.
-----------------------------------------------
+Discussion on Pitfalls in Tokenization, Segmentation, etc.
+----------------------------------------------------------
 
 While tokenization *can* introduce bias in many metrics by changing the length of hypotheses and references, noise can also be introduced into the evaluation process by strange interactions between running a detokenizer followed by tokenizer. Therefore, since research often isn't focused on details such as tokenization, we recommend evaluating on full-form references and hypotheses (i.e. not segmented, unless you're working with a language without a canonical notion of words) that are *tokenized*. Of course, in a bake-off scenario or in research in which multiple tokenization schemes are being compared, a standard tokenization will be necessary to have a comparable evaluation.
 
 Still, special care must be taken for issues such as segmentation, that can effect matching of resources such as paraphrase tables in METEOR. Since METEOR doesn't use paraphrases including punctuation, this isn't an issue for tokenization, while lowercased full-forms remain a requirement for METEOR evaluation.
 
+Care must also be taken to ensure experimental validity so that a particular tokenization does not bias your results in an unexpected way. For example, it would be easy to inflate the BLEU score by segmenting URLs into many tokens (since URLs are usually passed through, you would almost always get credit for lots of extra tokens being correct). Now, your absolute scores will be higher and any changes (positive or negative) will be diluted since there is now a greater number of overall tokens, this uninteresting subset now makes up a greater overall fraction of the evaluation set.
+
+As a final pitfall example, consider the evaluation of Buckwalter-transliterated Arabic data. Using the traditional NIST mt-eval script where tokenization is forced (and the final tokenization is never shown to the user), one would see very biased (nearly senseless) scores since the many punctuation characters used to encode the Arabic alphabet will be used to split should-be single tokens into many illogical pieces. In this case, traditional tokenization is almost certainly the wrong thing to do. This is why MultEval leaves tokenization to the user.
 
 Cased vs Uncased Evaluation
 ---------------------------
