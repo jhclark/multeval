@@ -133,7 +133,7 @@ For even more detailed analysis, you should also consider using the METEOR X-Ray
 Compatibility and Accuracy
 ==========================
 
-MultEval produces *exactly* the same metric scores you would obtain by running the metrics as stand-alone programs -- with the exception that MultEval does not perform tokenization. MultEval calls METEOR and TER using library API calls, and we regression test against gold-standard scores produced by these metrics in stand-alone mode. Its internal jBLEU library is a direct port of NIST's mteval-v13a.pl; we regression test against mteval-v13m.pl (which allows disabling normalization), included in the METEOR distribution.
+MultEval produces *exactly* the same metric scores you would obtain by running the metrics as stand-alone programs -- with the exception that MultEval does not perform tokenization. MultEval calls METEOR and TER using library API calls, and we regression test against gold-standard scores produced by these metrics in stand-alone mode. Its internal jBLEU library is a direct port of NIST's mteval-v13a.pl; we regression test against mteval-v13m.pl (which allows disabling normalization), included in the METEOR distribution. jBLEU implements the segment-level smoothing of BLEU from mteval-v13a.pl, which is derived from the smoothing in Kishore Papineni's bleu-1.04.pl script (the original IBM implementation of BLEU), added as of 3/9/2004 -- note this is *not* the simplistic +1 BLEU smoothing used in some other systems.
 
 
 Adding Your Own Metric
@@ -179,5 +179,3 @@ Kishore Papineni, Salim Roukos, Todd Ard, and Wei-Jing Zhu, "BLEU: a method for 
 Michael Denkowski and Alon Lavie, "Extending the METEOR Machine Translation Evaluation Metric to the Phrase Level", Proceedings of NAACL/HLT, 2010.
 
 Matthew Snover, Bonnie Dorr, Richard Schwartz, Linnea Micciulla, and John Makhoul, "A Study of Translation Edit Rate with Targeted Human Annotation," Proceedings of Association for Machine Translation in the Americas, 2006.
-
-TODO Citation for the ORANGE Lin & Och 2004 paper that described smoothed BLEU in Sec 4
