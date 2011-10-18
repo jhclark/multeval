@@ -71,6 +71,54 @@ The LaTeX table produced by multeval looks something like this:
 
 ![Latex Table](https://github.com/jhclark/multeval/raw/HEAD/table.png)
 
+To see a full list of options, use:
+``` bash
+./multeval.sh eval
+```
+
+which gives:
+```
+Usage: program <module_name> [options...]
+
+=== TER ===
+-T [--ter.shiftCost]              Shift cost for TER 
+-d [--ter.maxShiftDistance]       Maximum shift distance for TER 
+-P [--ter.punctuation]            Use punctuation in TER? 
+-b [--ter.beamWidth]              Beam width for TER 
+-B [--ter.substituteCost]         Substitute cost for TER 
+-D [--ter.deleteCost]             Delete cost for TER 
+-M [--ter.matchCost]              Match cost for TER 
+-I [--ter.insertCost]             Insert cost for TER 
+
+=== BLEU ===
+
+=== METEOR ===
+-t [--meteor.task]                One of: rank adq hter tune (Rank is generally a good choice) 
+-s [--meteor.synonymDirectory]    If default is not desired (NOTE: This option has a different short flag than stand-alone METEOR)  [optional]
+-x [--meteor.beamSize]            Specify beam size (overrides default) 
+-p [--meteor.params]              Custom parameters of the form 'alpha beta gamma' (overrides default)  [optional]
+-w [--meteor.weights]             Specify module weights (overrides default)  [optional]
+-a [--meteor.paraphraseFile]      If default is not desired  [optional]
+-m [--meteor.modules]             Specify modules. (overrides default) Any of: exact stem synonym paraphrase  [optional]
+-k [--meteor.keepPunctuation]     Consider punctuation when aligning sentences (if false, the meteor tokenizer will be run, after which punctuation will be removed) 
+-l [--meteor.language]            Two-letter language code of a supported METEOR language (e.g. 'en') 
+
+=== MultEvalModule (for eval module) ===
+-b [--boot-samples]               Number of bootstrap replicas to draw during bootstrap resampling to estimate standard deviation for each system 
+-H [--hyps-sys]                   Space-delimited list of files containing tokenized, fullform hypotheses, one per line 
+-s [--ar-shuffles]                Number of shuffles to perform to estimate p-value during approximate randomization test system *PAIR* 
+-r [--rankDir]                    Rank hypotheses of median optimization run of each system with regard to improvement/decline over median baseline system and output to the specified directory for analysis  [optional]
+-R [--refs]                       Space-delimited list of files containing tokenized, fullform references, one per line 
+-o [--metrics]                    Space-delimited list of metrics to use. Any of: bleu, meteor, ter, length 
+-F [--fullLatexDoc]               Output a fully compilable Latex document instead of just the table alone  [optional]
+-L [--latex]                      Latex-formatted table including measures that are commonly (or should be commonly) reported  [optional]
+-D [--debug]                      Show debugging output?  [optional]
+-B [--hyps-baseline]              Space-delimited list of files containing tokenized, fullform hypotheses, one per line 
+-v [--verbosity]                  Verbosity level 
+
+--help                        help message
+```
+
 What do p-values actually mean?
 -------------------------------
 
