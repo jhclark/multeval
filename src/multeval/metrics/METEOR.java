@@ -77,7 +77,7 @@ public class METEOR extends Metric<METEORStats> {
     opts.configure(this);
 
     // do some sanity checking
-    if(Constants.getLanguageID(Constants.normLanguageName(language)) == Constants.LANG_OTHER) {
+    if(Constants.getLanguageID(Constants.normLanguageName(language)) == Constants.LANG_OTHER && Constants.getTaskID(task) != Constants.TASK_LI) {
 	throw new ConfigurationException("Unrecognized METEOR language: "+language);
     }
     if(Constants.getTaskID(task) == Constants.TASK_CUSTOM) {
