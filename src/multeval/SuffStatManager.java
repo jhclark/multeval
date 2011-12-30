@@ -20,27 +20,36 @@ public class SuffStatManager {
     this.numOpt = numOpt;
     this.numHyp = numHyp;
     this.statsBySys = new ArrayList<List<List<List<SuffStats<?>>>>>(numSys);
-  }
-
-  public void saveStats(int iMetric, int iSys, int iOpt, int iHyp, SuffStats<?> stats) {
-    // first, expand as necessary
+    
     // TODO: Use more intelligent list type that allows batch grow
     // operations
-    while(statsBySys.size() <= iSys) {
-      statsBySys.add(new ArrayList<List<List<SuffStats<?>>>>(numOpt));
+	  
+    // presize all lists
+    for(int iSys = 0; iSys < numOpt; iSys++) {
+	      statsBySys.add(new ArrayList<List<List<SuffStats<?>>>>(numOpt));
+	      List<List<List<SuffStats<?>>>> statsByOpt = statsBySys.get(iSys);
+	      for(int iOpt=0; iOpt < numOpt; iOpt++) {
+	          statsByOpt.add(new ArrayList<List<SuffStats<?>>>(numMetrics));
+	          List<List<SuffStats<?>>> statsByMetric = statsByOpt.get(iOpt);
+
+	          for(int iMetric =0; iMetric < numMetrics; iMetric++) {
+			    statsByMetric.add(new ArrayList<SuffStats<?>>(numHyp));
+	            List<SuffStats<?>> statsByHyp = statsByMetric.get(iMetric);
+	            
+	            for(int iHyp=0; iHyp<numHyp; iHyp++) {
+	            	statsByHyp.add(DUMMY);
+	            }
+	          }
+	      }
     }
+  }
+
+  // threadsafe
+  public void saveStats(int iMetric, int iSys, int iOpt, int iHyp, SuffStats<?> stats) {
+    // first, expand as necessary
     List<List<List<SuffStats<?>>>> statsByOpt = statsBySys.get(iSys);
-    while(statsByOpt.size() <= iOpt) {
-      statsByOpt.add(new ArrayList<List<SuffStats<?>>>(numMetrics));
-    }
     List<List<SuffStats<?>>> statsByMetric = statsByOpt.get(iOpt);
-    while(statsByMetric.size() <= iMetric) {
-      statsByMetric.add(new ArrayList<SuffStats<?>>(numHyp));
-    }
     List<SuffStats<?>> statsByHyp = statsByMetric.get(iMetric);
-    while(statsByHyp.size() <= iHyp) {
-      statsByHyp.add(DUMMY);
-    }
     statsByHyp.set(iHyp, stats);
   }
 
