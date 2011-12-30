@@ -14,8 +14,8 @@ Usage
 First, download and unpack the program:
 
 ``` bash
-wget https://github.com/downloads/jhclark/multeval/multeval-0.3.tgz
-tar -xvzf multeval-0.3.tgz
+wget https://github.com/downloads/jhclark/multeval/multeval-0.4.tgz
+tar -xvzf multeval-0.4.tgz
 ```
 
 To evaluate a single system from the example data and get its BLEU, METEOR, and TER scores along with its standard deviation use:
@@ -130,7 +130,7 @@ The most important points are:
 * a p-value **does** tell you whether a difference of this magnitude is likely to be generated again by some random process (a randomized optimizer)
 * a p-value **does not** tell you whether a difference of this magnitude is meaningful (in terms of translation quality)
 
-So even though a large difference may more frequently correspond to larger p-values, this is not guaranteed. In fact, small differences can be quite significant and vice versa. For example, if you give a single optimizer sample with identical hypotheses and tell MultEval that these are actually two different systems (as in the baseline system and system 2 in the example data), there will be zero difference in scores and also a p-value of zero, since shuffling hypotheses between the systems produces no change, indicating that this difference (of zero) is likely to be reproducible. This demonstrates 2 points about p-values: 1) that this significance test does not account for the user giving it too few (optimizer) samples, which is why it's important to report how many optimizer samples you used and 2) that the test only provides information about the replicability of a delta, not whether or not the magnitude can be assigned external meaning (in terms of translation quality).
+So even though a large difference may more frequently correspond to smaller p-values, this is not guaranteed. In fact, small differences can be quite significant and vice versa. For example, if you give a single optimizer sample with identical hypotheses and tell MultEval that these are actually two different systems (as in the baseline system and system 2 in the example data), there will be zero difference in scores and also a p-value of zero, since shuffling hypotheses between the systems produces no change, indicating that this difference (of zero) is likely to be reproducible. This demonstrates 2 points about p-values: 1) that this significance test does not account for the user giving it too few (optimizer) samples, which is why it's important to report how many optimizer samples you used and 2) that the test only provides information about the replicability of a delta, not whether or not the magnitude can be assigned external meaning (in terms of translation quality).
 
 Rounding
 --------
@@ -167,8 +167,8 @@ all of the metrics in MultEval, and then sort the hypotheses for each sentence b
 first sentence output for each sentence is the n-best oracle. You can get this by running:
 
 ``` bash
-multeval.sh nbest --nbest cdec.kbest \
-                  --refs example/refs.test2010.lc.tok.en.* \
+multeval.sh nbest --nbest example/cdec.kbest \
+                  --refs example/cdec.ref* \
                   --meteor.language en \
                   --rankDir rank \
                   > kbest.scored
@@ -197,7 +197,7 @@ Libraries
 MultEval uses the following libraries:
 
 *  METEOR 1.3 (LGPL License, http://www.cs.cmu.edu/~alavie/METEOR/ -- WordNet database has a compatible free license)
-*  Translation Error Rate 0.7 (LGPL License, TerCom, http://www.cs.umd.edu/~snover/tercom/ -- Thanks to Matt Snover for relicensing this)
+*  Translation Error Rate 0.7 (LGPL License, TerCom, http://www.cs.umd.edu/~snover/tercom/ -- Thanks to Matt Snover for relicensing this). MultEval uses a slightly modified version of TER; the only change is that all classes have been moved from the default package into a "ter" package to overcome the Java restriction that classes in the defalut package cannot be imported across JARs.
 *  Google Guava (Apache License)
 *  Java Annotation Options (jannopts, LGPL License)
 

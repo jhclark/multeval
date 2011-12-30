@@ -1,3 +1,9 @@
+V0.4 - 12/30/2011
+* Multi-thread sufficient stats computation where possible (multi-threading of bootstrap resampling and approximate randomization are still on the to-do list)
+* Include constants file in distribution
+* A few other small optimizations
+* Include example n-best list
+
 V0.3 - 8/10/2011
 * Use Meteor 1.3
 * Better reporting of metric descriptions in Latex table

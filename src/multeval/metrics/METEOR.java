@@ -77,7 +77,7 @@ public class METEOR extends Metric<METEORStats> {
     opts.configure(this);
 
     // do some sanity checking
-    if(Constants.getLanguageID(Constants.normLanguageName(language)) == Constants.LANG_OTHER) {
+    if(Constants.getLanguageID(Constants.normLanguageName(language)) == Constants.LANG_OTHER && Constants.getTaskID(task) != Constants.TASK_LI) {
 	throw new ConfigurationException("Unrecognized METEOR language: "+language);
     }
     if(Constants.getTaskID(task) == Constants.TASK_CUSTOM) {
@@ -206,5 +206,17 @@ public class METEOR extends Metric<METEORStats> {
   @Override
   public boolean isBiggerBetter() {
     return true;
+  }
+
+  @Override
+  public boolean isThreadsafe() {
+    return true;
+  }
+  
+  @Override
+  public Metric<?> threadClone() {
+	  METEOR metric = new METEOR();
+	  metric.scorer = new MeteorScorer(scorer);
+	  return metric;
   }
 }
