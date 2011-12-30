@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="tercom" default="jar" basedir=".">
+<project name="multeval" default="jar" basedir=".">
 
   <!-- These must also be updated in the "constants" file -->
   <property name="version" value="0.4" />
@@ -18,7 +18,7 @@
   <target name="compile" depends="check_meteor">
     <mkdir dir="bin" />
     <javac compiler="javac1.5" srcdir="src" destdir="bin"
-	   classpath="lib/guava-r09.jar:lib/tercom-0.7.26.jar:lib/jannopts.jar:${meteor_jar}"
+	   classpath="lib/guava-r09.jar:lib/tercom-0.8.0.jar:lib/jannopts.jar:${meteor_jar}"
 	   includeantruntime="false"
 	   debug="on" encoding="utf8" />
   </target>

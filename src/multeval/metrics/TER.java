@@ -36,13 +36,12 @@ public class TER extends Metric<IntStats> {
   float shiftCost;
 
   private TERcost costfunc;
-  
-  // need a globally static lock to prevent disaster via static methods
-  private static final Object lock = new Object();
+  private TERcalc calc = new TERcalc();
+  private Configurator opts = null;
 
   @Override
   public String getMetricDescription() {
-    return "Translation Error Rate (TER) V0.7.25";
+    return "Translation Error Rate (TER) V0.8.0";
   }
 
   @Override
@@ -54,21 +53,20 @@ public class TER extends Metric<IntStats> {
     // TER makes heinous use of static methods. we must synchronize to prevent disaster
     // when multi-threading at the hypothesis level (as we do in n-best scoring)
     // even so, it's better to just thread at the hypothesis level
-    synchronized(lock) {
-	    // number of words is average over references
-	    TERcalc.setRefLen(refs);
-	    /* For each reference, compute the TER */
-	    for(int i = 0; i < refs.size(); ++i) {
-	      String ref = refs.get(i);
+
+    // number of words is average over references
+    calc.setRefLen(refs);
+    /* For each reference, compute the TER */
+    for(int i = 0; i < refs.size(); ++i) {
+	String ref = refs.get(i);
 	
-	      TERalignment alignResult = TERcalc.TER(hyp, ref, costfunc);
+	TERalignment alignResult = calc.TER(hyp, ref, costfunc);
 	
-	      if ((bestResult == null) || (bestResult.numEdits > alignResult.numEdits)) {
-	        bestResult = alignResult;
-	      }
+	if ((bestResult == null) || (bestResult.numEdits > alignResult.numEdits)) {
+	    bestResult = alignResult;
+	}
 	
-	      totwords += alignResult.numWords;
-	    }
+	totwords += alignResult.numWords;
     }
 
     bestResult.numWords = ((double) totwords) / ((double) refs.size());
@@ -97,6 +95,7 @@ public class TER extends Metric<IntStats> {
 
   @Override
   public void configure(Configurator opts) throws ConfigurationException {
+    this.opts = opts;
     LibUtil.checkLibrary("ter.TERpara", "TER");
     opts.configure(this);
 
@@ -109,9 +108,9 @@ public class TER extends Metric<IntStats> {
 
     // TERcalc.setNormalize(normalized);
     // TERcalc.setCase(caseon);
-    TERcalc.setPunct(punctuation);
-    TERcalc.setBeamWidth(beamWidth);
-    TERcalc.setShiftDist(maxShiftDistance);
+    calc.setPunct(punctuation);
+    calc.setBeamWidth(beamWidth);
+    calc.setShiftDist(maxShiftDistance);
   }
 
   @Override
@@ -121,12 +120,18 @@ public class TER extends Metric<IntStats> {
 
   @Override
   public boolean isThreadsafe() {
-    return false; // too many static methods...
+    return true;
   }
   
   @Override
   public Metric<?> threadClone() {
-	  // there's no hope here, so we just use synchronized instead
-	  return this;
+      TER ter = new TER();
+      try {
+	  ter.configure(this.opts);
+      } catch(ConfigurationException e) {
+	  // if this should happen, it should have already happened during the initial call to configure, never here
+	  throw new RuntimeException(e);
+      }
+      return ter;
   }
 }

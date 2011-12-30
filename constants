@@ -10,4 +10,4 @@ meteorPath=$libDir/meteor-$meteor_version
 meteorUrl=http://www.cs.cmu.edu/~alavie/METEOR/download/meteor-${meteor_version}.tgz
 
 meteorJar=$meteorPath/meteor-${meteor_version}.jar
-terJar=$scriptDir/lib/tercom-0.7.26.jar
+terJar=$scriptDir/lib/tercom-0.8.0.jar
