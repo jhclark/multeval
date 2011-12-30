@@ -12,6 +12,7 @@ cd $scriptDir
 ant
 cp -r multeval.sh \
     get_deps.sh \
+    constants \
     LICENSE.txt \
     README.md \
     CHANGELOG \
