@@ -21,7 +21,7 @@ public abstract class HypothesisLevelMetricWorkerPool<Task, ThreadLocals> {
 		this.threadLocalSupplier = threadLocals;
 
 		this.workers = new ArrayList<Thread>(threads);
-		this.q = new ArrayBlockingQueue<Task>(threads * 10);
+		this.q = new ArrayBlockingQueue<Task>(threads * 100);
 	}
 
 	public void start() {
