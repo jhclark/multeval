@@ -25,7 +25,7 @@ public class SuffStatManager {
     // operations
 	  
     // presize all lists
-    for(int iSys = 0; iSys < numOpt; iSys++) {
+    for(int iSys = 0; iSys < numSys; iSys++) {
 	      statsBySys.add(new ArrayList<List<List<SuffStats<?>>>>(numOpt));
 	      List<List<List<SuffStats<?>>>> statsByOpt = statsBySys.get(iSys);
 	      for(int iOpt=0; iOpt < numOpt; iOpt++) {
