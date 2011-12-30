@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # These must also be updated in build.xml
-version=0.4
+version=0.4.1
 meteor_version=1.3
 
 scriptDir=$(dirname $0)
