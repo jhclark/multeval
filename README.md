@@ -167,8 +167,8 @@ all of the metrics in MultEval, and then sort the hypotheses for each sentence b
 first sentence output for each sentence is the n-best oracle. You can get this by running:
 
 ``` bash
-multeval.sh nbest --nbest cdec.kbest \
-                  --refs example/refs.test2010.lc.tok.en.* \
+multeval.sh nbest --nbest example/cdec.kbest \
+                  --refs example/cdec.ref* \
                   --meteor.language en \
                   --rankDir rank \
                   > kbest.scored
