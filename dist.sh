@@ -17,6 +17,7 @@ cp -r multeval.sh \
     CHANGELOG \
     multeval-$version.jar \
     example \
+    constants \
     $distDir/$dist
 cp -r $scriptDir/lib/guava-r09.jar \
     $scriptDir/lib/tercom-0.7.26.jar \
