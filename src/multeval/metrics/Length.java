@@ -51,4 +51,9 @@ public class Length extends Metric<IntStats> {
   public boolean isBiggerBetter() {
     return true;
   }
+
+  @Override
+  public boolean isThreadsafe() {
+	return true;
+  }
 }

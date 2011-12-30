@@ -36,6 +36,9 @@ public class TER extends Metric<IntStats> {
   float shiftCost;
 
   private TERcost costfunc;
+  
+  // need a globally static lock to prevent disaster via static methods
+  private static final Object lock = new Object();
 
   @Override
   public String getMetricDescription() {
@@ -48,19 +51,24 @@ public class TER extends Metric<IntStats> {
     double totwords = 0;
     TERalignment bestResult = null;
 
-    // number of words is average over references
-    TERcalc.setRefLen(refs);
-    /* For each reference, compute the TER */
-    for(int i = 0; i < refs.size(); ++i) {
-      String ref = refs.get(i);
-
-      TERalignment alignResult = TERcalc.TER(hyp, ref, costfunc);
-
-      if ((bestResult == null) || (bestResult.numEdits > alignResult.numEdits)) {
-        bestResult = alignResult;
-      }
-
-      totwords += alignResult.numWords;
+    // TER makes heinous use of static methods. we must synchronize to prevent disaster
+    // when multi-threading at the hypothesis level (as we do in n-best scoring)
+    // even so, it's better to just thread at the hypothesis level
+    synchronized(lock) {
+	    // number of words is average over references
+	    TERcalc.setRefLen(refs);
+	    /* For each reference, compute the TER */
+	    for(int i = 0; i < refs.size(); ++i) {
+	      String ref = refs.get(i);
+	
+	      TERalignment alignResult = TERcalc.TER(hyp, ref, costfunc);
+	
+	      if ((bestResult == null) || (bestResult.numEdits > alignResult.numEdits)) {
+	        bestResult = alignResult;
+	      }
+	
+	      totwords += alignResult.numWords;
+	    }
     }
 
     bestResult.numWords = ((double) totwords) / ((double) refs.size());
@@ -109,5 +117,16 @@ public class TER extends Metric<IntStats> {
   @Override
   public boolean isBiggerBetter() {
     return false;
+  }
+
+  @Override
+  public boolean isThreadsafe() {
+    return false; // too many static methods...
+  }
+  
+  @Override
+  public Metric<?> threadClone() {
+	  // there's no hope here, so we just use synchronized instead
+	  return this;
   }
 }

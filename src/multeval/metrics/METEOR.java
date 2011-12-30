@@ -207,4 +207,16 @@ public class METEOR extends Metric<METEORStats> {
   public boolean isBiggerBetter() {
     return true;
   }
+
+  @Override
+  public boolean isThreadsafe() {
+    return true;
+  }
+  
+  @Override
+  public Metric<?> threadClone() {
+	  METEOR metric = new METEOR();
+	  metric.scorer = new MeteorScorer(scorer);
+	  return metric;
+  }
 }
