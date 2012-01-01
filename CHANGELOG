@@ -1,3 +1,7 @@
+V0.4.1 - 12/30/2011
+* Fix sizing bug reported by John DeNero, which caused MultEval to crash
+* Removed "static" keyword from several places within the TER library to make it more amenable to multi-threading
+
 V0.4 - 12/30/2011
 * Multi-thread sufficient stats computation where possible (multi-threading of bootstrap resampling and approximate randomization are still on the to-do list)
 * Include constants file in distribution
