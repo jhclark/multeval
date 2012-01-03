@@ -20,7 +20,7 @@ cp -r multeval.sh \
     example \
     constants \
     $distDir/$dist
-cp -r $scriptDir/lib/guava-r09.jar \
+cp -r $scriptDir/lib/guava-11.0.jar \
     $scriptDir/lib/tercom-0.8.0.jar \
     $scriptDir/lib/jannopts.jar \
     $distDir/$dist/lib
