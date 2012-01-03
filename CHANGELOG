@@ -1,6 +1,20 @@
+V0.4.2 - 12/3/2012
+* Fixed bug in n-best scoring that caused oracle *submetrics* such as precision and recall (not main BLEU, TER, METEOR, etc. scores) to be reported incorrectly for oracle hypotheses
+* Multi-threaded bootstrap resampling and approximate randomization significance tests (large time savings for many systems with many optimization runs)
+* Updated to Guava V11
+
+Some timing results on 4 threads vs 1 using the recent multi-threading improvements on the 3 example systems with 3 optimizer runs each:
+Load METEOR                   25.5s /      25.5s
+Collect Sufficient Stats      32.7s /      86.7s
+Bootstrap Resampling          70.9s /     189s
+Approximate Randomization    122s   /     336s
+TOTAL                     4m  13s   / 10m  39s
+
+
 V0.4.1 - 12/30/2011
 * Fix sizing bug reported by John DeNero, which caused MultEval to crash
 * Removed "static" keyword from several places within the TER library to make it more amenable to multi-threading
+
 
 V0.4 - 12/30/2011
 * Multi-thread sufficient stats computation where possible (multi-threading of bootstrap resampling and approximate randomization are still on the to-do list)
@@ -8,15 +22,18 @@ V0.4 - 12/30/2011
 * A few other small optimizations
 * Include example n-best list
 
+
 V0.3 - 8/10/2011
 * Use Meteor 1.3
 * Better reporting of metric descriptions in Latex table
 * Ability to find oracle-worst hypotheses from n-best list
 * Better incremental status when processing n-best lists
 
+
 V0.2 - 6/29/2011
 * Use more aggressive shuffling algorithm for approximate randomization for better p-values in corner cases
 * Dump prettier ASCII table upon completion
+
 
 V0.1 - 6/21/2011
 * Initial Release

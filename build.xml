@@ -2,7 +2,7 @@
 <project name="multeval" default="jar" basedir=".">
 
   <!-- These must also be updated in the "constants" file -->
-  <property name="version" value="0.4.1" />
+  <property name="version" value="0.4.2" />
   <property name="meteor_version" value="1.3" />
 
   <property name="meteor_jar" value="lib/meteor-${meteor_version}/meteor-${meteor_version}.jar"/>
@@ -18,7 +18,7 @@
   <target name="compile" depends="check_meteor">
     <mkdir dir="bin" />
     <javac compiler="javac1.5" srcdir="src" destdir="bin"
-	   classpath="lib/guava-r09.jar:lib/tercom-0.8.0.jar:lib/jannopts.jar:${meteor_jar}"
+	   classpath="lib/guava-11.0.jar:lib/tercom-0.8.0.jar:lib/jannopts.jar:${meteor_jar}"
 	   includeantruntime="false"
 	   debug="on" encoding="utf8" />
   </target>
@@ -38,7 +38,7 @@
 
       <fileset dir="bin" includes="**/*.class" />
       <zipfileset src="lib/jannopts.jar" excludes="META-INF/*" />
-      <zipfileset src="lib/guava-r09.jar" excludes="META-INF/*" />
+      <zipfileset src="lib/guava-11.0.jar" excludes="META-INF/*" />
 
 <!-- JARs are braindead regarding CLASSPATH
       <manifest>

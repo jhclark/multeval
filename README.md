@@ -14,14 +14,14 @@ Usage
 First, download and unpack the program:
 
 ``` bash
-wget https://github.com/downloads/jhclark/multeval/multeval-0.4.1.tgz
-tar -xvzf multeval-0.4.1.tgz
+wget https://github.com/downloads/jhclark/multeval/multeval-0.4.2.tgz
+tar -xvzf multeval-0.4.2.tgz
 ```
 
 To evaluate a single system from the example data and get its BLEU, METEOR, and TER scores along with its standard deviation use:
 
 ``` bash
-multeval.sh eval --refs example/refs.test2010.lc.tok.en.* \
+./multeval.sh eval --refs example/refs.test2010.lc.tok.en.* \
                  --hyps-baseline example/hyps.lc.tok.en.baseline.opt* \
                  --meteor.language en
 ```
@@ -31,7 +31,7 @@ The first time you run this command, METEOR (and its sizable paraphrase tables) 
 To compare several systems from the example data and get its BLEU, METEOR, and TER scores along with their standard deviations and p-values, use:
 
 ``` bash
-multeval.sh eval --refs example/refs.test2010.lc.tok.en.* \
+./multeval.sh eval --refs example/refs.test2010.lc.tok.en.* \
                  --hyps-baseline example/hyps.lc.tok.en.baseline.opt* \
                  --hyps-sys1 example/hyps.lc.tok.en.sys1.opt* \
                  --hyps-sys2 example/hyps.lc.tok.en.sys2.opt* \
@@ -41,7 +41,7 @@ multeval.sh eval --refs example/refs.test2010.lc.tok.en.* \
 If you'd also like 1) a Latex table at you can copy-paste into your paper and 2) the hypotheses from the median optimization run ranked by improvement/decline over your baseline system, then run it like this:
 
 ``` bash
-multeval.sh eval --refs example/refs.test2010.lc.tok.en.* \
+./multeval.sh eval --refs example/refs.test2010.lc.tok.en.* \
                  --hyps-baseline example/hyps.lc.tok.en.baseline.opt* \
                  --hyps-sys1 example/hyps.lc.tok.en.sys1.opt* \
                  --hyps-sys2 example/hyps.lc.tok.en.sys2.opt* \
@@ -167,7 +167,7 @@ all of the metrics in MultEval, and then sort the hypotheses for each sentence b
 first sentence output for each sentence is the n-best oracle. You can get this by running:
 
 ``` bash
-multeval.sh nbest --nbest example/cdec.kbest \
+./multeval.sh nbest --nbest example/cdec.kbest \
                   --refs example/cdec.ref* \
                   --meteor.language en \
                   --rankDir rank \
