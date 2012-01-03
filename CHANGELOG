@@ -3,12 +3,13 @@ V0.4.2 - 12/3/2012
 * Multi-threaded bootstrap resampling and approximate randomization significance tests (large time savings for many systems with many optimization runs)
 * Updated to Guava V11
 
-Some timing results on 4 threads vs 1 using the recent multi-threading improvements on the 3 example systems with 3 optimizer runs each:
-Load METEOR                   25.5s /      25.5s
-Collect Sufficient Stats      32.7s /      86.7s
-Bootstrap Resampling          70.9s /     189s
-Approximate Randomization    122s   /     336s
-TOTAL                     4m  13s   / 10m  39s
+Some timing results on 32 threads vs 4 threads vs 1 using the recent multi-threading improvements on the 3 example systems with 3 optimizer runs each:
+                                32  /         4 /          1
+Load METEOR                   41.5s /     25.5s /      25.5s
+Collect Sufficient Stats      14.8s /     32.7s /      86.7s
+Bootstrap Resampling          35.2s /     70.9s /     189s
+Approximate Randomization     19.4s /    122s   /     336s
+TOTAL                      1m 54s   / 4m  13s   / 10m  39s
 
 
 V0.4.1 - 12/30/2011
