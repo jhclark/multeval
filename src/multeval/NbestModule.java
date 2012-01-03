@@ -20,10 +20,10 @@ import multeval.metrics.Metric;
 import multeval.metrics.SuffStats;
 import multeval.metrics.TER;
 import multeval.parallel.MetricWorkerPool;
+import multeval.parallel.SynchronizedBufferedReader;
+import multeval.parallel.SynchronizedPrintStream;
 import multeval.util.FileUtils;
 import multeval.util.SuffStatUtils;
-import multeval.util.SynchronizedBufferedReader;
-import multeval.util.SynchronizedPrintStream;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Supplier;

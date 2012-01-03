@@ -1,4 +1,4 @@
-package multeval.util;
+package multeval.parallel;
 
 import java.io.BufferedReader;
 import java.io.IOException;
