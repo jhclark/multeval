@@ -98,7 +98,10 @@ public class TER extends Metric<IntStats> {
     this.opts = opts;
     LibUtil.checkLibrary("ter.TERpara", "TER");
     opts.configure(this);
-
+    configureLibTer();
+  }
+  
+  private void configureLibTer() {
     costfunc = new TERcost();
     costfunc._delete_cost = deleteCost;
     costfunc._insert_cost = insertCost;
@@ -117,17 +120,13 @@ public class TER extends Metric<IntStats> {
   public boolean isBiggerBetter() {
     return false;
   }
-
-  @Override
-  public boolean isThreadsafe() {
-    return true;
-  }
   
   @Override
   public Metric<?> threadClone() {
       TER ter = new TER();
       try {
-	  ter.configure(this.opts);
+          opts.configure(ter);
+    	  ter.configureLibTer();
       } catch(ConfigurationException e) {
 	  // if this should happen, it should have already happened during the initial call to configure, never here
 	  throw new RuntimeException(e);

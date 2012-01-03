@@ -1,9 +1,6 @@
 package multeval.util;
 
 import java.io.PrintStream;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * So here's the use case: You have a compute-heavy task over lines from an

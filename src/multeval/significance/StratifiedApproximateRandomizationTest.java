@@ -5,15 +5,18 @@ import java.util.Random;
 
 import multeval.metrics.Metric;
 import multeval.metrics.SuffStats;
+import multeval.parallel.MetricWorkerPool;
 import multeval.util.SuffStatUtils;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Supplier;
 
 public class StratifiedApproximateRandomizationTest {
 
   private static final Random random = new Random();
-  private final List<Metric<?>> metrics;
-
+  private final List<Metric<?>> masterMetrics;
+  private final int threads;
+  
   private final List<List<SuffStats<?>>> suffStatsA;
   private final List<List<SuffStats<?>>> suffStatsB;
   private int totalDataPoints;
@@ -26,7 +29,7 @@ public class StratifiedApproximateRandomizationTest {
    *          dimension is number of data points (i.e. sentences) and the inner
    *          data structure is the sufficient statistics for each metric. 
    *          The number of data points must equal numHyps times numOptRuns */
-  public StratifiedApproximateRandomizationTest(List<Metric<?>> metrics, List<List<SuffStats<?>>> suffStatsA,
+  public StratifiedApproximateRandomizationTest(int threads, List<Metric<?>> metrics, List<List<SuffStats<?>>> suffStatsA,
       List<List<SuffStats<?>>> suffStatsB, int numHyps, int numOptRuns, boolean debug) {
 
     Preconditions.checkArgument(metrics.size() > 0, "Must have at least one metric.");
@@ -34,7 +37,8 @@ public class StratifiedApproximateRandomizationTest {
     // TODO: Check for sufficient stats and metric count under each data
     // point being parallel (same for BootstrapResampler)
 
-    this.metrics = metrics;
+    this.threads = threads;
+    this.masterMetrics = metrics;
     this.suffStatsA = suffStatsA;
     this.suffStatsB = suffStatsB;
     this.totalDataPoints = suffStatsA.get(0).size();
@@ -51,44 +55,62 @@ public class StratifiedApproximateRandomizationTest {
     		String.format("totalDataPoints (%d) in second list must == numHyps (%d) * numOptRuns (%d)", totalDataPoints, numHyps, numOptRuns));
   }
 
-  public double[] getTwoSidedP(int numShuffles) {
+  public double[] getTwoSidedP(int numShuffles) throws InterruptedException {
 
-    double[] overallDiffs = new double[metrics.size()];
-    double[] scoresA = new double[metrics.size()];
-    double[] scoresB = new double[metrics.size()];
+    final double[] overallDiffs = new double[masterMetrics.size()];
+    final double[] scoresA = new double[masterMetrics.size()];
+    final double[] scoresB = new double[masterMetrics.size()];
 
-    for(int iMetric = 0; iMetric < metrics.size(); iMetric++) {
-      Metric<?> metric = metrics.get(iMetric);
+    for(int iMetric = 0; iMetric < masterMetrics.size(); iMetric++) {
+      Metric<?> metric = masterMetrics.get(iMetric);
       scoresA[iMetric] = metric.scoreStats(SuffStatUtils.sumStats(suffStatsA.get(iMetric)));
       scoresB[iMetric] = metric.scoreStats(SuffStatUtils.sumStats(suffStatsB.get(iMetric)));
       overallDiffs[iMetric] = Math.abs(scoresA[iMetric] - scoresB[iMetric]);
     }
 
-    int[] diffsByChance = new int[metrics.size()];
-    Shuffling shuffling = new Shuffling(numHyps, numOptRuns);
+    final int[] diffsByChance = new int[masterMetrics.size()];
+    
+    // threading notes:
+    // sufficient stats are immutable in this method
+    // summing static using a metric doesn't violate thread safeness for any of our metrics
+    
+    MetricWorkerPool<Integer, Shuffling> workers = new MetricWorkerPool<Integer, Shuffling>(threads, new Supplier<Shuffling>() {
+		@Override
+		public Shuffling get() {
+			return new Shuffling(numHyps, numOptRuns);
+		}
+    }) {
+		@Override
+		public void doWork(Shuffling shuffling, Integer i) {
+		  shuffling.shuffle();
+	      for(int iMetric = 0; iMetric < masterMetrics.size(); iMetric++) {
+	        Metric<?> metric = masterMetrics.get(iMetric);
+
+	        double scoreX = metric.scoreStats(sumStats(shuffling, iMetric, suffStatsA, suffStatsB, false));
+	        double scoreY = metric.scoreStats(sumStats(shuffling, iMetric, suffStatsA, suffStatsB, true));
+	        double sampleDiff = Math.abs(scoreX - scoreY);
+	        // the != is important. if we want to score the same system against
+	        // itself,
+	        // having a zero difference should not be attributed to chance.
+	        if (sampleDiff > overallDiffs[iMetric]) {
+	          diffsByChance[iMetric]++;
+	        }
+	        if(debug) {
+	            System.err.println("DIFF metric " + iMetric + ": " + scoreX + " - " + scoreY + " --> " +
+	              sampleDiff + " >? " + overallDiffs[iMetric] + "; diffsByChance: " + diffsByChance[iMetric]);
+	          }
+	      }
+		}
+    };
+    
+    workers.start();
     for(int i = 0; i < numShuffles; i++) {
-      shuffling.shuffle();
-      for(int iMetric = 0; iMetric < metrics.size(); iMetric++) {
-        Metric<?> metric = metrics.get(iMetric);
-
-        double scoreX = metric.scoreStats(sumStats(shuffling, iMetric, suffStatsA, suffStatsB, false));
-        double scoreY = metric.scoreStats(sumStats(shuffling, iMetric, suffStatsA, suffStatsB, true));
-        double sampleDiff = Math.abs(scoreX - scoreY);
-        // the != is important. if we want to score the same system against
-        // itself,
-        // having a zero difference should not be attributed to chance.
-        if (sampleDiff > overallDiffs[iMetric]) {
-          diffsByChance[iMetric]++;
-        }
-        if(debug) {
-            System.err.println("DIFF metric " + iMetric + ": " + scoreX + " - " + scoreY + " --> " +
-              sampleDiff + " >? " + overallDiffs[iMetric] + "; diffsByChance: " + diffsByChance[iMetric]);
-          }
-      }
+    	workers.addTask(i);
     }
+    workers.waitForCompletion();
 
-    double[] p = new double[metrics.size()];
-    for(int iMetric = 0; iMetric < metrics.size(); iMetric++) {
+    double[] p = new double[masterMetrics.size()];
+    for(int iMetric = 0; iMetric < masterMetrics.size(); iMetric++) {
       // +1 applies here, though it only matters for small numbers of
       // shufflings, which we typically never do. it's necessary to ensure
       // the probability of falsely rejecting the null hypothesis is no

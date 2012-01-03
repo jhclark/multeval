@@ -20,8 +20,7 @@ import multeval.metrics.SuffStats;
 import multeval.metrics.TER;
 import multeval.output.AsciiTable;
 import multeval.output.LatexTable;
-import multeval.parallel.HypothesisLevelMetricWorkerPool;
-import multeval.parallel.MetricLevelMetricWorkPool;
+import multeval.parallel.MetricWorkerPool;
 import multeval.significance.BootstrapResampler;
 import multeval.significance.StratifiedApproximateRandomizationTest;
 import multeval.util.CollectionUtils;
@@ -29,6 +28,7 @@ import multeval.util.MathUtils;
 import multeval.util.SuffStatUtils;
 import multeval.util.Triple;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.base.Supplier;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableList;
@@ -110,7 +110,11 @@ public class MultEvalModule implements Module {
 		}
 
 		// 2) collect sufficient stats for each metric selected
+		Stopwatch watch = new Stopwatch();
+		watch.start();
 		SuffStatManager suffStats = collectSuffStats(metrics, data);
+		watch.stop();
+		System.err.println("Collected suff stats in " + watch.toString(3));
 
 		String[] metricNames = new String[metrics.size()];
 		for (int i = 0; i < metricNames.length; i++) {
@@ -134,10 +138,20 @@ public class MultEvalModule implements Module {
 
 		// 4) run bootstrap resampling for each system, for each
 		// optimization run
+		watch.reset();
+		watch.start();
 		runBootstrapResampling(metrics, data, suffStats, results);
+		watch.stop();
+		System.err.println("Performed bootstrap resampling in " + watch.toString(3));
 
 		// 5) run AR -- FOR EACH SYSTEM PAIR
+		watch.reset();
+		watch.start();
 		runApproximateRandomization(metrics, data, suffStats, results);
+		watch.stop();
+		if(data.getNumSystems() > 1) {
+			System.err.println("Performed approximate randomization in " + watch.toString(3));
+		}
 
 		// 6) output pretty table
 		if (latexOutFile != null) {
@@ -224,7 +238,7 @@ public class MultEvalModule implements Module {
 	}
 
 	private void runApproximateRandomization(List<Metric<?>> metrics, HypothesisManager data,
-			SuffStatManager suffStats, ResultsManager results) {
+			SuffStatManager suffStats, ResultsManager results) throws InterruptedException {
 
 		int iBaselineSys = 0;
 		for (int iSys = 1; iSys < data.getNumSystems(); iSys++) {
@@ -238,7 +252,7 @@ public class MultEvalModule implements Module {
 			List<List<SuffStats<?>>> suffStatsSysI = suffStats.getStatsAllOptForSys(iSys);
 
 			StratifiedApproximateRandomizationTest ar =
-					new StratifiedApproximateRandomizationTest(metrics, suffStatsBaseline,
+					new StratifiedApproximateRandomizationTest(threads, metrics, suffStatsBaseline,
 							suffStatsSysI, data.getNumHyps(), data.getNumOptRuns(), debug);
 			double[] pByMetric = ar.getTwoSidedP(numShuffles);
 			for (int iMetric = 0; iMetric < metrics.size(); iMetric++) {
@@ -254,80 +268,49 @@ public class MultEvalModule implements Module {
 				new SuffStatManager(metrics.size(), data.getNumSystems(), data.getNumOptRuns(),
 						data.getNumHyps());
 
-		Triple<Integer, Integer, Integer> poison =
-				new Triple<Integer, Integer, Integer>(-1, -1, -1);
-
-		// parallelize thread-safe metrics at the hypothesis level
+		// parallelize at the hypothesis level
 		for (int iMetric = 0; iMetric < metrics.size(); iMetric++) {
 			final int iMetricF = iMetric;
 			final Metric<?> metricMaster = metrics.get(iMetric);
 
-			if (metricMaster.isThreadsafe()) {
-				System.err.println("Collecting sufficient statistics for metric: "
-						+ metricMaster.toString());
-				HypothesisLevelMetricWorkerPool<Triple<Integer, Integer, Integer>, Metric<?>> work =
-						new HypothesisLevelMetricWorkerPool<Triple<Integer, Integer, Integer>, Metric<?>>(
-								threads, poison, new Supplier<Metric<?>>() {
-									@Override
-									public Metric<?> get() {
-										return metricMaster.threadClone();
-									}
-								}) {
+			System.err.println("Collecting sufficient statistics for metric: "
+					+ metricMaster.toString());
+			MetricWorkerPool<Triple<Integer, Integer, Integer>, Metric<?>> work =
+					new MetricWorkerPool<Triple<Integer, Integer, Integer>, Metric<?>>(
+							threads, new Supplier<Metric<?>>() {
+								@Override
+								public Metric<?> get() {
+									return metricMaster.threadClone();
+								}
+							}) {
 
-							@Override
-							public void doWork(Metric<?> metricCopy,
-									Triple<Integer, Integer, Integer> trip) {
-								int iSys = trip.first;
-								int iOpt = trip.second;
-								int iHyp = trip.third;
+						@Override
+						public void doWork(Metric<?> metricCopy,
+								Triple<Integer, Integer, Integer> trip) {
+							int iSys = trip.first;
+							int iOpt = trip.second;
+							int iHyp = trip.third;
 
-								String hyp = data.getHypothesis(iSys, iOpt, iHyp);
-								List<String> refs = data.getReferences(iHyp);
-								SuffStats<?> stats = metricCopy.stats(hyp, refs);
-								suffStats.saveStats(iMetricF, iSys, iOpt, iHyp, stats);
-							}
-						};
-
-				work.start();
-				for (int iSys = 0; iSys < data.getNumSystems(); iSys++) {
-					for (int iOpt = 0; iOpt < data.getNumOptRuns(); iOpt++) {
-						for (int iHyp = 0; iHyp < data.getNumHyps(); iHyp++) {
-							work.addTask(new Triple<Integer, Integer, Integer>(iSys, iOpt, iHyp));
+							String hyp = data.getHypothesis(iSys, iOpt, iHyp);
+							List<String> refs = data.getReferences(iHyp);
+							SuffStats<?> stats = metricCopy.stats(hyp, refs);
+							suffStats.saveStats(iMetricF, iSys, iOpt, iHyp, stats);
 						}
+					};
+
+			work.start();
+			for (int iSys = 0; iSys < data.getNumSystems(); iSys++) {
+				for (int iOpt = 0; iOpt < data.getNumOptRuns(); iOpt++) {
+					for (int iHyp = 0; iHyp < data.getNumHyps(); iHyp++) {
+						work.addTask(new Triple<Integer, Integer, Integer>(iSys, iOpt, iHyp));
 					}
 				}
-				work.waitForCompletion();
-
-				System.err.println("Finished collecting sufficient statistics for metric: "
-						+ metricMaster.toString());
 			}
+			work.waitForCompletion();
+
+			System.err.println("Finished collecting sufficient statistics for metric: "
+					+ metricMaster.toString());
 		}
-
-		// parallelize the other thread-unsafe metrics at the metric
-		// level
-		// (assumes the metrics don't interfere with one another's data
-		// structures in a static way --
-		// currently only TER is thread-unsafe)
-		MetricLevelMetricWorkPool work = new MetricLevelMetricWorkPool(metrics, threads) {
-
-			@Override
-			public void doWork(int iMetric, Metric<?> metric) {
-				if (!metric.isThreadsafe()) {
-					for (int iSys = 0; iSys < data.getNumSystems(); iSys++) {
-						for (int iOpt = 0; iOpt < data.getNumOptRuns(); iOpt++) {
-							for (int iHyp = 0; iHyp < data.getNumHyps(); iHyp++) {
-								String hyp = data.getHypothesis(iSys, iOpt, iHyp);
-								List<String> refs = data.getReferences(iHyp);
-								SuffStats<?> stats = metric.stats(hyp, refs);
-								suffStats.saveStats(iMetric, iSys, iOpt, iHyp, stats);
-							}
-						}
-					}
-				}
-			}
-		};
-		work.start();
-		work.waitForCompletion();
 
 		return suffStats;
 	}
@@ -403,7 +386,7 @@ public class MultEvalModule implements Module {
 	}
 
 	private void runBootstrapResampling(List<Metric<?>> metrics, HypothesisManager data,
-			SuffStatManager suffStats, ResultsManager results) {
+			SuffStatManager suffStats, ResultsManager results) throws InterruptedException {
 		for (int iSys = 0; iSys < data.getNumSystems(); iSys++) {
 
 			double[] meanByMetric = new double[metrics.size()];
@@ -428,7 +411,7 @@ public class MultEvalModule implements Module {
 				// index 1: metric, index 2: hypothesis, inner array: suff
 				// stats
 				List<List<SuffStats<?>>> suffStatsSysI = suffStats.getStats(iSys, iOpt);
-				BootstrapResampler boot = new BootstrapResampler(metrics, suffStatsSysI);
+				BootstrapResampler boot = new BootstrapResampler(threads, metrics, suffStatsSysI);
 				List<double[]> sampledScoresByMetric = boot.resample(numBootstrapSamples);
 
 				for (int iMetric = 0; iMetric < metrics.size(); iMetric++) {

@@ -1,14 +1,17 @@
 package multeval.metrics;
 
-import jannopts.*;
+import jannopts.ConfigurationException;
+import jannopts.Configurator;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
-import jbleu.*;
-import multeval.util.*;
+import jbleu.JBLEU;
+import multeval.util.LibUtil;
 
-import com.google.common.base.*;
-import com.google.common.collect.*;
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 
 // a MultiMetric wrapper around the jBLEU metric
 public class BLEU extends Metric<IntStats> {
@@ -43,7 +46,7 @@ public class BLEU extends Metric<IntStats> {
 
   @Override
   public String getMetricDescription() {
-    return String.format("jBLEU V%s (an exact reimplementation of NIST's mteval-v13.pl without tokenization)".format(JBLEU.VERSION));
+    return String.format("jBLEU V%s (an exact reimplementation of NIST's mteval-v13.pl without tokenization)", JBLEU.VERSION);
   }
 
   @Override
@@ -77,11 +80,6 @@ public class BLEU extends Metric<IntStats> {
 
   @Override
   public boolean isBiggerBetter() {
-    return true;
-  }
-
-  @Override
-  public boolean isThreadsafe() {
     return true;
   }
 }
