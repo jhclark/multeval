@@ -61,21 +61,8 @@ public class MultEval {
 
 	static int initThreads(final List<Metric<?>> metrics, int threads) {
 
-		// if any one of our metrics isn't thread-safe, back off to
-		// single-threaded
-		// (anyone want to remove all of the static garbage from TER?)
-
 		if (threads == 0) {
 			threads = Runtime.getRuntime().availableProcessors();
-		}
-		if (threads > 1) {
-			for (Metric<?> metric : metrics) {
-				if (!metric.isThreadsafe()) {
-					System.err.println("WARNING: Metric " + metric.toString()
-							+ " is not threadsafe."); //Defaulting to 1 thread.");
-//					threads = 1;
-				}
-			}
 		}
 		System.err.println("Using " + threads + " threads");
 		return threads;

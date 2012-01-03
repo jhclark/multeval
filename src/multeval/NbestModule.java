@@ -19,7 +19,7 @@ import multeval.metrics.BLEU;
 import multeval.metrics.Metric;
 import multeval.metrics.SuffStats;
 import multeval.metrics.TER;
-import multeval.parallel.HypothesisLevelMetricWorkerPool;
+import multeval.parallel.MetricWorkerPool;
 import multeval.util.FileUtils;
 import multeval.util.SuffStatUtils;
 import multeval.util.SynchronizedBufferedReader;
@@ -116,10 +116,9 @@ public class NbestModule implements Module {
 			topbestStatsByMetric.add(new ArrayList<SuffStats<?>>());
 		}
 
-		NbestModule.NbestTask poison = new NbestTask(null, null);
-		HypothesisLevelMetricWorkerPool<NbestModule.NbestTask, List<Metric<?>>> work =
-				new HypothesisLevelMetricWorkerPool<NbestModule.NbestTask, List<Metric<?>>>(
-						threads, poison, new Supplier<List<Metric<?>>>() {
+		MetricWorkerPool<NbestModule.NbestTask, List<Metric<?>>> work =
+				new MetricWorkerPool<NbestModule.NbestTask, List<Metric<?>>>(
+						threads, new Supplier<List<Metric<?>>>() {
 							@Override
 							public List<Metric<?>> get() {
 								List<Metric<?>> copy = new ArrayList<Metric<?>>(metrics.size());
@@ -203,7 +202,7 @@ public class NbestModule implements Module {
 			double oracleScore = metric.scoreStats(oracleStats);
 			String oracleSub = metric.scoreSubmetricsString(oracleStats);
 			System.err.println(String.format("%s oracle score: %.2f (%s)", metric.toString(),
-					oracleScore, topbestSub));
+					oracleScore, oracleSub));
 
 			SuffStats<?> woracleStats = SuffStatUtils.sumStats(woracleStatsByMetric.get(i));
 			double woracleScore = metric.scoreStats(woracleStats);

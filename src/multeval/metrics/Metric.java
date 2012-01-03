@@ -26,7 +26,9 @@ public abstract class Metric<Stats extends SuffStats<Stats>> {
 
 	// indicates that a single instance can safely be used by a single thread
 	// does NOT indicate that a single instance can support multiple threads
-	public abstract boolean isThreadsafe();
+	// Update: We removed this since TER is now thread-safe in that a single JVM
+	// can have multiple instances of it
+	//public abstract boolean isThreadsafe();
 
 	public String[] getSubmetricNames() {
 		return new String[0];

@@ -135,7 +135,11 @@ public class METEOR extends Metric<METEORStats> {
     }
 
     System.err.println("Loading METEOR paraphrase table...");
+    Stopwatch watch = new Stopwatch();
+    watch.start();
     scorer = new MeteorScorer(config);
+    watch.stop();
+    System.err.println("Loaded METEOR in " + watch.toString(3));
   }
 
   @Override
@@ -205,11 +209,6 @@ public class METEOR extends Metric<METEORStats> {
 
   @Override
   public boolean isBiggerBetter() {
-    return true;
-  }
-
-  @Override
-  public boolean isThreadsafe() {
     return true;
   }
   
