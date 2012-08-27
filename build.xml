@@ -2,8 +2,8 @@
 <project name="multeval" default="jar" basedir=".">
 
   <!-- These must also be updated in the "constants" file -->
-  <property name="version" value="0.4.2" />
-  <property name="meteor_version" value="1.3" />
+  <property name="version" value="0.4.3" />
+  <property name="meteor_version" value="1.4" />
 
   <property name="meteor_jar" value="lib/meteor-${meteor_version}/meteor-${meteor_version}.jar"/>
   <available file="${meteor_jar}" property="meteor.present"/>

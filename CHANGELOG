@@ -1,3 +1,7 @@
+V0.4.3 - 8/27/2012
+* Upgraded to Meteor 1.4 (also released 8/27/2012)
+  - Note: This change only affects previously unsupported languages by enabling new stemmers
+
 V0.4.2 - 12/3/2012
 * Fixed bug in n-best scoring that caused oracle *submetrics* such as precision and recall (not main BLEU, TER, METEOR, etc. scores) to be reported incorrectly for oracle hypotheses
 * Multi-threaded bootstrap resampling and approximate randomization significance tests (large time savings for many systems with many optimization runs)

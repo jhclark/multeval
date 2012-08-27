@@ -14,16 +14,16 @@ Usage
 First, download and unpack the program:
 
 ``` bash
-wget https://github.com/downloads/jhclark/multeval/multeval-0.4.2.tgz
-tar -xvzf multeval-0.4.2.tgz
+wget https://github.com/downloads/jhclark/multeval/multeval-0.4.3.tgz
+tar -xvzf multeval-0.4.3.tgz
 ```
 
 To evaluate a single system from the example data and get its BLEU, METEOR, and TER scores along with its standard deviation use:
 
 ``` bash
 ./multeval.sh eval --refs example/refs.test2010.lc.tok.en.* \
-                 --hyps-baseline example/hyps.lc.tok.en.baseline.opt* \
-                 --meteor.language en
+                   --hyps-baseline example/hyps.lc.tok.en.baseline.opt* \
+                   --meteor.language en
 ```
 
 The first time you run this command, METEOR (and its sizable paraphrase tables) will be downloaded. Also, to help the user determine if any tokenization mismatch happened, MultEval also prints the top OOVs according to METEOR.
@@ -32,22 +32,22 @@ To compare several systems from the example data and get its BLEU, METEOR, and T
 
 ``` bash
 ./multeval.sh eval --refs example/refs.test2010.lc.tok.en.* \
-                 --hyps-baseline example/hyps.lc.tok.en.baseline.opt* \
-                 --hyps-sys1 example/hyps.lc.tok.en.sys1.opt* \
-                 --hyps-sys2 example/hyps.lc.tok.en.sys2.opt* \
-                 --meteor.language en
+                   --hyps-baseline example/hyps.lc.tok.en.baseline.opt* \
+                   --hyps-sys1 example/hyps.lc.tok.en.sys1.opt* \
+                   --hyps-sys2 example/hyps.lc.tok.en.sys2.opt* \
+                   --meteor.language en
 ```
 
 If you'd also like 1) a Latex table at you can copy-paste into your paper and 2) the hypotheses from the median optimization run ranked by improvement/decline over your baseline system, then run it like this:
 
 ``` bash
 ./multeval.sh eval --refs example/refs.test2010.lc.tok.en.* \
-                 --hyps-baseline example/hyps.lc.tok.en.baseline.opt* \
-                 --hyps-sys1 example/hyps.lc.tok.en.sys1.opt* \
-                 --hyps-sys2 example/hyps.lc.tok.en.sys2.opt* \
-                 --meteor.language en \
-                 --latex table.tex \
-                 --rankDir rank
+                   --hyps-baseline example/hyps.lc.tok.en.baseline.opt* \
+                   --hyps-sys1 example/hyps.lc.tok.en.sys1.opt* \
+                   --hyps-sys2 example/hyps.lc.tok.en.sys2.opt* \
+                   --meteor.language en \
+                   --latex table.tex \
+                   --rankDir rank
 ```
 
 All files should contain *tokenized*, lowercased, space-delimited sentences in UTF-8 encoding, one sentence per line. Unlike many metric implementations, MultEval does no tokenization or segmentation for you (see discussion below).
@@ -204,9 +204,10 @@ MultEval uses the following libraries:
 Building
 ========
 
-Should you want to build MultEval yourself instead of using the provided tarball distribution, you'll need to download meteor and install it under lib/meteor-1.3/meteor-1.3.jar. Then you can just run ant:
+Should you want to build MultEval yourself instead of using the provided tarball distribution, you'll need to download meteor using get_deps.sh. Then you can just run ant:
 
 ``` bash
+$ ./get_deps.sh # Download meteor
 $ ant
 ```
 
