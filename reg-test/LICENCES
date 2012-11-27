@@ -1,0 +1,5 @@
+MT Eval 13a is available under the public domain as it was developed by government workers on the job. Its original form is available from http://www.itl.nist.gov/iad/mig/tests/mt/2009/ and the Michael Denkowski's version modified to skip normalization is available as part of METEOR.
+
+multi-bleu.pl is available under the LGPL license and is distributed with Moses.
+
+Both of these scripts are used for regression comparison only and do not play any role in MultEval scoring nor are they distributed with MultEval.
