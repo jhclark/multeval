@@ -14,23 +14,44 @@ public class JBLEU {
   // TODO: Support BLEU other than BLEU=4
   private static final int N = 4;
 
-  public static final String VERSION = "0.1";
+  public static final String VERSION = "0.1.1";
 
-  // TODO: Return 1-4-gram precision, length ratio, brevity penalty, and tok
-  // OOVs
+  public int verbosity = 0;
 
-  public static int pickReference(List<String> hyp, List<List<String>> refs) {
+  public JBLEU() {
+  }
+
+  public JBLEU(int verbosity) {
+      this.verbosity = verbosity;
+  }
+
+  public int pickReference(List<String> hyp, List<List<String>> refs) {
     int hypLen = hyp.size();
-    int selectedRefLen = refs.get(0).size();
-    int selectedRef = 0;
+    int selectedRefLen = Integer.MAX_VALUE;
+    int selectedRef = -1;
     // TODO: "Closest" or "least harsh"?
-    int curDist = Math.abs(hypLen - selectedRefLen);
+    // TODO: Use "least harsh" to break ties betweeen references of equal closeness...
+    int curDist = Integer.MAX_VALUE;
+    int i = 0;
     for(List<String> ref : refs) {
       // for now, always use closest ref
       int myDist = Math.abs(hypLen - ref.size());
       if (myDist < curDist) {
         selectedRefLen = ref.size();
+        selectedRef = i;
+        curDist = myDist;
+      } else if (myDist == curDist) {
+          // break ties based on having a more optimistic brevity penalty (shorter reference)
+          if (ref.size() < selectedRefLen) {
+              selectedRefLen = ref.size();
+              selectedRef = i;
+              curDist = myDist;
+              if (verbosity >= 2) {
+                  System.err.println(String.format("jBLEU: Picking more optimistic reference for brevity penalty: hyp_len = %d; ref_len = %d; distance = %d", hypLen, ref.size(), myDist));
+              }
+          }
       }
+      i++;
     }
     return selectedRef;
   }
@@ -48,14 +69,20 @@ public class JBLEU {
 
     // 2) determine the bag of n-grams we can score against
     // build a simple tries
-    Multiset<Ngram> refNgrams = HashMultiset.create();
+    Multiset<Ngram> clippedRefNgrams = HashMultiset.create();    
     for(List<String> ref : refs) {
+      Multiset<Ngram> refNgrams = HashMultiset.create();
       for(int order = 1; order <= N; order++) {
         for(int i = 0; i <= ref.size() - order; i++) {
           List<String> toks = ref.subList(i, i + order);
           Ngram ngram = new Ngram(toks);
           refNgrams.add(ngram);
         }
+      }
+      // clip n-grams by taking the maximum number of counts for any given reference
+      for(Ngram ngram : refNgrams) {
+          int clippedCount = Math.max(refNgrams.count(ngram), clippedRefNgrams.count(ngram));
+          clippedRefNgrams.setCount(ngram, clippedCount);
       }
     }
 
@@ -66,7 +93,7 @@ public class JBLEU {
       for(int i = 0; i <= hyp.size() - order; i++) {
         List<String> toks = hyp.subList(i, i + order);
         Ngram ngram = new Ngram(toks);
-        boolean found = refNgrams.remove(ngram);
+        boolean found = clippedRefNgrams.remove(ngram);
         ++attempts[order - 1];
         if (found) {
           ++matches[order - 1];
@@ -77,7 +104,7 @@ public class JBLEU {
     // 4) assign sufficient stats
     System.arraycopy(attempts, 0, result, 0, N);
     System.arraycopy(matches, 0, result, N, N);
-    result[8] = selectedRefLen;
+    result[N*2] = selectedRefLen;
   }
 
   private static double getAttemptedNgrams(int[] suffStats, int j) {
@@ -132,6 +159,9 @@ public class JBLEU {
     }
     assert brevityPenalty >= 0.0;
     assert brevityPenalty <= 1.0;
+    if (verbosity >= 1) {
+	System.err.println(String.format("jBLEU: Brevity penalty = %.6f (ref_words = %.0f, hyp_words = %.0f)", brevityPenalty, refWords, hypWords));
+    }
 
     if (allResults != null) {
       assert allResults.length == N + 1;
@@ -147,13 +177,16 @@ public class JBLEU {
       final double iscore;
       if (attemptedNgramsJ == 0) {
         iscore = 0.0;
+	if (verbosity >= 1) System.err.println(String.format("jBLEU: %d-grams: raw 0/0 = 0 %%", j+1));
       } else if (matchingNgramsJ == 0) {
         smooth *= 2;
         double smoothedPrecision = 1.0 / (smooth * attemptedNgramsJ);
         iscore = Math.log(smoothedPrecision);
+	if (verbosity >= 1) System.err.println(String.format("jBLEU: %d-grams: %.0f/%.0f = %.2f %% (smoothed) :: raw = %.2f %%", j+1, matchingNgramsJ, attemptedNgramsJ, smoothedPrecision * 100, matchingNgramsJ / attemptedNgramsJ * 100));
       } else {
         double precisionAtJ = matchingNgramsJ / attemptedNgramsJ;
         iscore = Math.log(precisionAtJ);
+	if (verbosity >= 1) System.err.println(String.format("jBLEU: %d-grams: %.0f/%.0f = %.2f %% (unsmoothed)", j+1, matchingNgramsJ, attemptedNgramsJ, precisionAtJ * 100));
       }
       // TODO: Allow non-uniform weights instead of just the "baseline"
       // 1/4 from Papenini

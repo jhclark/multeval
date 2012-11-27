@@ -2,6 +2,7 @@ package multeval.metrics;
 
 import jannopts.ConfigurationException;
 import jannopts.Configurator;
+import jannopts.Option;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,9 @@ public class BLEU extends Metric<IntStats> {
   // "Use closest reference length when determining brevity penalty? (true behaves like IBM BLEU, false behaves like old NIST BLEU)",
   // defaultValue="true")
   // boolean closestRefLength;
+
+  @Option(shortName = "v", longName = "bleu.verbosity", usage = "Verbosity level (Integer: 0-1)", defaultValue = "0")
+  public int verbosity;
 
   private JBLEU bleu = new JBLEU();
 
@@ -76,6 +80,7 @@ public class BLEU extends Metric<IntStats> {
   public void configure(Configurator opts) throws ConfigurationException {
     LibUtil.checkLibrary("jbleu.JBLEU", "jBLEU");
     opts.configure(this);
+    this.bleu.verbosity = this.verbosity;
   }
 
   @Override

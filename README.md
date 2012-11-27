@@ -182,7 +182,14 @@ For even more detailed analysis, you should also consider using the METEOR X-Ray
 Compatibility and Accuracy
 ==========================
 
-MultEval produces *exactly* the same metric scores you would obtain by running the metrics as stand-alone programs -- with the exception that MultEval does not perform tokenization. MultEval calls METEOR and TER using library API calls, and we regression test against gold-standard scores produced by these metrics in stand-alone mode. Its internal jBLEU library is a direct port of NIST's mteval-v13a.pl; we regression test against mteval-v13m.pl (which allows disabling normalization), included in the METEOR distribution. jBLEU implements the segment-level smoothing of BLEU from mteval-v13a.pl, which is derived from the smoothing in Kishore Papineni's bleu-1.04.pl script (the original IBM implementation of BLEU), added as of 3/9/2004 -- note this is *not* the simplistic +1 BLEU smoothing used in some other systems.
+MultEval produces *exactly* the same metric scores you would obtain by running the metrics as stand-alone programs -- with the exception that MultEval does not perform tokenization. MultEval calls METEOR and TER using library API calls, and we regression test against gold-standard scores produced by these metrics in stand-alone mode. Its internal jBLEU library is a direct port of NIST's mteval-v13a.pl; we regression test against mteval-v13m.pl (which allows disabling normalization), included in the METEOR distribution. jBLEU implements the segment-level smoothing of BLEU from mteval-v13a.pl, which is derived from the smoothing in Kishore Papineni's bleu-1.04.pl script (the original IBM implementation of BLEU), added as of 3/9/2004. Note this is *not* the simplistic +1 BLEU smoothing used in some other system. Instead, bleu-1.04.pl uses an exponential decay function to give non-zero credit for orders that have no matches; this makes a difference *only* when some order has zero matches, which is relatively rare for corpus-level BLEU, but may matter for sentence-level BLEU.
+
+Comparison with Moses' multi-bleu-.pl
+-------------------------------------
+
+Moses multi-bleu.pl calculates BLEU in a slightly different way than MultEval:
+MultEval uses the "smoothed" variant of BLEU in which orders with zero matching
+n-grams but non-zero possible matches get smoothed as per a formula in Papineni's bleu-1.04.pl.
 
 
 Adding Your Own Metric
