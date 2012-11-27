@@ -25,7 +25,7 @@ public class JBLEU {
       this.verbosity = verbosity;
   }
 
-  public int pickReference(List<String> hyp, List<List<String>> refs) {
+    public static int pickReference(List<String> hyp, List<List<String>> refs, int verbosity) {
     int hypLen = hyp.size();
     int selectedRefLen = Integer.MAX_VALUE;
     int selectedRef = -1;
@@ -61,7 +61,7 @@ public class JBLEU {
     assert refs.size() > 0;
 
     // 1) choose reference length
-    int selectedRef = pickReference(hyp, refs);
+    int selectedRef = pickReference(hyp, refs, verbosity);
     int selectedRefLen = refs.get(selectedRef).size();
 
     // TODO: Integer-ify everything inside Ngram? Or is there too much

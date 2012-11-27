@@ -22,7 +22,8 @@ public class Length extends Metric<IntStats> {
 
     List<String> hypToks = Lists.newArrayList(Splitter.on(CharMatcher.BREAKING_WHITESPACE).split(hyp));
     List<List<String>> tokRefs = BLEU.tokenizeRefs(refs);
-    int iRef = JBLEU.pickReference(hypToks, tokRefs);
+    int verbosity = 0;
+    int iRef = JBLEU.pickReference(hypToks, tokRefs, verbosity);
 
     IntStats result = new IntStats(2);
     result.arr[0] = hypToks.size();
