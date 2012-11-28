@@ -170,10 +170,10 @@ first sentence output for each sentence is the n-best oracle. You can get this b
 
 ``` bash
 ./multeval.sh nbest --nbest example/cdec.kbest \
-                  --refs example/cdec.ref* \
-                  --meteor.language en \
-                  --rankDir rank \
-                  > kbest.scored
+                    --refs example/cdec.ref* \
+                    --meteor.language en \
+                    --rankDir rank \
+                    > kbest.scored
 ```
 
 MultEval will also display the corpus-level oracle score over the n-best list according to each metric.
