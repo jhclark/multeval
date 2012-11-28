@@ -188,7 +188,7 @@ MultEval produces *exactly* the same metric scores you would obtain by running t
 
 You can see this reflected in most of MultEval's regression tests, which come out the same for both Moses' multi-bleu.pl and mteval-v13a.pl: http://travis-ci.org/jhclark/multeval
 
-Comparison with Moses' multi-bleu-.pl
+Comparison with Moses' multi-bleu.pl
 -------------------------------------
 
 Moses multi-bleu.pl calculates BLEU in a slightly different way than MultEval:
