@@ -16,8 +16,8 @@ Usage
 First, download and unpack the program:
 
 ``` bash
-wget https://github.com/downloads/jhclark/multeval/multeval-0.4.3.tgz
-tar -xvzf multeval-0.4.3.tgz
+wget https://github.com/downloads/jhclark/multeval/multeval-0.5.0.tgz
+tar -xvzf multeval-0.5.0.tgz
 ```
 
 To evaluate a single system from the example data and get its BLEU, METEOR, and TER scores along with its standard deviation use:
