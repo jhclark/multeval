@@ -78,9 +78,10 @@ public class MultEval {
 		} else {
 			String moduleName = args[0];
 			Module module = MODULES.get(moduleName);
+                        // TODO: Load version from constants file
 			Configurator opts =
 					new Configurator().withProgramHeader(
-							"MultEval V0.4.2\nBy Jonathan Clark\nUsing Libraries: METEOR (Michael Denkowski) and TER (Matthew Snover)\n")
+							"MultEval V0.5.0\nBy Jonathan Clark\nUsing Libraries: METEOR (Michael Denkowski) and TER (Matthew Snover)\n")
 							.withModuleOptions(moduleName, module.getClass());
 
 			// add "dynamic" options, which might be activated later
