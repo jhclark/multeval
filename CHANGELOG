@@ -1,3 +1,10 @@
+V0.5.0 - 11/30/2012
+* Bug fix for BLEU implementation
+* Added Travis CI regression tests
+* Added ability to produce sentence-level scores
+* More verbose output for BLEU
+
+
 V0.4.3 - 8/27/2012
 * Upgraded to Meteor 1.4 (also released 8/27/2012)
   - Note: This change only affects previously unsupported languages by enabling new stemmers
