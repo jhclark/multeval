@@ -5,8 +5,11 @@ source $scriptDir/constants
 
 $scriptDir/get_deps.sh
 
-heap="-Xmx200m"
+heap="-Xmx2g" # start with meteor heap size
 for arg in "$@"; do
+    if [[ "$arg" == "--metrics" ]]; then
+        heap="-Xmx200m"
+    fi
     # TODO: Check if this follows --metric
     if [[ "$arg" == "meteor" ]]; then
         heap="-Xmx2g"
