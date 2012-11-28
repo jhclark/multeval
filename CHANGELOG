@@ -1,7 +1,7 @@
 V0.5.0 - 11/30/2012
 * Bug fix for BLEU implementation
 * Added Travis CI regression tests
-* Added ability to produce sentence-level scores
+* Added ability to produce sentence-level scores via the --sentLevelDir option
 * More verbose output for BLEU
 
 

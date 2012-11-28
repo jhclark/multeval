@@ -40,7 +40,7 @@ To compare several systems from the example data and get its BLEU, METEOR, and T
                    --meteor.language en
 ```
 
-If you'd also like 1) a Latex table at you can copy-paste into your paper and 2) the hypotheses from the median optimization run ranked by improvement/decline over your baseline system, then run it like this:
+If you'd also like 1) a Latex table at you can copy-paste into your paper and 2) the hypotheses from the median optimization run ranked by improvement/decline over your baseline system and 3) A list of sentence-level metric scores including submetrics such as BLEU precision and brevity, then run it like this:
 
 ``` bash
 ./multeval.sh eval --refs example/refs.test2010.lc.tok.en.* \
@@ -49,7 +49,8 @@ If you'd also like 1) a Latex table at you can copy-paste into your paper and 2)
                    --hyps-sys2 example/hyps.lc.tok.en.sys2.opt* \
                    --meteor.language en \
                    --latex table.tex \
-                   --rankDir rank
+                   --rankDir rank \
+                   --sentLevelDir sentLevel \
 ```
 
 All files should contain *tokenized*, lowercased, space-delimited sentences in UTF-8 encoding, one sentence per line. Unlike many metric implementations, MultEval does no tokenization or segmentation for you (see discussion below).
