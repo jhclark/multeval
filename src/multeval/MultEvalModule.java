@@ -13,6 +13,7 @@ import java.util.List;
 
 import multeval.ResultsManager.Type;
 import multeval.analysis.DiffRanker;
+import multeval.analysis.SentFormatter;
 import multeval.metrics.BLEU;
 import multeval.metrics.METEORStats;
 import multeval.metrics.Metric;
@@ -70,6 +71,9 @@ public class MultEvalModule implements Module {
 
 	@Option(shortName = "r", longName = "rankDir", usage = "Rank hypotheses of median optimization run of each system with regard to improvement/decline over median baseline system and output to the specified directory for analysis", required = false)
 	private String rankDir;
+
+	@Option(shortName = "S", longName = "sentLevelDir", usage = "Score the hypotheses of each system at the sentence-level and output to the specified directory for analysis", required = false)
+	private String sentLevelDir;
 
 	@Option(shortName = "D", longName = "debug", usage = "Show debugging output?", required = false, defaultValue = "false")
 	private boolean debug;
@@ -132,6 +136,9 @@ public class MultEvalModule implements Module {
 		runOverallEval(metrics, data, suffStats, results);
 		runOOVAnalysis(metrics, data, suffStats, results);
 
+                // output sentence-level scores, if requested
+                runSentScores(metrics, data, suffStats, results);
+
 		// run diff ranking, if requested (MUST be run after overall eval,
 		// which computes median systems)
 		runDiffRankEval(metrics, data, suffStats, results);
@@ -169,6 +176,31 @@ public class MultEvalModule implements Module {
 		// 7) show statistics such as most frequent OOV's length, brevity
 		// penalty, etc.
 	}
+
+        private void runSentScores(List<Metric<?>> metrics, HypothesisManager data, SuffStatManager suffStats, ResultsManager results) throws FileNotFoundException {
+            if (sentLevelDir != null) {
+                File dir = new File(sentLevelDir);
+                dir.mkdirs();
+                System.err.println("Outputting sentence level scores to: " + dir.getAbsolutePath());
+                
+		final String[] submetricNames = NbestModule.getSubmetricNames(metrics);
+                SentFormatter formatter = new SentFormatter(metricNames, submetricNames);
+                List<List<String>> refs = data.getAllReferences();
+
+                for (int iSys = 0; iSys < data.getNumSystems(); iSys++) {
+                    for (int iOpt = 0; iOpt < data.getNumOptRuns(); iOpt++) {
+                        File outFile = new File(dir, String.format("sys%d.opt%d", (iSys + 1), (iOpt+1)));
+                        double[][] sentMetricScores = getSentLevelScores(metrics, data, suffStats, iSys, iOpt);
+                        double[][] sentSubmetricScores = getSentLevelSubmetricScores(metrics, data, suffStats, iSys, iOpt);
+                        List<String> hyps = data.getHypotheses(iSys, iOpt);
+                        
+                        PrintWriter out = new PrintWriter(outFile);
+                        formatter.write(hyps, refs, sentMetricScores, sentSubmetricScores, out);
+                        out.close();
+                    }
+                }
+            }
+        }
 
 	private void runDiffRankEval(List<Metric<?>> metrics, HypothesisManager data,
 			SuffStatManager suffStats, ResultsManager results) throws FileNotFoundException {
@@ -217,6 +249,29 @@ public class MultEvalModule implements Module {
 			}
 		}
 	}
+
+	private double[][] getSentLevelSubmetricScores(List<Metric<?>> metrics, HypothesisManager data,
+			SuffStatManager suffStats, int iSys, int iOpt) {
+
+            int nSubmetrics = 0;
+            for (int iMetric = 0; iMetric < metrics.size(); iMetric++) {
+                nSubmetrics += metrics.get(iMetric).getSubmetricNames().length;
+            }
+            
+            double[][] result = new double[data.getNumHyps()][nSubmetrics];
+            for (int iHyp = 0; iHyp < data.getNumHyps(); iHyp++) {
+                int iSubmetric = 0;
+                for (int iMetric = 0; iMetric < metrics.size(); iMetric++) {
+                    Metric<?> metric = metrics.get(iMetric);
+                    SuffStats<?> stats = suffStats.getStats(iMetric, iSys, iOpt, iHyp);
+                    for (double sub : metric.scoreSubmetricsStats(stats)) {
+                        result[iHyp][iSubmetric] = sub;
+                        iSubmetric++;
+                    }
+                }
+            }
+            return result;
+        }
 
 	private double[][] getSentLevelScores(List<Metric<?>> metrics, HypothesisManager data,
 			SuffStatManager suffStats, int iSys, int iOpt) {

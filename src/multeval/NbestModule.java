@@ -212,7 +212,7 @@ public class NbestModule implements Module {
 		}
 	}
 
-	private String[] getSubmetricNames(List<Metric<?>> metrics) {
+	public static String[] getSubmetricNames(List<Metric<?>> metrics) {
 		int numSubmetrics = 0;
 		for (Metric<?> metric : metrics) {
 			numSubmetrics += metric.getSubmetricNames().length;

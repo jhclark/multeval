@@ -57,7 +57,6 @@ public class NbestEntry {
     }
 
     if (submetricScores != null) {
-
       for(int iSub = 0; iSub < submetricNames.length; iSub++) {
         metricString.append(" " + submetricNames[iSub] + "=" + submetricScores[iSub]);
       }
