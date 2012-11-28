@@ -50,7 +50,7 @@ If you'd also like 1) a Latex table at you can copy-paste into your paper and 2)
                    --meteor.language en \
                    --latex table.tex \
                    --rankDir rank \
-                   --sentLevelDir sentLevel \
+                   --sentLevelDir sentLevel
 ```
 
 All files should contain *tokenized*, lowercased, space-delimited sentences in UTF-8 encoding, one sentence per line. Unlike many metric implementations, MultEval does no tokenization or segmentation for you (see discussion below).
