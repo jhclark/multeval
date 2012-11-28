@@ -6,7 +6,7 @@ jdk:
 before_script:
   - ./get_deps.sh
   - sudo apt-get install cpanminus
-  - cpanm XML::Twig
+  - sudo cpanm XML::Twig
 script: ant
 after_script:
   - ./reg-test/reg-test.sh
