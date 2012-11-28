@@ -4,6 +4,7 @@ jdk:
   - openjdk7
   - openjdk6
 before_script:
+  - ulimit -a
   - ./get_deps.sh
   - sudo apt-get install cpanminus
   - sudo cpanm XML::Twig
