@@ -1,8 +1,20 @@
 V0.5.0 - 11/30/2012
-* Bug fix for BLEU implementation
+* Bug fix for BLEU implementation affecting multiple reference translations (see below)
+  IMPORTANT: Scores from MultEval BLEU 0.5.0 are *NOT* comparable to previous versions.
+             Please score all of your experiments with a consistent version of all metrics.
+  NOTE: Jon rescored several results using the fixed version of BLEU and the differences
+	between systems remained virtually unchanged despite the magnitudes of the scores changing.
 * Added Travis CI regression tests
 * Added ability to produce sentence-level scores via the --sentLevelDir option
 * More verbose output for BLEU
+
+Examples of BLEU bug fix's effects:
+=============== V0.4.3 ======================= ||| =============== V0.5.0 ============== ||| === Comparison ==
+Set    | Baseline | Experimental | Improvement ||| Baseline | Experimental | Improvement ||| Improvement Delta
+MT08nw | 47.8     | 47.8         | +/-         ||| 48.3     | 48.4         | +/-         ||| 0
+MT08wb | 30.5     | 31.0         | +0.5        ||| 31.2     | 31.5         | +0.3        ||| 0.2
+MT09nw | 51.6     | 51.5         | +/-         ||| 53.2     | 53.1         | +/-         ||| 0
+MT09wb | 31.6     | 32.3         | +0.7        ||| 33.5     | 34.1         | +0.6        ||| 0.1
 
 
 V0.4.3 - 8/27/2012
