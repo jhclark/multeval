@@ -6,7 +6,7 @@ source $scriptDir/constants
 $scriptDir/get_deps.sh
 
 METEOR_FLAGS="-XX:+UseCompressedOops -Xmx2g"
-heap="$METEOR_FLAGS" # start with meteor heap size
+flags="$METEOR_FLAGS" # start with meteor heap size
 for arg in "$@"; do
     if [[ "$arg" == "--metrics" ]]; then
         # We might not be using METEOR, so don't request any additional heap
@@ -15,7 +15,7 @@ for arg in "$@"; do
     # TODO: Check if this follows --metric
     if [[ "$arg" == "meteor" ]]; then
         # We're using meteor after all, use the big heap
-        heap="$METEOR_FLAGS"
+        flags="$METEOR_FLAGS"
     fi
 done
 
