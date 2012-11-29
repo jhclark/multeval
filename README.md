@@ -208,7 +208,7 @@ Libraries
 
 MultEval uses the following libraries:
 
-*  METEOR 1.3 (LGPL License, http://www.cs.cmu.edu/~alavie/METEOR/ -- WordNet database has a compatible free license)
+*  METEOR 1.4 (LGPL License, http://www.cs.cmu.edu/~alavie/METEOR/ -- WordNet database has a compatible free license)
 *  Translation Error Rate 0.7 (LGPL License, TerCom, http://www.cs.umd.edu/~snover/tercom/ -- Thanks to Matt Snover for relicensing this). MultEval uses a slightly modified version of TER; the only change is that all classes have been moved from the default package into a "ter" package to overcome the Java restriction that classes in the defalut package cannot be imported across JARs.
 *  Google Guava (Apache License)
 *  Java Annotation Options (jannopts, LGPL License)
