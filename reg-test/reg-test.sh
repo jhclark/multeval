@@ -35,6 +35,9 @@ function compare {
 errors=0
 tests=0
 
+function XXX {
+# Test Set 1 (from Collin Cherry) -- multiple reference system with relatively high scores, requiring no smoothing
+# ...but test it as a single reference system
 for iRun in {0..3}; do
     for iRef in {0..3}; do
         refs=$base/reg-test/set1/set1.ref${iRef}
@@ -55,6 +58,7 @@ for iRun in {0..3}; do
     done
 done
 
+# Continue testing set 1, but now actually using it as a multi-ref system
 for iRun in {0..3}; do
     refs_stem=$base/reg-test/set1/set1.ref
     hyps=$base/reg-test/set1/set1.out.${iRun}
@@ -72,6 +76,24 @@ for iRun in {0..3}; do
     errors=$(( $errors + $? ))
     tests=$(( $tests + 1 ))
 done
+}
+
+# Test set 2 from Yulia Tsvetkov (single ref, single run)
+ref=$base/reg-test/set2/set2.ref0
+hyps=$base/reg-test/set2/set2.out.0
+me=$($base/multeval.sh eval --metrics bleu --refs ${ref} --hyps-baseline $hyps --bleu.verbosity 1 --verbosity 1 --boot-samples 1 |& tee /dev/stderr | awk '/BLEU: OptRun 0/{printf "%.2f\n",$6}')
+mb=$($base/reg-test/multi-bleu.perl $ref < $hyps |& tee /dev/stderr | awk -F'( |,)' '{print $3}')
+compare "Set 2 -- multi-bleu.pl Single Ref, Single Run" $me $mb
+errors=$(( $errors + $? ))
+tests=$(( $tests + 1 ))
+
+# Create dummy SGML files for NIST mt-eval
+sgml=sgml
+$base/reg-test/write-sgm.py en $hyps $sgml ${ref}
+nist=$($base/reg-test/mteval-v13m.pl -r $sgml/ref -s $sgml/src -t $sgml/hyps --no-norm -b |& tee /dev/stderr | awk '/^BLEU score/{printf "%.2f\n",$4*100}')
+compare "Set 2 -- mteval-v13m.pl Single Ref, Single Run" $me $nist
+errors=$(( $errors + $? ))
+tests=$(( $tests + 1 ))
 
 if (( $errors == 0 )); then
     echo -e >&2 "${GREEN}SUMMARY: Ran $tests tests total${NONE}"
