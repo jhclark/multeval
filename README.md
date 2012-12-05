@@ -70,6 +70,12 @@ system 1       18.8 (0.3/0.3/0.00)    30.3 (0.1/0.1/0.00)    64.8 (0.4/0.6/0.00)
 system 2       18.5 (0.3/0.1/0.00)    29.3 (0.1/0.0/0.00)    65.7 (0.4/0.2/0.00)    107.5 (0.4/0.1/0.00)
 ```
 
+A quick explanation of these numbers (see paper for details):
+
+* s_sel: The variance due to test set SELection. This is calculated using bootstrap resampling for each optimizer run and this number reports the average variance over all optimizer runs.
+* s_opt: The variance due to OPTimizer instability. This is calculated directly as the variance of the aggregate metric score over all optimizer runs.
+* p: This is the p-value calculated by approximate randomization. It can roughly be interpreted as the probability of the absolute difference between the baseline system and system i occurring due to chance where random permutations between the two systems are used to simulate chance occurrences. The quality of this measure depends on the n separate optimization runs of your system and is conditioned on your test set. See below for a more in-depth discussion on p-values.
+
 The LaTeX table produced by multeval looks something like this:
 
 ![Latex Table](https://github.com/jhclark/multeval/raw/HEAD/table.png)
