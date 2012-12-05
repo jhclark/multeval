@@ -24,6 +24,7 @@ import multeval.parallel.SynchronizedBufferedReader;
 import multeval.parallel.SynchronizedPrintStream;
 import multeval.util.FileUtils;
 import multeval.util.SuffStatUtils;
+import multeval.util.StringUtils;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Supplier;
@@ -243,6 +244,10 @@ public class NbestModule implements Module {
 			double[] metricScores = new double[metricCopies.size()];
 			double[] submetricScores = new double[submetricNames.length];
 			NbestEntry entry = hyps.get(iRank);
+
+			// NOTE: We normalize whitespace here instead of in the reader since
+			// the initial reader must operate in a single thread
+			entry.hyp = StringUtils.normalizeWhitespace(entry.hyp);
 
 			int iSubmetric = 0;
 			for (int iMetric = 0; iMetric < metricCopies.size(); iMetric++) {
