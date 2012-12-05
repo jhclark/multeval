@@ -8,7 +8,7 @@ import multeval.util.*;
 import com.google.common.base.*;
 import com.google.common.io.*;
 
-/** System index 0 is the baseline system
+/** System index 0 is the baseline system. Sentences having extra whitespace have that whitespace normalized first during loadSentences() for both references and hypotheses.
  * 
  * @author jon */
 public class HypothesisManager {

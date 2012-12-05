@@ -1,3 +1,6 @@
+V0.5.1 - Upcoming
+* N-best list module now normalizes extra space in hypotheses
+
 V0.5.0 - 11/29/2012
 * Bug fix for BLEU implementation affecting only multiple reference translations (see below)
   IMPORTANT: Scores from MultEval BLEU 0.5.0 are *NOT* comparable to previous versions.
