@@ -4,6 +4,8 @@ import jannopts.ConfigurationException;
 import jannopts.Configurator;
 
 import java.io.IOException;
+import java.io.FileInputStream;
+import java.util.Properties;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -68,8 +70,22 @@ public class MultEval {
 		return threads;
 	}
 
+        private static String loadVersion() throws IOException {
+            Properties props = new Properties();
+            FileInputStream in = new FileInputStream("constants");
+            props.load(in);
+            in.close();
+            String version = props.getProperty("version");
+            return version;
+        }
+
 	public static void main(String[] args) throws ConfigurationException, IOException,
 			InterruptedException {
+
+            String version = loadVersion();
+            System.err.println(String.format("MultEval V%s\n", version) +
+                               "By Jonathan Clark\n" +
+                               "Using Libraries: METEOR (Michael Denkowski) and TER (Matthew Snover)\n");
 
 		if (args.length == 0 || !MODULES.keySet().contains(args[0])) {
 			System.err.println("Usage: program <module_name> <module_options>");
@@ -78,11 +94,7 @@ public class MultEval {
 		} else {
 			String moduleName = args[0];
 			Module module = MODULES.get(moduleName);
-                        // TODO: Load version from constants file
-			Configurator opts =
-					new Configurator().withProgramHeader(
-							"MultEval V0.5.0\nBy Jonathan Clark\nUsing Libraries: METEOR (Michael Denkowski) and TER (Matthew Snover)\n")
-							.withModuleOptions(moduleName, module.getClass());
+			Configurator opts = new Configurator().withModuleOptions(moduleName, module.getClass());
 
 			// add "dynamic" options, which might be activated later
 			// by the specified switch values
