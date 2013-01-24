@@ -29,15 +29,29 @@ public class AsciiTable {
             double sTest = results.get(iMetric, iSys, Type.STDDEV);
             
     	    if (iSys == 0) {
-	          // baseline has no p-value
-    	      columns[iMetric+1] = String.format("%.1f (%.1f/%.1f/-)", avg, sSel, sTest);
-	        } else {
-	          // TODO: Just show improvements over baseline?
-	          double p = results.get(iMetric, iSys, Type.P_VALUE);
-	    	  columns[iMetric+1] = String.format("%2.1f (%.1f/%.1f/%.2f)", avg, sSel, sTest, p);
-	        }
+                // baseline has no p-value
+                if (results.numOptRuns > 1) {
+                    columns[iMetric+1] = String.format("%2.1f (%.1f/%.1f/-)", avg, sSel, sTest);
+                } else {
+                    columns[iMetric+1] = String.format("%2.1f (%.1f/*/-)", avg, sSel);
+                }
+            } else {
+                // TODO: Just show improvements over baseline?
+                double p = results.get(iMetric, iSys, Type.P_VALUE);
+                if (results.numOptRuns > 1) {
+                    columns[iMetric+1] = String.format("%2.1f (%.1f/%.1f/%.2f)", avg, sSel, sTest, p);
+                } else {
+                    columns[iMetric+1] = String.format("%2.1f (%.1f/*/**)", avg, sSel);
+                }
+            }
     	}
     	print(out, columns);
+    }
+    if (results.numOptRuns < 2) {
+            out.println("  *  Indicates no estimate of optimizer instability due to single optimizer run. Consider multiple optimizer runs.");
+        if (sysCount > 1) {
+            out.println("  ** Indicates no p-value due to single optimizer run. Consider multiple optimizer runs.");
+        }
     }
     out.flush();
   }
