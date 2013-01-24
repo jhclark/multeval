@@ -1,9 +1,11 @@
 <?xml version="1.0"?>
 <project name="multeval" default="jar" basedir=".">
 
-  <!-- These must also be updated in the "constants" file -->
-  <property name="version" value="0.5.0" />
-  <property name="meteor_version" value="1.4" />
+  <!-- Read the bash script "constants" as if it is a properties file -->
+  <!-- It must contain the variables "version" and "meteor_version" -->
+  <!-- <property name="version" value="0.5.0" /> -->
+  <!-- <property name="meteor_version" value="1.4" /> -->
+  <property file="constants"/>
 
   <property name="meteor_jar" value="lib/meteor-${meteor_version}/meteor-${meteor_version}.jar"/>
   <available file="${meteor_jar}" property="meteor.present"/>
