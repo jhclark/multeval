@@ -1,5 +1,6 @@
-V0.5.1 - Upcoming
+V0.5.1 - Jan 24, 2012
 * N-best list module now normalizes extra space in hypotheses
+* Single optimizer runs no longer cause a NaN in the output table -- instead we print a warning message
 
 V0.5.0 - 11/29/2012
 * Bug fix for BLEU implementation affecting only multiple reference translations (see below)
@@ -11,7 +12,7 @@ V0.5.0 - 11/29/2012
 * Added ability to produce sentence-level scores via the --sentLevelDir option
 * More verbose output for BLEU
 
-Examples of BLEU bug fix's effects on an Arabic-English 4 referenc3e :
+Examples of BLEU bug fix's effects on an Arabic-English 4 reference :
 =============== V0.4.3 ======================= ||| =============== V0.5.0 ============== ||| === Comparison ==
 Set    | Baseline | Experimental | Improvement ||| Baseline | Experimental | Improvement ||| Improvement Delta
 MT08nw | 47.8     | 47.8         | +/-         ||| 48.3     | 48.4         | +/-         ||| 0
