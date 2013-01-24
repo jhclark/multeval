@@ -35,7 +35,6 @@ function compare {
 errors=0
 tests=0
 
-function XXX {
 # Test Set 1 (from Collin Cherry) -- multiple reference system with relatively high scores, requiring no smoothing
 # ...but test it as a single reference system
 for iRun in {0..3}; do
@@ -76,7 +75,6 @@ for iRun in {0..3}; do
     errors=$(( $errors + $? ))
     tests=$(( $tests + 1 ))
 done
-}
 
 # Test set 2 from Yulia Tsvetkov (single ref, single run)
 ref=$base/reg-test/set2/set2.ref0
