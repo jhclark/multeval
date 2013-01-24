@@ -16,7 +16,7 @@ Usage
 First, download and unpack the program:
 
 ``` bash
-wget https://github.com/downloads/jhclark/multeval/multeval-0.5.1.tgz
+wget http://www.cs.cmu.edu/~jhclark/downloads/multeval-0.5.1.tgz
 tar -xvzf multeval-0.5.1.tgz
 ```
 
