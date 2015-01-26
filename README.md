@@ -141,6 +141,28 @@ The most important points are:
 
 So even though a large difference may more frequently correspond to smaller p-values, this is not guaranteed. In fact, small differences can be quite significant and vice versa. For example, if you give a single optimizer sample with identical hypotheses and tell MultEval that these are actually two different systems (as in the baseline system and system 2 in the example data), there will be zero difference in scores and also a p-value of zero, since shuffling hypotheses between the systems produces no change, indicating that this difference (of zero) is likely to be reproducible. This demonstrates 2 points about p-values: 1) that this significance test does not account for the user giving it too few (optimizer) samples, which is why it's important to report how many optimizer samples you used and 2) that the test only provides information about the replicability of a delta, not whether or not the magnitude can be assigned external meaning (in terms of translation quality).
 
+And here's a few FAQ's that come up from this discussion:
+
+**Why is the p-value ~= 0 for equal inputs**
+
+Because the quantity being estimated is actually p_ByChance(Diff=0). Given a single run of the optimizer, if two experimental configurations produce exactly the same output, we should (under frequentist statistics) say that this did not happen by chance. But of course we should distrust experiments with 1 optimizer run per experimental configuration. Now let's say you run each configuration 3 times and still both systems produce exactly the same output. Well, that's a very stable optimizer and we should begin to believe that this difference of zero has a very low probability of occurring by chance.
+
+**Why is the p-value ~= 0 for very different inputs?**
+
+The hypotheses before and after shuffling will most likely remain very different (as in the extreme case of comparing system1=MT, system2=references), so the probability of this difference occurring due to chance is quite low.
+
+**Why does the number of shuffles seem to affect p-value so much?**
+
+A small number of shuffles is just giving you a poor estimate with high variance and it's not advisable to run a small number of shuffles. Going above the default of 10k is fine, but it shouldn't change the p-values too much. Increasing the number of shuffles is actually just bringing you closer to the "true"estimate of zero, which we should expect from above.
+
+**So when should I expect non-zero p-values?**
+
+When shuffling produces strictly greater absolute differences than observed in aggregate and when it does this a non-trivial number of times. There's a few examples above illustrating this.
+
+**So I should accept papers with zero p-values?**
+
+Often not. This p-value is intended to estimate whether the difference is repeatable. But the magnitude of the difference still may not be substantive (users may not perceive any quality improvement). Sometimes, it may be more informative to look at the two sigma numbers calculated by multeval (test set variance and optimizer variance). Desite p-values and significance testing being a strong tradition in the statistics community, it does not provide a complete picture -- you need more than just the p-value. For example, it's very important to know the number of optimizer replicas.
+
 Rounding
 --------
 
