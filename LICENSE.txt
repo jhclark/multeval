@@ -1,12 +1,9 @@
 MultEval and jBLEU are licensed under the Mozilla Public License Version 2.0
 (see below)
 
-Meteor (lib/meteor-1.4, downloaded on first run) is licensed under the GNU
-Lesser General Public License, version 2.1
+Meteor (lib/meteor-1.4, downloaded on first run) and TER (lib/tercom-0.8.0.jar)
+are licensed under the GNU Lesser General Public License, version 2.1
 (https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt)
-
-TER (lib/tercom-0.8.0.jar) is licensed under the GNU Lesser General Public
-License, version 3.0 (https://www.gnu.org/licenses/lgpl-3.0.txt)
 
 Mozilla Public License Version 2.0
 ==================================
