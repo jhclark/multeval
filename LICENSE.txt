@@ -5,6 +5,8 @@ Meteor (lib/meteor-1.4, downloaded on first run) and TER (lib/tercom-0.8.0.jar)
 are licensed under the GNU Lesser General Public License, version 2.1
 (https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt)
 
+JAnnOpts (lib/jannopts.jar) is in the public domain
+
 Mozilla Public License Version 2.0
 ==================================
 
