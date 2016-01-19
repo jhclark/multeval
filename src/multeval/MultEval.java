@@ -82,7 +82,7 @@ public class MultEval {
 	public static void main(String[] args) throws ConfigurationException, IOException,
 			InterruptedException {
 
-            String version = loadVersion();
+            String version = MultEval.class.getPackage().getImplementationVersion(); //loadVersion();
             System.err.println(String.format("MultEval V%s\n", version) +
                                "By Jonathan Clark\n" +
                                "Using Libraries: METEOR (Michael Denkowski) and TER (Matthew Snover)\n");
