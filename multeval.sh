@@ -21,5 +21,5 @@ done
 
 # Specify -Dfile.encoding so that the meteor paraphrase tables load properly
 java -Dfile.encoding=UTF8 $flags \
-    -cp $terJar:$meteorJar:$scriptDir/multeval-${version}.jar \
+    -cp $terJar:$meteorJar:$scriptDir/multeval-${version}.jar:$scriptDir \
     multeval.MultEval "$@"

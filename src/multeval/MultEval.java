@@ -4,7 +4,7 @@ import jannopts.ConfigurationException;
 import jannopts.Configurator;
 
 import java.io.IOException;
-import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.Properties;
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +72,7 @@ public class MultEval {
 
         private static String loadVersion() throws IOException {
             Properties props = new Properties();
-            FileInputStream in = new FileInputStream("constants");
+            InputStream in = MultEval.class.getResourceAsStream("/constants");
             props.load(in);
             in.close();
             String version = props.getProperty("version");
