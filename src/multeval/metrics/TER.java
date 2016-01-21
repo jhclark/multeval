@@ -11,7 +11,7 @@ import com.google.common.base.*;
 
 public class TER extends Metric<IntStats> {
 
-  @Option(shortName = "P", longName = "ter.punctuation", usage = "Use punctuation in TER?", defaultValue = "false")
+  @Option(shortName = "P", longName = "ter.punctuation", usage = "Ignore punctuation in TER?", defaultValue = "false")
   boolean punctuation;
 
   @Option(shortName = "b", longName = "ter.beamWidth", usage = "Beam width for TER", defaultValue = "20")
