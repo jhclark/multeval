@@ -93,7 +93,7 @@ Usage: program <module_name> [options...]
 === TER ===
 -T [--ter.shiftCost]              Shift cost for TER 
 -d [--ter.maxShiftDistance]       Maximum shift distance for TER 
--P [--ter.punctuation]            Use punctuation in TER? 
+-P [--ter.punctuation]            Ignore punctuation in TER? 
 -b [--ter.beamWidth]              Beam width for TER 
 -B [--ter.substituteCost]         Substitute cost for TER 
 -D [--ter.deleteCost]             Delete cost for TER 
