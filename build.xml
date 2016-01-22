@@ -42,14 +42,17 @@
       <zipfileset src="lib/jannopts.jar" excludes="META-INF/*" />
       <zipfileset src="lib/guava-11.0.jar" excludes="META-INF/*" />
 
-<!-- JARs are braindead regarding CLASSPATH
       <manifest>
-	<attribute name="Main-Class"
-		   value="multeval.MultEval"/>
+        <attribute name="Main-Class"
+		       value="multeval.MultEval"/>
+        <attribute name="Implementation-Version" 
+              value="${version}"/> 
+<!-- JARs are braindead regarding CLASSPATH
 	<attribute name="Class-Path"
 		   value="lib/tercom-0.7.26.jar:lib/meteor-1.2/meteor-1.2.jar"/>
-      </manifest>
 -->
+      </manifest>
+
     </jar>
   </target>
 </project>
