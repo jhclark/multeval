@@ -10,8 +10,8 @@ Jonathan Clark, Chris Dyer, Alon Lavie, and Noah Smith, "Better Hypothesis Testi
 
 To keep updated on new versions of this software, subscribe to our low-traffic announcement mailing list: http://groups.google.com/group/multeval-announce. All active users are encourated to subscribe.
 
-Usage
-=====
+Download
+========
 
 First, download and unpack the program:
 
@@ -19,6 +19,22 @@ First, download and unpack the program:
 wget http://www.cs.cmu.edu/~jhclark/downloads/multeval-0.5.1.tgz
 tar -xvzf multeval-0.5.1.tgz
 ```
+
+Building from source
+====================
+
+Should you want to build MultEval yourself instead of using the provided tarball distribution, you'll need to download meteor using get_deps.sh. Then you can just run ant:
+
+``` bash
+$ ./get_deps.sh # Download meteor
+$ ant
+```
+
+NOTE: There's a strange generics-related javac bug that's known to cause the build to fail under OpenJDK V1.6.0_17. However, this seems to be resolved as of version 1.6.0_21.
+
+
+Usage
+=====
 
 To evaluate a single system from the example data and get its BLEU, METEOR, and TER scores along with its standard deviation use:
 
@@ -240,18 +256,6 @@ MultEval uses the following libraries:
 *  Translation Error Rate 0.7 (LGPL License, TerCom, http://www.cs.umd.edu/~snover/tercom/ -- Thanks to Matt Snover for relicensing this). MultEval uses a slightly modified version of TER; the only change is that all classes have been moved from the default package into a "ter" package to overcome the Java restriction that classes in the defalut package cannot be imported across JARs.
 *  Google Guava (Apache License)
 *  Java Annotation Options (jannopts, LGPL License)
-
-Building
-========
-
-Should you want to build MultEval yourself instead of using the provided tarball distribution, you'll need to download meteor using get_deps.sh. Then you can just run ant:
-
-``` bash
-$ ./get_deps.sh # Download meteor
-$ ant
-```
-
-NOTE: There's a strange generics-related javac bug that's known to cause the build to fail under OpenJDK V1.6.0_17. However, this seems to be resolved as of version 1.6.0_21.
 
 
 Citation
